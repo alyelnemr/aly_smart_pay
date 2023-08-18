@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+	    <!-- res_partner form -->
+        <record model="ir.ui.view" id="website_wallet_button_res_partner">
+            <field name="name">website.wallet.button.res.partner</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <!--<xpath expr="//field[@name='wallet_balance']" position="attributes">
+                    <group string="All Wallets Balance" name="partner_wallets_balance">
+                        <attribute name="invisible">1</attribute>
+                    </group>
+                </xpath>-->
+                <xpath expr="//field[@name='wallet_balance']" position="after">
+                    <field name="partner_wallets_balance" readonly="1"/>
+                </xpath>
+                <xpath expr="//page[@name='sales_purchases']" position="after">
+                    <page string="Wallets" name="wallets" attrs="{'invisible': [('customer', '=', False)]}">
+                        <group>
+                            <field name="wallet_ids" nolabel="1" context="{'active_test': False}"/>
+                        </group>
+                    </page>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="partner_wallet_type_form_view" model="ir.ui.view">
+            <field name="name">partner.wallet.type.form.view</field>
+            <field name="model">website.wallet.type</field>
+            <field name="arch" type="xml">
+                <form string="Customer Wallet Type">
+                    <sheet>
+                        <group>
+                            <group string="Customer Wallet Type">
+                                <field name="name"/>
+                                <field name="active" widget="boolean_toggle" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                                <field name="allow_payment"/>
+                                <field name="allowed_service_ids" widget="many2many_tags" attrs="{'invisible': [('allow_payment', '=', False)]}"/>
+                                <field name="ignored_service_ids" widget="many2many_tags" attrs="{'invisible': [('allow_payment', '=', False)]}"/>
+                                <field name="allow_transfer_to"/>
+                                <field name="min_transfer_amount" attrs="{'invisible': [('allow_transfer_to', '=', False)]}" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                                <field name="max_transfer_amount" attrs="{'invisible': [('allow_transfer_to', '=', False)]}" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                                <field name="credit_limit" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                                <field name="max_balance" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Transactions Limits">
+                                <field name="has_trans_limit"/>
+                                <field name="trans_limit_ids" nolabel="1" attrs="{'invisible': [('has_trans_limit', '=', False)]}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Allowed Types for Transfer" name="allowed_transfer_ids" attrs="{'invisible': [('allow_transfer_to', '=', False)]}">
+                                <field
+                                    name="allowed_transfer_ids"
+                                    widget="one2many"
+                                    nolabel="1"
+                                    mode="tree,kanban"
+                                    attrs="{'invisible': [('allow_transfer_to', '=', False)]}"
+                                >
+                                    <tree
+                                        string="Allowed Types for Transfer"
+                                        editable="bottom"
+                                        delete="true"
+                                    >
+                                        <field name="sequence" widget="handle" />
+                                        <field name="wallet_type_dest_id"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="partner_wallet_type_search_view" model="ir.ui.view">
+            <field name="name">partner.wallet.type.search.view</field>
+            <field name="model">website.wallet.type</field>
+            <field name="arch" type="xml">
+                <search string="Customer Wallet Types">
+                    <field name="name"/>
+                    <!--
+                    <group expand="0" string="Group By">
+                        <filter string="Xxxx" name="groupby_xx" domain="[]" context="{'group_by': 'xx_field_name_xx'}"/>
+                    </group>
+                    -->
+                </search>
+            </field>
+        </record>
+
+        <record id="partner_wallet_type_tree_view" model="ir.ui.view">
+            <field name="name">partner.wallet.type.tree.view</field>
+            <field name="model">website.wallet.type</field>
+            <field name="arch" type="xml">
+                <tree string="Customer Wallet Types">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="allow_payment"/>
+                    <field name="allowed_service_ids" widget="many2many_tags"/><!--  attrs="{'invisible': [('allow_payment', '=', False)]}" -->
+                    <field name="ignored_service_ids" widget="many2many_tags"/><!--  attrs="{'invisible': [('allow_payment', '=', False)]}" -->
+                    <field name="allow_transfer_to"/>
+                    <field name="min_transfer_amount" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                    <field name="max_transfer_amount" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                    <field name="credit_limit" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                    <field name="max_balance" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                    <field name="active" widget="boolean_toggle" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_website_wallet_type">
+            <field name="name">Website Wallet Type</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">website.wallet.type</field>
+            <field name="view_type">form</field>
+            <!--<field name="context">{}</field>-->
+            <field name="view_mode">tree,form</field>
+        </record>
+
+		<menuitem name="Wallet Types" id="menu_website_wallet_type" parent="sale.menu_sale_config" action="action_website_wallet_type" sequence="6"/>
+
+        <record id="partner_wallets_form_view" model="ir.ui.view">
+            <field name="name">partner.wallets.form.view</field>
+            <field name="model">website.wallet</field>
+            <field name="arch" type="xml">
+                <form string="Customer Wallet">
+                    <group>
+                        <group name="customer_wallet" string="Customer Wallet">
+                            <field name="wallet_transactions" invisible="1"/>
+                            <field name="type_has_trans_limit" invisible="1"/>
+                            <field name="name"/>
+                            <field name="active" widget="boolean_toggle" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                            <field name="type" attrs="{'readonly': ['|', ('balance_amount', '&gt;', 0)]}"/> <!--, ('wallet_transactions', '!=', False)-->
+                            <field name="currency_id"/>
+                            <field name="balance_amount"/>
+                            <field name="reserved_amount"/>
+                            <field name="available_amount"/>
+                            <field name="type_credit_limit" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                            <field name="credit_limit" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                            <field name="type_max_balance" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                            <field name="max_balance" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                        </group>
+                        <div name="trans_limits" attrs="{'invisible': [('type_has_trans_limit', '=', False)]}" groups="smartpay_operations.group_smartpay_operations_manager">
+                            <label for="trans_limit_ids"/>
+                            <field name="trans_limit_ids"/>
+                        </div>
+                        <!-- TODO: -->
+                        <!--
+                        <group string="Other Information" groups="base.group_multi_company">
+                            <field name="company_id" options="{'no_create': True}"/>
+                        </group>
+                        -->
+                        <div name="wallet_reservations" groups="base.group_no_one">
+                            <label for="wallet_reservations"/>
+                            <field name="wallet_reservations">
+                                <tree string="Wallet Reservations">
+                                    <field name="label"/>
+                                    <field name="reference"/>
+                                    <field name="request_id"/>
+                                    <field name="reserved_amount" sum="Total Reserved"/>
+                                </tree>
+                            </field>
+                        </div>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="partner_wallets_search_view" model="ir.ui.view">
+            <field name="name">partner.wallets.search.view</field>
+            <field name="model">website.wallet</field>
+            <field name="arch" type="xml">
+                <search string="Customer Wallets">
+                    <field name="partner_id"/>
+                    <field name="type"/>
+                    <field name="currency_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Partner" name="groupby_partner" domain="[]" context="{'group_by': 'partner_id'}"/>
+                        <filter string="Type" name="groupby_type" domain="[]" context="{'group_by': 'type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="partner_wallets_tree_view" model="ir.ui.view">
+            <field name="name">partner.wallets.tree.view</field>
+            <field name="model">website.wallet</field>
+            <field name="arch" type="xml">
+                <tree string="Customer Wallets" delete="true">
+                    <field name="wallet_transactions" invisible="1"/>
+                    <!--<field name="sequence" widget="handle"/>-->
+                    <field name="name"/>
+                    <field name="type" attrs="{'readonly': ['|', ('balance_amount', '&gt;', 0)]}"/> <!--, ('wallet_transactions', '!=', False)-->
+                    <field name="currency_id"/>
+                    <field name="balance_amount"/>
+                    <field name="reserved_amount"/>
+                    <field name="available_amount"/>
+                    <field name="type_credit_limit" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                    <field name="credit_limit" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                    <!--
+                    <field name="type_max_balance" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                    <field name="max_balance" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                    -->
+                    <button name="action_wallet_in" string="Put Credit" type="object" class="btn-primary" groups="base.group_erp_manager,account.group_account_manager" attrs="{'invisible': [('active', '=', False)]}"/>
+                    <button name="action_wallet_out" string="Take Credit" type="object" class="btn-primary" groups="base.group_erp_manager,account.group_account_manager" attrs="{'invisible': [('active', '=', False)]}"/>
+                    <field name="active" widget="boolean_toggle" groups="smartpay_operations.group_smartpay_operations_manager"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_website_wallets">
+            <field name="name">Website Wallet</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">website.wallet</field>
+            <field name="view_type">form</field>
+            <field name="context">{'search_default_groupby_partner': 1, 'active_test': False}</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Wallet Transactions -->
+        <record model="ir.ui.view" id="view_odoo_website_wallet_tree_view_inherit">
+            <field name="name">website.wallet.transaction.request.tree.view</field>
+            <field name="model">website.wallet.transaction</field>
+            <field name="inherit_id" ref="odoo_website_wallet.view_odoo_website_wallet_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="sale_order_id" position="after">
+                    <field name="request_id"/>
+                    <field name="label"/>
+                </field>
+                <field name="amount" position="replace">
+                    <field name="amount" sum="Total Amounts"/>
+                </field>
+                <field name="currency_id" position="after">
+                    <field name="wallet_balance_before"/>
+                    <field name="wallet_balance_after"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_odoo_website_wallet_form_view_inherit">
+            <field name="name">website.wallet.transaction.request.form.view</field>
+            <field name="model">website.wallet.transaction</field>
+            <field name="inherit_id" ref="odoo_website_wallet.view_odoo_website_wallet_form_view"/>
+            <field name="arch" type="xml">
+                <field name="sale_order_id" position="after">
+                    <field name="request_id"/>
+                    <field name="statement_id"/>
+                    <field name="label"/>
+                </field>
+                <field name="currency_id" position="after">
+                    <field name="wallet_balance_before"/>
+                    <field name="wallet_balance_after"/>
+                    <field name="wallet_transaction_info"/>
+                    <field name="wallet_transaction_line"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="sequence_website_wallet_line_seq" model="ir.sequence">
+            <field name="name">website.wallet.line.sequence</field>
+            <field name="code">website.wallet.transaction.line</field>
+            <field name="prefix">WTL</field>
+            <field name="padding">5</field>
+        </record>
+
+        <record id="view_odoo_website_wallet_line_tree_view" model="ir.ui.view">
+            <field name="name">website.wallet.transaction.line.tree.view</field>
+            <field name="model">website.wallet.transaction.line</field>
+            <field name="arch" type="xml">
+                <tree string="Website Wallet Line">
+                    <field name="name"/>
+                    <field name="wallet_type"/>
+                    <field name="partner_id"/>
+                    <field name="request_id"/>
+                    <field name="statement_id"/>
+                    <field name="statement_line_id"/>
+                    <field name="label"/>
+                    <field name="reference"/>
+                    <field name="amount" sum="Total Amounts"/>
+                    <field name="currency_id"/>
+                 </tree>
+            </field>
+        </record>
+
+        <record id="view_wallet_transaction_line_search" model="ir.ui.view">
+            <field name="name">website.wallet.transaction.line.search</field>
+            <field name="model">website.wallet.transaction.line</field>
+            <field name="arch" type="xml">
+                <search string="Website Wallet Line Search">
+                    <filter string="Wallet Transaction" name="group_by_wallet_transaction_id" context="{'group_by':'wallet_transaction_id'}"/>
+                    <filter string="Wallet Type" name="group_by_wallet_type" context="{'group_by':'wallet_type'}"/>
+                    <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_odoo_website_wallet_line_form_view" model="ir.ui.view">
+            <field name="name">website.wallet.transaction.line.form.view</field>
+            <field name="model">website.wallet.transaction.line</field>
+            <field name="arch" type="xml">
+				<form string="Website Wallet Line" version="9.0">
+						<header>
+				            <field name="status" widget="statusbar" statusbar_visible="draft,done"/>
+				        </header>
+
+						<sheet>
+							<group>
+								<field name="wallet_type"/>
+								<field name="partner_id"/>
+								<field name="request_id"/>
+                                <field name="statement_id"/>
+                                <field name="statement_line_id"/>
+                                <field name="label"/>
+								<field name="reference"/>
+								<field name="amount"/>
+								<field name="currency_id"/>
+							</group>
+						</sheet>
+				</form>
+            </field>
+        </record>
+
+ 		<record model="ir.actions.act_window" id="action_website_wallet_line">
+            <field name="name">Website Wallet Line</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">website.wallet.transaction.line</field>
+            <field name="view_type">form</field>
+            <field name="context">{'search_default_group_by_wallet_transaction_id':1}</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+		<menuitem name="Wallet Transactions Lines" id="menu_website_wallet_line" parent="sale.menu_sale_config" action="action_website_wallet_line" sequence="7"/>
+        
+        <!--Auto Deduct Installment from Customer Wallet -->
+        <record model="ir.cron" id="auto_deduct_installment_from_customer_wallet_sync">
+            <field name="name">Auto Deduct Installment from Customer Wallet</field>
+            <field name="model_id" ref="model_website_wallet"/>
+            <field name="state">code</field>
+            <field name="code">model.auto_deduct_installment_from_customer_wallet(max_deduction_count=1)</field>
+            <field name="active" eval="True"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+
+        <!-- Auto Post Journal Entries for Wallet Transactions -->
+        <record model="ir.cron" id="auto_post_journal_entries_for_wallet_trans">
+            <field name="name">Auto Post Journal Entries for Wallet Transactions</field>
+            <field name="model_id" ref="model_website_wallet"/>
+            <field name="state">code</field>
+            <field name="code">model.auto_post_journal_entries_for_wallet_trans()</field>
+            <field name="active" eval="True"/>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+
+        <!-- Wallet In/Out -->
+        <record model="ir.ui.view" id="wallet_in_form">
+            <field name="name">wallet_in</field>
+            <field name="model">wallet.in</field>
+            <field name="arch" type="xml">
+                <form string="Put Credit In Wallet">
+                    <separator string="Fill in this form if you put credit in the wallet:" colspan="4" />
+                    <group>
+                        <field name="name" class="oe_inline"/>
+                        <field name="amount" class="oe_inline"/>
+                        <field name="expense_account" class="oe_inline"/>
+                    </group>
+                    <footer>
+                        <button name="run" string="Put Credit In Wallet" type="object" class="btn-primary"/>
+                        <button special="cancel" string="Cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window 
+            name="Put Credit In Wallet"
+            res_model="wallet.in"
+            src_model="website.wallet"
+            view_mode="form"
+            target="new"
+            key2="client_action_multi"
+            id="action_wallet_in"
+            groups="base.group_erp_manager,account.group_account_manager"/>
+
+        <record model="ir.ui.view" id="wallet_out_form">
+            <field name="name">wallet_out</field>
+            <field name="model">wallet.out</field>
+            <field name="arch" type="xml">
+                <form string="Take Credit From Wallet">
+                    <separator string="Describe why you take credit from the wallet:"/>
+                    <group>
+                        <field name="name" class="oe_inline"/>
+                        <field name="amount" class="oe_inline"/>
+                        <field name="income_account" class="oe_inline"/>
+                    </group>
+
+                    <footer>
+                        <button name="run" string="Take Credit From Wallet" type="object" class="btn-primary"/>
+                        <button class="btn-secondary" special="cancel" string="Cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window 
+            name="Take Credit From Wallet"
+            res_model="wallet.out"
+            src_model="website.wallet"
+            view_mode="form"
+            target="new"
+            key2="client_action_multi"
+            id="action_wallet_out"
+            groups="base.group_erp_manager,account.group_account_manager"/>
+
+
+        <!-- Transaction Limit per wallet type -->
+        <record id="wallet_type_trans_limit_form_view" model="ir.ui.view">
+            <field name="name">wallet.type.trans.limit.form.view</field>
+            <field name="model">wallet.type.trans.limit</field>
+            <field name="arch" type="xml">
+                <form string="Wallet Type Transactions Limit">
+                    <group>
+                        <group string="Transactions Limit"> <!-- wallet_type_id date_start date_end -->
+                            <field name="limit_type"/>
+                            <field name="limit_amount"/>
+                            <field name="has_over_limit_fees"/>
+                            <field name="over_limit_fees_ids" nolabel="1" attrs="{'invisible': [('has_over_limit_fees', '=', False)]}"/>
+                        </group>
+                        <group string="Other Information" groups="base.group_multi_company">
+                            <field name="company_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="wallet_type_trans_limit_search_view" model="ir.ui.view">
+            <field name="name">wallet.type.trans.limit.search.view</field>
+            <field name="model">wallet.type.trans.limit</field>
+            <field name="arch" type="xml">
+                <search string="Transactions Limit">
+                    <field name="wallet_type_id"/>
+                    <field name="limit_type"/>
+                    <field name="limit_amount"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Wallet Type" name="groupby_wallet_type" domain="[]" context="{'group_by': 'wallet_type_id'}"/>
+                        <filter string="Type" name="groupby_limit_type" domain="[]" context="{'group_by': 'limit_type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="wallet_type_trans_limit_tree_view" model="ir.ui.view">
+            <field name="name">wallet.type.trans.limit.tree.view</field>
+            <field name="model">wallet.type.trans.limit</field>
+            <field name="arch" type="xml">
+                <tree string="Transactions Limit">
+                    <field name="sequence" widget="handle"/>
+                    <field name="limit_type"/>
+                    <field name="limit_amount"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Transaction Over Limit Fees per wallet type -->
+        <record id="wallet_type_trans_limit_fees_form_view" model="ir.ui.view">
+            <field name="name">wallet.type.trans.limit.fees.form.view</field>
+            <field name="model">wallet.type.trans.limit.fees</field>
+            <field name="arch" type="xml">
+                <form string="Wallet Type Transaction Over Limit Fees">
+                    <group>
+                        <group string="Transaction Over Limit Fees">
+                            <field name="trans_amount_from"/>
+                            <field name="trans_amount_to"/>
+                            <field name="fees_amount" attrs="{'invisible':[('fees_amount_percentage', '>', 0)]}"/>
+                            <field name="fees_amount_percentage" attrs="{'invisible':[('fees_amount', '>', 0)]}"/>
+                        </group>
+                        <group string="Other Information" groups="base.group_multi_company">
+                            <field name="company_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="wallet_type_trans_limit_fees_search_view" model="ir.ui.view">
+            <field name="name">wallet.type.trans.limit.fees.search.view</field>
+            <field name="model">wallet.type.trans.limit.fees</field>
+            <field name="arch" type="xml">
+                <search string="Transaction Over Limit Fees">
+                    <field name="wallet_type_id"/>
+                    <field name="trans_amount_from"/>
+                    <field name="trans_amount_to"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Wallet Type" name="groupby_wallet_type" domain="[]" context="{'group_by': 'wallet_type_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="wallet_type_trans_limit_fees_tree_view" model="ir.ui.view">
+            <field name="name">wallet.type.trans.limit.fees.tree.view</field>
+            <field name="model">wallet.type.trans.limit.fees</field>
+            <field name="arch" type="xml">
+                <tree string="Transaction Over Limit Fees" editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="trans_amount_from"/>
+                    <field name="trans_amount_to"/>
+                    <field name="fees_amount" attrs="{'invisible':[('fees_amount_percentage', '>', 0)]}"/>
+                    <field name="fees_amount_percentage" attrs="{'invisible':[('fees_amount', '>', 0)]}"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Wallet Transaction Limit per wallet type -->
+        <!--
+        <record model="ir.ui.view" id="wallet_form_view_trans_limit">
+            <field name="name">wallet.trans.limit</field>
+            <field name="model">website.wallet</field>
+            <field name="inherit_id" ref="smartpay_operations.partner_wallets_form_view"/>
+            <field name="arch" type="xml">
+                <group name="customer_wallet" position="inside">
+                    <field name="trans_limit_ids" nolabel="1"/>
+                </group>
+            </field>
+        </record>
+        -->
+
+        <record id="wallet_wallet_type_trans_limit_form_view" model="ir.ui.view">
+            <field name="name">wallet.wallet.type.trans.limit.form.view</field>
+            <field name="model">wallet.wallet.type.trans.limit</field>
+            <field name="arch" type="xml">
+                <form string="Wallet Transaction Limits per Wallet Type">
+                    <group>
+                        <group string="Transaction Limit"> <!-- wallet_id date_start date_end -->
+                            <field name="wallet_type_id"/>
+                            <field name="limit_type"/>
+                            <field name="limit_amount"/>
+                            <!--
+                            <field name="has_over_limit_fees"/>
+                            <field name="over_limit_fees_ids" nolabel="1" attrs="{'invisible': [('has_over_limit_fees', '=', False)]}"/>
+                            -->
+                            <field name="over_limit_fees_policy"/>
+                            <field name="wallet_type_over_limit_fees_ids" nolabel="1" attrs="{'invisible': [('over_limit_fees_policy', '!=', 'wallet_type_over_limit_fees')]}"/>
+                            <field name="over_limit_fees_ids" nolabel="1" attrs="{'invisible': [('over_limit_fees_policy', '!=', 'custom_over_limit_fees')]}"/>
+                        </group>
+                        <group string="Other Information" groups="base.group_multi_company">
+                            <field name="company_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="wallet_wallet_type_trans_limit_search_view" model="ir.ui.view">
+            <field name="name">wallet.wallet.type.trans.limit.search.view</field>
+            <field name="model">wallet.wallet.type.trans.limit</field>
+            <field name="arch" type="xml">
+                <search string="Transaction Limit">
+                    <field name="wallet_id"/>
+                    <field name="wallet_type_id"/>
+                    <field name="limit_type"/>
+                    <field name="limit_amount"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Wallet" name="groupby_wallet" domain="[]" context="{'group_by': 'wallet_id'}"/>
+                        <filter string="Wallet Type" name="groupby_wallet_type" domain="[]" context="{'group_by': 'wallet_type_id'}"/>
+                        <filter string="Type" name="groupby_limit_type" domain="[]" context="{'group_by': 'limit_type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="wallet_wallet_type_trans_limit_tree_view" model="ir.ui.view">
+            <field name="name">wallet.wallet.type.trans.limit.tree.view</field>
+            <field name="model">wallet.wallet.type.trans.limit</field>
+            <field name="arch" type="xml">
+                <tree string="Transaction Limit">
+                    <field name="sequence" widget="handle"/>
+                    <field name="wallet_type_id"/>
+                    <field name="limit_type"/>
+                    <field name="limit_amount"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Transaction Over Limit Fees per wallet type -->
+        <record id="wallet_wallet_type_trans_limit_fees_form_view" model="ir.ui.view">
+            <field name="name">wallet.wallet.type.trans.limit.fees.form.view</field>
+            <field name="model">wallet.wallet.type.trans.limit.fees</field>
+            <field name="arch" type="xml">
+                <form string="Wallet Type Transaction Over Limit Fees">
+                    <group>
+                        <group string="Transaction Over Limit Fees">
+                            <field name="trans_amount_from"/>
+                            <field name="trans_amount_to"/>
+                            <field name="fees_amount" attrs="{'invisible':[('fees_amount_percentage', '>', 0)]}"/>
+                            <field name="fees_amount_percentage" attrs="{'invisible':[('fees_amount', '>', 0)]}"/>
+                        </group>
+                        <group string="Other Information" groups="base.group_multi_company">
+                            <field name="company_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="wallet_wallet_type_trans_limit_fees_search_view" model="ir.ui.view">
+            <field name="name">wallet.wallet.type.trans.limit.fees.search.view</field>
+            <field name="model">wallet.wallet.type.trans.limit.fees</field>
+            <field name="arch" type="xml">
+                <search string="Transaction Over Limit Fees">
+                    <field name="wallet_type_id"/>
+                    <field name="trans_amount_from"/>
+                    <field name="trans_amount_to"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Wallet Type" name="groupby_wallet_type" domain="[]" context="{'group_by': 'wallet_type_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="wallet_wallet_type_trans_limit_fees_tree_view" model="ir.ui.view">
+            <field name="name">wallet.wallet.type.trans.limit.fees.tree.view</field>
+            <field name="model">wallet.wallet.type.trans.limit.fees</field>
+            <field name="arch" type="xml">
+                <tree string="Transaction Over Limit Fees" editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="trans_amount_from"/>
+                    <field name="trans_amount_to"/>
+                    <field name="fees_amount" attrs="{'invisible':[('fees_amount_percentage', '>', 0)]}"/>
+                    <field name="fees_amount_percentage" attrs="{'invisible':[('fees_amount', '>', 0)]}"/>
+                </tree>
+            </field>
+        </record>
+
+	</data>
+</openerp>

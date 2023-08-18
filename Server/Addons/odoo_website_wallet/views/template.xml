@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+        <template id="assets_frontend" inherit_id="website.assets_frontend" name="Custom CSS-JS">
+			<xpath expr="." position="inside">
+				 <script src="/odoo_website_wallet/static/src/js/custom.js" type="text/javascript"></script>
+			</xpath>
+		</template>
+
+
+
+		<!-- Wallet Page -->
+		<template id="wallet_balance" name="Wallet Balance Page">
+			<t t-call="website.layout">
+				<section class="s_big_picture bg-primary" style='height: 550px;'>
+					<div class="container">
+						<div class="row">
+						    <div class="col-md-12 text-center mt32 mb32">
+						        <h2>Your Wallet Details</h2>
+						    </div>
+						    <div class="col-md-12" style="height: 200px;">
+						      <img class="img img-responsive" src="/odoo_website_wallet/static/src/img/wallet-1.png" style="margin: 0 auto; height: 260px;"  alt="Odoo CMS - a big picture"/>
+						    </div>
+						    
+						    <t t-set="website_wallet" t-value="website.get_wallet_balance()"/>
+			 	     			<t t-foreach="website_wallet" t-as="wallet">
+			 	     			
+								<div class="col-md-12 text-center mt32 mb32">
+								    <h2>You have <b> <span class="text-right"
+                                        t-field="wallet.wallet_balance"
+                                        t-field-options='{"widget": "monetary", "display_currency": "wallet.property_product_pricelist.currency_id"}'/> </b> wallet balance in your account.</h2>
+								    
+								    <!-- ============================================================================================= -->
+								    <br/><a href="/add/wallet/balance" class="btn" style="height: 40px;background-color: #FDC00F;color: black;">Add Wallet Balance</a>
+								    <!-- ============================================================================================= -->
+								</div>
+							</t>
+							<!-- ============================================================================================= -->
+							<!--div id='submit_wallet' class="col-md-12 text-center mt32 mb32">
+				                <a href="/add/wallet/balance" class="btn" style="height: 40px;background-color: #FDC00F;color: black;">Add Wallet Balance</a>
+			                </div-->
+			                <!-- ============================================================================================= -->
+						</div>
+					</div>
+				</section>
+			</t>
+		</template>		
+		
+	    <!-- Add Wallet on Payment Page -->
+		<template id="website_wallet_on_payment_page" inherit_id="website_sale.payment" active="True" customize_show="True" name="Show Website Wallet">
+			<xpath expr="//div[@id='payment_method']" position="before">
+				
+				<div t-if="website_sale_order and website_sale_order.website_order_line" class="col-lg-12">
+					<div class="website-wallet">
+						<div class="checkbox" style="margin-left:19px">
+							<input type="checkbox" name="website_wallet" id="website_wallet"/>
+							<label style="font-size: 18px; cursor:auto; color: #337AB7; padding-left: 0px;"> Use Wallet </label>
+							
+							<!--<a class="a-submit" href="#" data-toggle="modal" data-target="#myTerms"><b> See Terms and Conditions...</b></a>  website_sale_order.partner_id.wallet_credit-->
+		
+						</div>
+						<div class="mb32"><b>Your Current Wallet Balance is </b> <span class="text-right" style="font-size: 18px; color: #337AB7; font-weight: 700;"
+                                        t-field="website_sale_order.partner_id.wallet_balance"
+                                        t-field-options='{"widget": "monetary", "display_currency": "order.pricelist_id.currency_id"}'/></div>
+						
+					</div>
+				</div>
+				
+			</xpath>	
+		</template>
+		
+		
+		<template id="add_wallet_balance">
+		<t t-call="website.layout">
+
+			<t t-set="additional_title">Add Wallet Balance</t>
+			<div class="wrap">
+				<div class="container o_website_payment">
+					<h1>Add Wallet Balance</h1>
+					<div id="wrap">
+						<div class="container oe_website_sale">
+							<form t-attf-action="/wallet/balance/confirm" method="post">
+								<input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+								<div class="row">
+									<div class="col-md-8 oe_cart">
+										<div class="row">
+											<div class="col-md-12">
+												<div t-if="error_message" class="alert alert-danger">
+													<t t-foreach="error_message" t-as="err">
+														<t t-esc="err" />
+														<br />
+													</t>
+												</div>
+											</div>
+
+											<br />
+											<br />
+
+											<div
+												t-attf-class="form-group #{error and 'name' in error and 'has-error' or ''}">
+
+												<label class="col-md-3 col-sm-4 control-label" for="name">Amount
+												</label>
+												<div class="col-md-7 col-sm-8">
+													<input type="text" class="form-control" name="amount"
+														required="True" />
+												</div>
+											</div>
+											<br />
+											<br />
+
+											<button type="submit" id="add_wallet_payment"
+										class="btn btn-primary pull-right">Add Wallet Balance</button>
+										</div>
+
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</t>
+
+	</template>
+
+
+
+
+</odoo>

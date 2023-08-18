@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="res_partner_category_service_providers" model="res.partner.category">
+            <field name="name">Service Providers</field>
+            <field name="color" eval="8"/>
+        </record>
+
+        <record id="product_category_services" model="product.category">
+            <field name="parent_id" ref="product.product_category_all"/>
+            <field name="name">Services</field>
+        </record>
+
+        <record id="product_category_mapping_all" model="product.category.mapping">
+            <field name="mapping_categ_id" ref="product.product_category_all"/>
+            <field name="name">All</field>
+        </record>
+
+        <record id="product_category_mapping_services" model="product.category.mapping">
+            <field name="parent_id" ref="product_category_mapping_all"/>
+            <field name="mapping_categ_id" ref="product_category_services"/>
+            <field name="name">Services</field>
+        </record>
+
+    </data>
+</odoo>

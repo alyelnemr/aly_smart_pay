@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="res_partner_khales" model="res.partner">
+            <field name="name">Khales</field>
+            <field eval="[(6, 0, [ref('tm_base_gateway.res_partner_category_service_providers')])]" name="category_id"/>
+            <field name="supplier">1</field>
+            <field eval="0" name="customer"/>
+            <field name="is_company">1</field>
+            <field name="street">Building 104 – 3rd Floor</field>
+            <field name="city">Smart Village</field>
+            <field name="country_id" ref="base.eg"/>
+            <field name="email">info@khales.com.eg</field>
+            <field name="phone">+202 35317404</field>
+            <field name="website">http://www.khales.com.eg</field>
+            <field name="image" type="base64" file="tm_khales_gateway/static/src/img/khales_icon.png"/>
+        </record>
+
+        <record id="payment_acquirer_khales" model="payment.acquirer">
+            <field name="name">Khales</field>
+            <field name="image" type="base64" file="tm_khales_gateway/static/src/img/khales_icon.png"/>
+            <field name="provider">khales</field>
+            <field name="sevice_provider">True</field>
+            <field name="related_partner" ref="tm_khales_gateway.res_partner_khales"/>
+            <field name="company_id" ref="base.main_company"/>
+            <!--<field name="view_template_id" ref="tm_khales_gateway.khales_form"/>--> <!-- payment.default_acquirer_button-->
+            <field name="environment">test</field>
+            <field name="pre_msg"><![CDATA[<p></p>]]></field>
+
+            <field name="sequence">3</field>
+            <field name="module_id" ref="base.module_tm_khales_gateway"/>
+            <field name="description" type="html">
+                <p>
+                    A payment gateway from Khales to accept online payments via wallet.
+                </p>
+                <ul class="list-inline">
+                    <li class="list-inline-item"><i class="fa fa-check"/>Online Payment</li>
+                </ul>
+            </field>
+        </record>
+
+        <record id="payment_acquirer_khales_machine" model="payment.acquirer.channel">
+            <field name="name">Point of Sale</field>
+            <field name="type">internet</field>
+            <field name="acquirer_id" ref="tm_khales_gateway.payment_acquirer_khales"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="sequence">0</field>
+            <field name="module_id" ref="base.module_tm_khales_gateway"/>
+            <field name="khales_sender">****</field>
+            <field name="khales_receiver">EPAY</field>
+            <!--
+            <field name="khales_originatorCode">****</field>
+            <field name="khales_terminalId">****</field>
+            <field name="khales_posSerialNumber">****</field>
+            <field name="khales_deliveryMethod">****</field>
+            <field name="khales_profileCode">****</field>
+            <field name="khales_acctId">****</field>
+            -->
+            <field name="khales_bankId">****</field>
+            <!--
+            <field name="khales_acctType">****</field>
+            <field name="khales_acctKey">****</field>
+            <field name="khales_secureAcctKey">****</field>
+            -->
+            <!-- khales_acctCur -->
+            <field name="khales_accessChannel">POS</field>
+        </record>
+
+        <!--
+        <record id="payment_acquirer_khales_mobile" model="payment.acquirer.channel">
+            <field name="name">Mobile Banking</field>
+            <field name="type">mobile</field>
+            <field name="acquirer_id" ref="tm_khales_gateway.payment_acquirer_khales"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="sequence">1</field>
+            <field name="module_id" ref="base.module_tm_khales_gateway"/>
+            <field name="khales_sender">****</field>
+            <field name="khales_receiver">EPAY</field>
+            <field name="khales_originatorCode">****</field>
+            <field name="khales_terminalId">****</field>
+            <field name="khales_posSerialNumber">****</field>
+            <field name="khales_deliveryMethod">****</field>
+            <field name="khales_profileCode">****</field>
+            <field name="khales_acctId">****</field>
+            <field name="khales_bankId">****</field>
+            <field name="khales_acctType">****</field>
+            <field name="khales_acctKey">****</field>
+            <field name="khales_secureAcctKey">****</field>
+        </record>
+        -->
+
+        <record id="khales_wallet_account" model="account.account">
+            <field name="code">KHW100002</field>
+            <field name="name">Khales Wallet</field>
+            <field name="user_type_id" ref="account.data_account_type_liquidity"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <record id="khales_wallet_journal" model="account.journal">
+            <field name="name">Khales Wallet</field>
+            <field name="code">KHSW</field>
+            <field name="type">cash</field>
+            <field name="provider_id" ref="payment_acquirer_khales"/>
+            <field name="company_id" ref="base.main_company"/>
+            <!--<field name="profit_account_id" ref="rsa" />-->
+            <!--<field name="loss_account_id" ref="rsa" />-->
+            <field name="default_debit_account_id" ref="khales_wallet_account"/>
+            <field name="default_credit_account_id" ref="khales_wallet_account"/>
+        </record>
+
+    </data>
+</odoo>

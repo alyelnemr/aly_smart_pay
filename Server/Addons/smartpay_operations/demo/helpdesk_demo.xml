@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+
+           <record id="request1" model="smartpay_operations.request">
+             <field name="name">Request 1</field>
+           </record>
+           <record id="request2" model="smartpay_operations.request">
+             <field name="name">Request 2</field>
+           </record>
+           <record id="request3" model="smartpay_operations.request">
+             <field name="name">Request 3</field>
+           </record>
+    </data>
+</odoo>

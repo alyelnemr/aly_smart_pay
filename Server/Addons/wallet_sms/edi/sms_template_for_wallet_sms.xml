@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="sms_template_for_wallet_recharge" model="sms.template">
+            <field name="name">SMS Wallet Recharge MESSAGE</field>
+            <field name="condition">wallet_recharge</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="sms_body_html"><![CDATA[${ctx['label']}: ${ctx['amount']} successfully added to your wallet.]]></field>
+        </record>
+        <record id="sms_template_for_wallet_bouns" model="sms.template">
+            <field name="name">SMS Wallet Bonus MESSAGE</field>
+            <field name="condition">wallet_bouns</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="sms_body_html"><![CDATA[${ctx['label']}: ${ctx['amount']} successfully added to your wallet.]]></field>
+        </record>
+        <record id="sms_template_for_wallet_pay_service" model="sms.template">
+            <field name="name">SMS Wallet Pay Service Bill MESSAGE</field>
+            <field name="condition">wallet_pay_service</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="sms_body_html"><![CDATA[${ctx['label']}: ${ctx['amount']} successfully deducted from your wallet.]]></field>
+        </record>
+        <record id="sms_template_for_wallet_cancel_service_payment" model="sms.template">
+            <field name="name">SMS Wallet Cancel Service Payment MESSAGE</field>
+            <field name="condition">wallet_cancel_service_payment</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="sms_body_html"><![CDATA[${ctx['label']}: ${ctx['amount']} successfully added to your wallet.]]></field>
+        </record>
+        <record id="sms_template_for_wallet_correlation_service_payment" model="sms.template">
+            <field name="name">SMS Wallet Correlation Service Payment MESSAGE</field>
+            <field name="condition">wallet_correlation_service_payment</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="sms_body_html"><![CDATA[${ctx['label']}: ${ctx['amount']} successfully added to your wallet.]]></field>
+        </record>
+        <record id="sms_template_for_wallet_pay_invoice" model="sms.template">
+            <field name="name">SMS Wallet Pay Invoice MESSAGE</field>
+            <field name="condition">wallet_pay_invoice</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="sms_body_html"><![CDATA[${ctx['label']}: ${ctx['amount']} successfully deducted from your wallet.]]></field>
+        </record>
+        <record id="sms_template_for_wallet_transfer_balance" model="sms.template">
+            <field name="name">SMS Wallet Transfer Balance MESSAGE</field>
+            <field name="condition">wallet_transfer_balance</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="sms_body_html"><![CDATA[${ctx['label']}: ${ctx['amount']}]]></field>
+        </record>
+        <record id="sms_template_for_wallet_customer_cashback" model="sms.template">
+            <field name="name">SMS Wallet Customer Cashback MESSAGE</field>
+            <field name="condition">wallet_customer_cashback</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="sms_body_html"><![CDATA[${ctx['label']}: ${ctx['amount']}]]></field>
+        </record>
+    </data>
+</odoo>

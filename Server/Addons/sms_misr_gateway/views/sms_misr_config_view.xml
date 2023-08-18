@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="sms_mail_server_sms_misr_formview" model="ir.ui.view">
+            <field name="name">sms.mail.server.sms.misr.config</field>
+            <field name="model">sms.mail.server</field>   
+            <field name="inherit_id" ref="sms_notification.sms_mail_server_formview"/>                     
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='conn_info']" position="after">
+                    <group string='Security And Authentication' attrs="{'invisible':[('gateway','!=','sms_misr')]}">
+                        <field name="sender" attrs="{'required':[('gateway','=','sms_misr')]}"/>
+                        <field name="username" attrs="{'required':[('gateway','=','sms_misr')]}"/>
+                        <field name="password" attrs="{'required':[('gateway','=','sms_misr')]}"/>
+                        <field name="language" placeholder="1: For English 2: For Arabic 3: For Unicode" attrs="{'required':[('gateway','=','sms_misr')]}"/>
+                        <field name="sms_url" attrs="{'required':[('gateway','=','sms_misr')]}" groups='base.group_no_one'/>
+                        <field name="balance_status_url" attrs="{'required':[('gateway','=','sms_misr')]}" groups='base.group_no_one'/>
+                        <button name="test_conn_sms_misr" string="Test Connection" type="object"  />
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

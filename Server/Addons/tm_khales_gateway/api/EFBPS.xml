@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2007 rel. 3 (http://www.altova.com) by mohamed_aboulzahab (EMBRACE) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<!-- root element-->
+	<xs:element name="EFBPS" nillable="1">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="SignonRq" type="SignonRqType"/>
+				<xs:choice>
+					<xs:element name="BillerSvcRq" type="BillerSvcRqType"/>
+					<xs:element name="BillerSvcRs" type="BillerSvcRsType"/>
+					<xs:element name="BankSvcRq" type="BankSvcRqType"/>
+					<xs:element name="BankSvcRs" type="BankSvcRsType"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- root element-->
+	<xs:complexType name="BillerSvcRqType">
+		<xs:sequence>
+			<xs:element name="RqUID" type="UUIDType"/>
+			<xs:choice>
+				<xs:element name="BillInqLoadRq" type="BillInqLoadRqType"/>
+				<xs:element name="PmtNotifyRq" type="PmtNotifyRqType"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BillInqLoadRqType">
+		<xs:sequence>
+			<xs:element name="BankId" type="NChar8Type" minOccurs="0"/>
+			<xs:element name="BranchCode" type="NChar10Type" minOccurs="0"/>
+			<xs:element name="DistrictCode" type="NChar10Type" minOccurs="0"/>
+			<xs:element name="AccessChannel" type="AccessChannelType"/>
+			<xs:element name="CustId" type="CustIdType" minOccurs="0"/>
+			<xs:element name="ProxyCustId" type="CustIdType" minOccurs="0"/>
+			<xs:element name="BillNumber" type="Char32Type" minOccurs="0"/>
+			<xs:element name="AccountId" type="AccountIdType" minOccurs="0"/>
+			<xs:element name="ServiceType" type="OpenEnumType" minOccurs="0"/>
+			<xs:element name="DateRange" type="DateRangeType" minOccurs="0"/>
+			<xs:element name="IncPayments" type="xs:boolean" default="false" minOccurs="0"/>
+			<xs:element name="IncPaidBills" type="xs:boolean" default="false" minOccurs="0"/>
+			<xs:element name="IncBillSummAmt" type="xs:boolean" default="false" minOccurs="0"/>
+			<xs:element name="MaxBills" type="xs:long" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BillerSvcRsType">
+		<xs:sequence>
+			<xs:element name="Status" type="StatusType"/>
+			<xs:element name="RqUID" type="UUIDType"/>
+			<xs:element name="BillInqLoadRs" type="BillInqLoadRsType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BillInqLoadRsType">
+		<xs:sequence>
+			<xs:element name="BillCategory" type="OpenEnumType" minOccurs="0"/>
+			<xs:element name="ServiceType" type="OpenEnumType" minOccurs="0"/>
+			<xs:element name="Timestamp" type="DateType"/>
+			<xs:element name="RecCount" type="xs:long"/>
+			<xs:element name="BillRec" type="BillRecType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PmtNotifyRqType">
+		<xs:sequence>
+			<xs:element name="PmtRec" type="PmtRecType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BankSvcRqType">
+		<xs:sequence>
+			<xs:element name="RqUID" type="UUIDType"/>
+			<xs:choice>
+				<xs:element name="BillInqRq" type="BillInqRqType"/>
+				<xs:element name="PmtAdviceRq" type="PmtAdviceRqType"/>
+				<xs:element name="FeeInqRq" type="FeeInqRqType"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BillInqRqType">
+		<xs:sequence>
+			<xs:element name="BankId" type="NChar8Type" minOccurs="0"/>
+			<xs:element name="BranchCode" type="NChar10Type" minOccurs="0"/>
+			<xs:element name="DistrictCode" type="NChar10Type" minOccurs="0"/>
+			<xs:element name="AccessChannel" type="AccessChannelType"/>
+			<xs:element name="CustId" type="CustIdType" minOccurs="0"/>
+			<xs:element name="ProxyCustId" type="CustIdType" minOccurs="0"/>
+			<xs:element name="BillNumber" type="Char32Type" minOccurs="0"/>
+			<xs:element name="AccountId" type="AccountIdType" minOccurs="0"/>
+			<xs:element name="ServiceType" type="OpenEnumType" minOccurs="0"/>
+			<xs:element name="DateRange" type="DateRangeType" minOccurs="0"/>
+			<xs:element name="IncPayments" type="xs:boolean" default="false" minOccurs="0"/>
+			<xs:element name="IncPaidBills" type="xs:boolean" default="false" minOccurs="0"/>
+			<xs:element name="IncBillSummAmt" type="xs:boolean" default="false" minOccurs="0"/>
+			<xs:element name="IncExactPmt" type="xs:boolean" default="false" minOccurs="0"/>
+			<xs:element name="MaxBills" type="xs:long" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FeeInqRqType">
+		<xs:sequence>
+			<xs:element name="EPayBillRecID" type="UUIDType"/>
+			<xs:element name="PayAmt" type="PmtAmtType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FeeInqRsType">
+		<xs:sequence>
+			<xs:element name="EPayBillRecID" type="UUIDType"/>
+			<xs:element name="FeesAmt" type="FeesAmountType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EPayCommissionType">
+		<xs:sequence>
+			<xs:element name="TrxAmount" type="FeesAmountType"/>
+			<xs:element name="EPayFeeAmount" type="FeesAmountType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BankSvcRsType">
+		<xs:sequence>
+			<xs:element name="Status" type="StatusType"/>
+			<xs:element name="RqUID" type="UUIDType"/>
+			<xs:choice>
+				<xs:element name="BillInqRs" type="BillInqRsType"/>
+				<xs:element name="PmtAdviceRs" type="PmtAdviceRsType"/>
+				<xs:element name="FeeInqRs" type="FeeInqRsType"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BillInqRsType">
+		<xs:sequence>
+			<xs:element name="Msg" type="MsgType" minOccurs="0"/>
+			<xs:element name="RecCount" type="xs:long"/>
+			<xs:element name="BillRec" type="BillRecType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PmtAdviceRqType">
+		<xs:sequence>
+			<xs:element name="ProxyCustId" type="CustIdType" minOccurs="0"/>
+			<xs:element name="EPayBillRecID" type="UUIDType"/>
+			<xs:element name="PmtRec" type="PmtRecType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PmtAdviceRsType">
+		<xs:sequence>
+			<xs:element name="PmtRecAdviceStatus" type="PmtRecAdviceStatusType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- commons types-->
+	<xs:complexType name="SignonRqType">
+		<xs:sequence>
+			<xs:element name="ClientDt" type="DateType"/>
+			<xs:element name="LanguagePref" type="LanguagePrefType" minOccurs="0"/>
+			<xs:element name="SignonProfile" type="SignonProfileType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SignonProfileType">
+		<xs:sequence>
+			<xs:element name="Sender" type="IdentifierType"/>
+			<xs:element name="Receiver" type="IdentifierType" minOccurs="0"/>
+			<xs:element name="MsgCode" type="MessageCodeType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AccountIdType">
+		<xs:sequence>
+			<xs:element name="BillingAcct" type="Char32Type" minOccurs="0"/>
+			<xs:element name="BillerId" type="NChar32Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PmtTransIdType">
+		<xs:sequence>
+			<xs:element name="PmtId" type="NChar32Type"/>
+			<xs:element name="PmtIdType" type="PmtIdTypeType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CustIdType">
+		<xs:sequence>
+			<xs:element name="OfficialId" type="Char32Type"/>
+			<xs:element name="OfficialIdType" type="OpenEnumType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="StatusType">
+		<xs:sequence>
+			<xs:element name="StatusCode">
+				<xs:simpleType>
+					<xs:restriction base="xs:long">
+						<xs:minInclusive value="0"/>
+						<xs:maxInclusive value="9999"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="ShortDesc" type="Char255Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ErrorType">
+		<xs:sequence>
+			<xs:element name="ErrorCode">
+				<xs:simpleType>
+					<xs:restriction base="xs:long">
+						<xs:minInclusive value="1"/>
+						<xs:maxInclusive value="99999"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="ErrorMsg" type="Char255Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PmtRecType">
+		<xs:sequence>
+			<xs:element name="PmtTransId" type="PmtTransIdType" maxOccurs="3"/>
+			<xs:element name="CustId" type="CustIdType" minOccurs="0"/>
+			<xs:element name="PmtInfo" type="PmtInfoType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PmtInfoType">
+		<xs:sequence>
+			<xs:element name="PayAmt" type="PmtAmtType" maxOccurs="unbounded"/>
+			<xs:element name="FeesAmt" type="FeesAmountType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="PrcDt" type="DateType"/>
+			<xs:element name="SettlDt" type="DateType" minOccurs="0"/>
+			<xs:element name="BillCycle" type="NChar16Type" minOccurs="0"/>
+			<xs:element name="BillNumber" type="Char32Type" minOccurs="0"/>
+			<xs:element name="AccountId" type="AccountIdType"/>
+			<xs:element name="BankId" type="NChar8Type" minOccurs="0"/>
+			<xs:element name="DistrictCode" type="NChar10Type" minOccurs="0"/>
+			<xs:element name="BranchCode" type="NChar10Type" minOccurs="0"/>
+			<xs:element name="AccessChannel" type="AccessChannelType" minOccurs="0"/>
+			<xs:element name="PmtMethod" type="OpenEnumType" minOccurs="0"/>
+			<xs:element name="ServiceType" type="OpenEnumType" minOccurs="0"/>
+			<xs:element name="PmtRefInfo" type="NChar80Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BillRecType">
+		<xs:sequence>
+			<xs:element name="SupercedeBillNumber" type="Char32Type" minOccurs="0"/>
+			<xs:element name="BillUploadStatusCode" type="BillUploadStatusType" minOccurs="0"/>
+			<xs:element name="BillPresentmentStatusCode" type="BillPresentmentStatusType" minOccurs="0"/>
+			<xs:element name="BillPmtStatus" type="BillPmtStatusType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="CustId" type="CustIdType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="DisplayLabel" type="DisplayLabelType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Msg" type="MsgType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="EPayBillRecID" type="UUIDType" minOccurs="0"/>
+			<xs:element name="BillInfo" type="BillInfoType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BillPmtStatusType">
+		<xs:sequence>
+			<xs:element name="PmtTransId" type="PmtTransIdType" maxOccurs="3"/>
+			<xs:element name="PmtAmt" type="PmtAmtType" maxOccurs="unbounded"/>
+			<xs:element name="EffDt" type="DateType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DisplayLabelType">
+		<xs:sequence>
+			<xs:element name="LanguagePref" type="LanguagePrefType" minOccurs="0"/>
+			<xs:element name="Text" type="Char32Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MsgType">
+		<xs:sequence>
+			<xs:element name="LanguagePref" type="LanguagePrefType"/>
+			<xs:element name="Text" type="Char4096Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BillInfoType">
+		<xs:sequence>
+			<xs:element name="BillCategory" type="OpenEnumType" minOccurs="0"/>
+			<xs:element name="ServiceType" type="OpenEnumType" minOccurs="0"/>
+			<xs:element name="BillCycle" type="NChar16Type" minOccurs="0"/>
+			<xs:element name="BillNumber" type="Char32Type" minOccurs="0"/>
+			<xs:element name="AccountId" type="AccountIdType"/>
+			<xs:element name="CurAmt" type="AmountDueType" maxOccurs="unbounded"/>
+			<xs:element name="FeesAmt" type="FeesAmountType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="DueDt" type="DateType"/>
+			<xs:element name="OpenDt" type="DateType" minOccurs="0"/>
+			<xs:element name="CloseDt" type="DateType" minOccurs="0"/>
+			<xs:element name="ExpDt" type="DateType" minOccurs="0"/>
+			<xs:element name="ChkDigit" type="NChar2Type" minOccurs="0"/>
+			<xs:element name="BillRefInfo" type="NChar80Type" minOccurs="0"/>
+			<xs:element name="BillSummAmtGroup" type="BillSummAmtGroupType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AmountDueType">
+		<xs:sequence>
+			<xs:element name="Sequence" type="Char2Type"/>
+			<xs:element name="OriginalAmt" type="AmountType"/>
+			<xs:element name="AmtDue" type="AmountType"/>
+			<xs:element name="CurCode" type="CurrencyType"/>
+			<xs:element name="ExactPmt" type="xs:boolean"/>
+			<xs:element name="PymtMode" type="PaymentModeType"/>
+			<xs:element name="RangeInfo" type="RangeInfoType" minOccurs="0"/>
+			<xs:element name="InstInfo" type="InstInfoType" minOccurs="0"/>
+			<xs:element name="ShortDesc" type="ShortDescType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="SettleAccCode" type="Char32Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FeesAmountType">
+		<xs:sequence>
+			<xs:element name="Amt" type="AmountType"/>
+			<xs:element name="CurCode" type="CurrencyType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="RangeInfoType">
+		<xs:sequence>
+			<xs:element name="MinAmt" type="AmountType"/>
+			<xs:element name="MaxAmt" type="AmountType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="InstInfoType">
+		<xs:sequence>
+			<xs:element name="NumInst" type="NChar2Type"/>
+			<xs:element name="InstAmt" type="AmountType"/>
+			<xs:element name="MinInst" type="NChar2Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ShortDescType">
+		<xs:sequence>
+			<xs:element name="LanguagePref" type="LanguagePrefType"/>
+			<xs:element name="Text" type="Char255Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BillSummAmtGroupType">
+		<xs:sequence>
+			<xs:element name="GroupSeq" type="NChar2Type"/>
+			<xs:element name="ShortDesc" type="ShortDescType" maxOccurs="unbounded"/>
+			<xs:element name="BillSummAmt" type="BillSummAmtType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BillSummAmtType">
+		<xs:sequence>
+			<xs:element name="Amt" type="AmountType"/>
+			<xs:element name="CurCode" type="CurrencyType"/>
+			<xs:element name="CurRate" type="AmountType" minOccurs="0"/>
+			<xs:element name="BillSummAmtCode" type="OpenEnumType" minOccurs="0"/>
+			<xs:element name="BillSummAmtType" type="BillSummAmtTypeType"/>
+			<xs:element name="ShortDesc" type="ShortDescType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DateRangeType">
+		<xs:sequence>
+			<xs:element name="StartDt" type="DateType" minOccurs="0"/>
+			<xs:element name="EndDt" type="DateType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PmtRecAdviceStatusType">
+		<xs:sequence>
+			<xs:element name="PmtTransId" type="PmtTransIdType" maxOccurs="2"/>
+			<xs:element name="Status" type="StatusType" minOccurs="0"/>
+			<xs:element name="SettlDt" type="DateType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PmtAmtType">
+		<xs:sequence>
+			<xs:element name="Sequence" type="NChar2Type"/>
+			<xs:element name="Amt" type="AmountType"/>
+			<xs:element name="CurCode" type="CurrencyType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--Data Types-->
+	<xs:simpleType name="CharType">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Char2Type">
+		<xs:restriction base="CharType">
+			<xs:maxLength value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Char30Type">
+		<xs:restriction base="CharType">
+			<xs:maxLength value="30"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Char32Type">
+		<xs:restriction base="CharType">
+			<xs:maxLength value="32"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Char255Type">
+		<xs:restriction base="CharType">
+			<xs:maxLength value="255"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Char4096Type">
+		<xs:restriction base="CharType">
+			<xs:maxLength value="4096"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NCharType">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:pattern value=".*[^@]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NChar2Type">
+		<xs:restriction base="NCharType">
+			<xs:maxLength value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NChar3Type">
+		<xs:restriction base="NCharType">
+			<xs:maxLength value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NChar4Type">
+		<xs:restriction base="NCharType">
+			<xs:maxLength value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NChar8Type">
+		<xs:restriction base="NCharType">
+			<xs:maxLength value="8"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NChar10Type">
+		<xs:restriction base="NCharType">
+			<xs:maxLength value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NChar16Type">
+		<xs:restriction base="NCharType">
+			<xs:maxLength value="16"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NChar32Type">
+		<xs:restriction base="NCharType">
+			<xs:maxLength value="32"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NChar80Type">
+		<xs:restriction base="NCharType">
+			<xs:maxLength value="80"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="IdentifierType">
+		<xs:restriction base="NCharType">
+			<xs:maxLength value="36"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="UUIDType">
+		<xs:restriction base="NCharType">
+			<xs:maxLength value="36"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="DateType">
+		<xs:restriction base="xs:dateTime">
+			<xs:pattern value=".+T[^Z+\-]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="AmountType">
+		<xs:restriction base="xs:decimal">
+			<xs:fractionDigits value="2" fixed="true"/>
+			<xs:totalDigits value="18"/>
+			<!--<xs:minLength value="4" />-->
+			<!--<xs:maxLength value="18" />-->
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CurrencyType">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="3" fixed="true"/>
+			<xs:minInclusive value="100"/>
+			<!--<xs:minLength value="3" />
+      <xs:maxLength value="3" />-->
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="OpenEnumType">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Enums -->
+	<xs:simpleType name="MessageCodeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="BBUPLRQ"/>
+			<xs:enumeration value="BBCONRS"/>
+			<xs:enumeration value="BPUPLRQ"/>
+			<xs:enumeration value="BPCONRS"/>
+			<xs:enumeration value="BPNUPRQ"/>
+			<xs:enumeration value="RBENQLODRQ"/>
+			<xs:enumeration value="RBENQLODRS"/>
+			<xs:enumeration value="RPLODRQ"/>
+			<xs:enumeration value="RPLODRS"/>
+			<xs:enumeration value="RPNOTRQ"/>
+			<xs:enumeration value="RPNOTRS"/>
+			<xs:enumeration value="RBILLODRQ"/>
+			<xs:enumeration value="RBILLODRS"/>
+			<xs:enumeration value="BBINQUPLDRQ"/>
+			<xs:enumeration value="BBINQUPLDRS"/>
+			<xs:enumeration value="BPADVUPLDRQ"/>
+			<xs:enumeration value="RPADVRS"/>
+			<xs:enumeration value="RBINQRQ"/>
+			<xs:enumeration value="RBINQRS"/>
+			<xs:enumeration value="RPADVRQ"/>
+			<xs:enumeration value="RPADVRS"/>
+			<xs:enumeration value="RFINQRQ"/>
+			<xs:enumeration value="RFINQRS"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="AccountType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ATM"/>
+			<xs:enumeration value="IVR"/>
+			<xs:enumeration value="KIOSK"/>
+			<xs:enumeration value="INTERNET"/>
+			<xs:enumeration value="PORTAL"/>
+			<xs:enumeration value="BTELLER"/>
+			<xs:enumeration value="POS"/>
+			<xs:enumeration value="DDS"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BillPresentmentStatusType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="BillPaid"/>
+			<xs:enumeration value="BillPartialPd"/>
+			<xs:enumeration value="BillOverPd"/>
+			<xs:enumeration value="BillUnpaid"/>
+			<xs:enumeration value="BillHolded"/>
+			<xs:enumeration value="BillClosed"/>
+			<xs:enumeration value="PmtNotAllowed"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BillUploadStatusType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="BillNew"/>
+			<xs:enumeration value="BillUpdated"/>
+			<xs:enumeration value="BillAny"/>
+			<xs:enumeration value="BillExpired"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BillSummAmtTypeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Payable"/>
+			<xs:enumeration value="Supplemental"/>
+			<xs:enumeration value="InfoOnly"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="LanguagePrefType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ar-eg"/>
+			<xs:enumeration value="en-gb"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PmtIdTypeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="EPTN"/>
+			<xs:enumeration value="BLRPTN"/>
+			<xs:enumeration value="BNKPTN"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PaymentMethodType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="CASH"/>
+			<xs:enumeration value="CCARD"/>
+			<xs:enumeration value="EFT"/>
+			<xs:enumeration value="ACTDEB"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PaymentModeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Installment"/>
+			<xs:enumeration value="Range"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="AccessChannelType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ATM"/>
+			<xs:enumeration value="IVR"/>
+			<xs:enumeration value="KIOSK"/>
+			<xs:enumeration value="INTERNET"/>
+			<xs:enumeration value="PORTAL"/>
+			<xs:enumeration value="BTELLER"/>
+			<xs:enumeration value="POS"/>
+			<xs:enumeration value="DDS"/>			
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

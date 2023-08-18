@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_payment_acquirer_form_with_provider_fawry" model="ir.ui.view">
+        <field name="name">payment.acquirer.form.provider.fawry</field>
+        <field name="model">payment.acquirer</field>
+        <field name="inherit_id" ref="payment.acquirer_form"/>
+        <field name="arch" type="xml">
+            <xpath expr='//group[@name="acquirer"]' position='after'>
+                <group name="channel" attrs="{'invisible': [('provider', '!=', 'fawry')]}">
+                   <field name="fawry_channel_ids" nolabel="1">
+                        <tree string="Channels" editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="type"/>
+                            <field name="fawry_sender"/>
+                            <field name="fawry_receiver"/>
+                            <field name="fawry_originatorCode"/>
+                            <field name="fawry_terminalId"/>
+                            <field name="fawry_posSerialNumber"/>
+                            <field name="fawry_deliveryMethod"/>
+                            <field name="fawry_profileCode"/>
+                            <field name="fawry_acctId"/>
+                            <field name="fawry_bankId"/>
+                            <field name="fawry_acctType"/>
+                            <field name="fawry_acctKey"/>
+                            <field name="fawry_secureAcctKey"/>
+                            <field name="fawry_acctCur"/>
+                        </tree>
+                        <form string="Channels">
+                            <group>
+                                <field name="name"/>
+                                <field name="type"/>
+                                <field name="sequence"/>
+                                <field name="fawry_sender"/>
+                                <field name="fawry_receiver"/>
+                                <field name="fawry_originatorCode"/>
+                                <field name="fawry_terminalId"/>
+                                <field name="fawry_posSerialNumber"/>
+                                <field name="fawry_deliveryMethod"/>
+                                <field name="fawry_profileCode"/>
+                                <field name="fawry_acctId"/>
+                                <field name="fawry_bankId"/>
+                                <field name="fawry_acctType"/>
+                                <field name="fawry_acctKey"/>
+                                <field name="fawry_secureAcctKey"/>
+                                <field name="fawry_acctCur"/>
+                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            </group>
+                        </form>
+                    </field>
+                </group>
+                <group name="endpoint" attrs="{'invisible': [('provider', '!=', 'fawry')]}">
+                    <field name="fawry_test_url" groups='base.group_no_one'/>
+                    <field name="fawry_prod_url" groups='base.group_no_one'/>
+                    <field name="fawry_version" groups='base.group_no_one'/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.cron" id="auto_fetch_fawry_biller_details">
+        <field name="name">Auto Fetch Fawry Biller Details</field>
+        <field name="model_id" ref="model_payment_acquirer"/>
+        <field name="state">code</field>
+        <field name="code">model.auto_fetch_fawry_biller_details()</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+</odoo>

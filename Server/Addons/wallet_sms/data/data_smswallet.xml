@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2014-Present Tamayozsoft. (<http://tamayoz-soft.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <data noupdate="1">
+        <function id="wallet_recharge_notify_mode" model="ir.default" name="set"
+        eval="('smartpay.operations.settings', 'wallet_recharge_notify_mode', 'inbox')"/>
+
+        <function id="wallet_bouns_notify_mode" model="ir.default" name="set"
+        eval="('smartpay.operations.settings', 'wallet_bouns_notify_mode', 'inbox')"/>
+
+        <function id="wallet_pay_service_bill_notify_mode" model="ir.default" name="set"
+        eval="('smartpay.operations.settings', 'wallet_pay_service_bill_notify_mode', 'inbox')"/>
+
+        <function id="wallet_cancel_service_bill_notify_mode" model="ir.default" name="set"
+        eval="('smartpay.operations.settings', 'wallet_cancel_service_bill_notify_mode', 'inbox')"/>
+
+        <function id="wallet_correlation_service_bill_notify_mode" model="ir.default" name="set"
+        eval="('smartpay.operations.settings', 'wallet_correlation_service_bill_notify_mode', 'inbox')"/>
+
+        <function id="wallet_pay_invoice_notify_mode" model="ir.default" name="set"
+        eval="('smartpay.operations.settings', 'wallet_pay_invoice_notify_mode', 'inbox')"/>
+
+        <function id="wallet_transfer_balance_notify_mode" model="ir.default" name="set"
+        eval="('smartpay.operations.settings', 'wallet_transfer_balance_notify_mode', 'inbox')"/>
+
+        <function id="wallet_customer_cashback_notify_mode" model="ir.default" name="set"
+        eval="('smartpay.operations.settings', 'wallet_customer_cashback_notify_mode', 'inbox')"/>
+    </data>
+</odoo>

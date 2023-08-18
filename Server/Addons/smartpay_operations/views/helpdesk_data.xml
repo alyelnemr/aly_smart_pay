@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--    <record id="smartpay_operations.model_smartpay_operations_request" model="ir.model">-->
+<!--&lt;!&ndash;        <field name="website_form_default_field_id" ref="smartpay_operations.field_smartpay_operations__description" />&ndash;&gt;-->
+<!--        <field name="website_form_access">True</field>-->
+<!--        <field name="website_form_label">Create a Request</field>-->
+<!--    </record>-->
+    <data noupdate="1">
+        <record model="smartpay_operations.stage" id="stage_new">
+            <field name="name">New</field>
+            <field name="sequence">0</field>
+        </record>
+        <record model="smartpay_operations.stage" id="stage_approved">
+            <field name="name">Approved</field>
+            <field name="sequence">1</field>
+        </record>
+        <record model="smartpay_operations.stage" id="stage_rejected">
+            <field name="name">Rejected</field>
+            <field name="fold" eval="False"/>
+            <field name="sequence">2</field>
+        </record>
+        <record model="smartpay_operations.stage" id="stage_canceled">
+            <field name="name">Canceled</field>
+            <field name="fold" eval="True"/>
+            <field name="sequence">4</field>
+        </record>
+        <record model="smartpay_operations.stage" id="stage_done">
+            <field name="name">Done</field>
+            <field name="fold" eval="False"/>
+            <field name="sequence">3</field>
+        </record>
+        <record model="smartpay_operations.stage" id="stage_expired">
+            <field name="name">Expired</field>
+            <field name="fold" eval="False"/>
+            <field name="sequence">5</field>
+        </record>
+        <record model="smartpay_operations.team" id="team_smartpay">
+            <field name="name">SmartPay Team</field>
+        </record>
+    </data>
+</odoo>

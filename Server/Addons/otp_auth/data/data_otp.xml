@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <data noupdate="1">
+        <function id="otp_time_limit" model="ir.default" name="set"
+        eval="('website.otp.settings', 'otp_time_limit', '100')"/>
+        <function id="otp_type" model="ir.default" name="set"
+        eval="('website.otp.settings', 'otp_type', '4')"/>
+        <function id="signin_auth" model="ir.default" name="set"
+        eval="('website.otp.settings', 'signin_auth', True)"/>
+        <function id="signup_auth" model="ir.default" name="set"
+        eval="('website.otp.settings', 'signup_auth', True)"/>
+    </data>
+</odoo>

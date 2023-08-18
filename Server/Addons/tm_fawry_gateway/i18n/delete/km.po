@@ -1,0 +1,381 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * delivery_ups
+# 
+# Translators:
+# Lux Sok <sok.lux@gmail.com>, 2019
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-11-14 07:49+0000\n"
+"PO-Revision-Date: 2018-08-24 11:37+0000\n"
+"Last-Translator: Lux Sok <sok.lux@gmail.com>, 2019\n"
+"Language-Team: Khmer (https://www.transifex.com/odoo/teams/41243/km/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Language: km\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,delivery_type:0
+msgid "Based on Rules"
+msgstr "ផ្តោតលើច្បាប់"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_bill_my_account
+#: model:ir.model.fields,field_description:delivery_ups.field_sale_order__ups_bill_my_account
+msgid "Bill My Account"
+msgstr "វិកយបត្រក្នុងគណនីរបស់ខ្ងុំ"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_cod_funds_code
+msgid "COD Funding Option"
+msgstr "លេខកូដ មើសមូលនិធិ"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_product_packaging__package_carrier_type
+msgid "Carrier"
+msgstr "ក្រុមហ៊ុនដឹកជញ្ជូន"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_sale_order__ups_carrier_account
+#: model:ir.model.fields,field_description:delivery_ups.field_stock_picking__ups_carrier_account
+msgid "Carrier Account"
+msgstr "គណនី"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,ups_cod_funds_code:0
+msgid "Cashier's Check or MoneyOrder"
+msgstr "អ្នកគិតលុយពិនិត្យលើចន្តរលុយតាមដំណាក់កាល"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,ups_package_dimension_unit:0
+msgid "Centimeters"
+msgstr "សង់ទីម៉ែត្រ"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,ups_cod_funds_code:0
+msgid "Check, Cashier's Check or MoneyOrder"
+msgstr "ពិនិត្យលើអ្នកគិតលុយទៅលើប្រាក់តាមលំដាប់"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_cod
+msgid "Collect on Delivery"
+msgstr "ប្រមូលការដឹកជញ្ជុន"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,delivery_type:0
+#: selection:product.packaging,package_carrier_type:0
+msgid "DHL"
+msgstr "DHL"
+
+#. module: delivery_ups
+#: model:ir.model,name:delivery_ups.model_delivery_carrier
+msgid "Delivery Methods"
+msgstr "វិធីសាស្ត្រដឹកជញ្ជូន"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,ups_label_file_type:0
+msgid "EPL"
+msgstr "EPL"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,delivery_type:0
+#: selection:product.packaging,package_carrier_type:0
+msgid "Easypost"
+msgstr "Easypost"
+
+#. module: delivery_ups
+#: code:addons/delivery_ups/models/delivery_ups.py:113
+#, python-format
+msgid ""
+"Error:\n"
+"%s"
+msgstr ""
+"កំហុស:\n"
+"%s"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,delivery_type:0
+#: selection:product.packaging,package_carrier_type:0
+msgid "FedEx"
+msgstr "FedEx"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,delivery_type:0
+msgid "Fixed Price"
+msgstr "តំលៃថេរ"
+
+#. module: delivery_ups
+#: model:ir.model.fields,help:delivery_ups.field_delivery_carrier__ups_bill_my_account
+#: model:ir.model.fields,help:delivery_ups.field_sale_order__ups_bill_my_account
+msgid ""
+"If checked, ecommerce users will be prompted their UPS account number\n"
+"and delivery fees will be charged on it."
+msgstr ""
+"ប្រសិនបើបានគូសធីកអ្នកប្រើប្រាស់អ៊ីម៉ែលនឹងត្រូវបានបញ្ចូលលេខគណនី UPS របស់ពួកគេ\n"
+"និងថ្លៃដឹកជញ្ជូននឹងត្រូវបានគិតលើវា។"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,ups_package_dimension_unit:0
+msgid "Inches"
+msgstr "អុិនឈ៍"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,ups_package_weight_unit:0
+msgid "Kilograms"
+msgstr "គីឡូក្រាម"
+
+#. module: delivery_ups
+#: selection:product.packaging,package_carrier_type:0
+msgid "No carrier integration"
+msgstr "គ្មានការបញ្ចូលក្រុមហ៊ុន"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,ups_label_file_type:0
+msgid "PDF"
+msgstr "ឯកសារជា PDF"
+
+#. module: delivery_ups
+#: code:addons/delivery_ups/models/ups_request.py:218
+#, python-format
+msgid "Packages %s do not have a positive shipping weight."
+msgstr "កញ្ចប់ %s មិនមានទំងន់ដឹកជញ្ជូនវិជ្ជមានទេ។"
+
+#. module: delivery_ups
+#: code:addons/delivery_ups/models/ups_request.py:209
+#, python-format
+msgid "Please provide at least one item to ship."
+msgstr "សូមផ្ដល់យ៉ាងហោចណាស់ធាតុមួយដើម្បីបញ្ជូន។"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,ups_package_weight_unit:0
+msgid "Pounds"
+msgstr "ផោន"
+
+#. module: delivery_ups
+#: model:ir.model,name:delivery_ups.model_product_packaging
+msgid "Product Packaging"
+msgstr "កញ្ជាប់ផលិតផល"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__delivery_type
+msgid "Provider"
+msgstr "ការផ្តល់ជូន"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,ups_label_file_type:0
+msgid "SPL"
+msgstr "SPL"
+
+#. module: delivery_ups
+#: model:ir.model,name:delivery_ups.model_sale_order
+msgid "Sale Order"
+msgstr "លក់តាមការម៉ង់"
+
+#. module: delivery_ups
+#: model_terms:ir.ui.view,arch_db:delivery_ups.view_delivery_carrier_form_with_provider_ups
+msgid "Saturday Delivery"
+msgstr "ដឹកជញ្ជូនរៀងរាល់ថ្ងៃសៅរ៌"
+
+#. module: delivery_ups
+#: code:addons/delivery_ups/models/delivery_ups.py:231
+#, python-format
+msgid "Shipment N° %s has been cancelled"
+msgstr "ការដឹកជញ្ជូនN°%sត្រូវបានលុបចោល"
+
+#. module: delivery_ups
+#: code:addons/delivery_ups/models/delivery_ups.py:202
+#, python-format
+msgid ""
+"Shipment created into UPS<br/><b>Tracking Numbers:</b> "
+"%s<br/><b>Packages:</b> %s"
+msgstr ""
+"ការបង្កើតការដឹកជញ្ជុននៅក្នុងUPS<br/><b>មានលេខ</b>%s<br/><b>កញ្ជប់</b>%s"
+
+#. module: delivery_ups
+#: code:addons/delivery_ups/models/ups_request.py:187
+#, python-format
+msgid ""
+"The address of your company is missing or wrong.\n"
+"(Missing field(s) : %s)"
+msgstr ""
+"ដាក់អាស័យដ្ឋានរបស់ក្រុមហ៊ុនមិនត្រឹមត្រូវ\n"
+"(Missing field(s) : %s)"
+
+#. module: delivery_ups
+#: code:addons/delivery_ups/models/ups_request.py:197
+#, python-format
+msgid ""
+"The address of your warehouse is missing or wrong.\n"
+"(Missing field(s) : %s)"
+msgstr ""
+"អាសយដ្ឋានឃ្លាំងរបស់អ្នកត្រូវបានបាត់ឬខុស។\n"
+"(វាលដែលបាត់:%s)"
+
+#. module: delivery_ups
+#: code:addons/delivery_ups/models/ups_request.py:215
+#, python-format
+msgid ""
+"The delivery cannot be done because the weight of your product is missing."
+msgstr "ការដឹកជញ្ជូនមិនអាចធ្វើបានទេព្រោះទម្ងន់នៃផលិតផលរបស់អ្នកបានបាត់។"
+
+#. module: delivery_ups
+#: code:addons/delivery_ups/models/ups_request.py:211
+#, python-format
+msgid ""
+"The estimated price cannot be computed because the weight of your product is"
+" missing."
+msgstr ""
+"តម្លៃដែលប៉ាន់ស្មានមិនអាចគណនាបានទេព្រោះទម្ងន់នៃផលិតផលរបស់អ្នកត្រូវបានបាត់។"
+
+#. module: delivery_ups
+#: code:addons/delivery_ups/models/ups_request.py:219
+#, python-format
+msgid ""
+"The recipient address is missing or wrong.\n"
+"(Missing field(s) : %s)"
+msgstr "អាសយដ្ឋានអ្នកទទួលបានបាត់ឬខុស។ (វាលដែលបាត់:%s)"
+
+#. module: delivery_ups
+#: model:ir.model.fields,help:delivery_ups.field_delivery_carrier__ups_cod
+msgid ""
+"This value added service enables UPS to collect the payment of the shipment "
+"from your customer."
+msgstr ""
+"សេវាកម្មបន្ថែមតម្លៃនេះអនុញ្ញាតឱ្យក្រុមហ៊ុនយូភីសនឹងប្រមូលការដឹកជញ្ជូនទំនិញពីអតិថិជនរបស់អ្នក។"
+
+#. module: delivery_ups
+#: model:ir.model.fields,help:delivery_ups.field_delivery_carrier__ups_saturday_delivery
+msgid ""
+"This value added service will allow you to ship the package on saturday "
+"also."
+msgstr "សេវាកម្មបន្ថែមតម្លៃនេះនឹងអនុញ្ញាតឱ្យអ្នកបញ្ជូនកញ្ចប់នៅថ្ងៃសៅរ៍ផងដែរ។"
+
+#. module: delivery_ups
+#: model:ir.model,name:delivery_ups.model_stock_picking
+msgid "Transfer"
+msgstr "ផ្ទេរ"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,delivery_type:0
+#: selection:product.packaging,package_carrier_type:0
+msgid "UPS"
+msgstr "UPS"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_access_number
+msgid "UPS AccessLicenseNumber"
+msgstr "UPS លេខបណ្ណ័សំគាល់"
+
+#. module: delivery_ups
+#: model:delivery.carrier,name:delivery_ups.delivery_carrier_ups_be
+#: model:product.product,name:delivery_ups.product_product_delivery_ups_be
+#: model:product.template,name:delivery_ups.product_product_delivery_ups_be_product_template
+msgid "UPS BE"
+msgstr "UPS BE"
+
+#. module: delivery_ups
+#: model_terms:ir.ui.view,arch_db:delivery_ups.view_delivery_carrier_form_with_provider_ups
+msgid "UPS Configuration"
+msgstr "ការកំណត់​រចនាសម្ព័ន្ធ"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_default_packaging_id
+msgid "UPS Default Packaging Type"
+msgstr "ប្រភេទកញ្ចប់លំនាំដើម"
+
+#. module: delivery_ups
+#: model_terms:ir.ui.view,arch_db:delivery_ups.res_config_settings_view_form_sale
+#: model_terms:ir.ui.view,arch_db:delivery_ups.res_config_settings_view_form_stock
+msgid "UPS Delivery Methods"
+msgstr "UPS យុទ្ឋសាស្រ្តដឹកជញ្ជូន"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_label_file_type
+msgid "UPS Label File Type"
+msgstr "UPS ប្រភេទឯកសារ"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_passwd
+msgid "UPS Password"
+msgstr "UPS លេខសំងាត់"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_saturday_delivery
+msgid "UPS Saturday Delivery"
+msgstr "UPS ការដឹកជញ្ជូនថ្ងៃសៅរ៍"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_default_service_type
+#: model:ir.model.fields,field_description:delivery_ups.field_sale_order__ups_service_type
+#: model:ir.model.fields,field_description:delivery_ups.field_stock_picking__ups_service_type
+msgid "UPS Service Type"
+msgstr "UPS ប្រភេទសេវា"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_shipper_number
+msgid "UPS Shipper Number"
+msgstr "UPS លេខដឹកជញ្ជូន"
+
+#. module: delivery_ups
+#: model:delivery.carrier,name:delivery_ups.delivery_carrier_ups_us
+#: model:product.product,name:delivery_ups.product_product_delivery_ups_us
+#: model:product.template,name:delivery_ups.product_product_delivery_ups_us_product_template
+msgid "UPS US"
+msgstr "UPS US"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_username
+msgid "UPS Username"
+msgstr "UPS អ្នកប្រើប្រាស់"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,delivery_type:0
+msgid "USPS"
+msgstr "USPS"
+
+#. module: delivery_ups
+#: model:product.product,uom_name:delivery_ups.product_product_delivery_ups_be
+#: model:product.product,uom_name:delivery_ups.product_product_delivery_ups_us
+#: model:product.template,uom_name:delivery_ups.product_product_delivery_ups_be_product_template
+#: model:product.template,uom_name:delivery_ups.product_product_delivery_ups_us_product_template
+msgid "Unit(s)"
+msgstr "កំរិត(s)"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_package_dimension_unit
+msgid "Units for UPS Package Size"
+msgstr "ឯកតាសម្រាប់ទំហំកញ្ចប់ UPS"
+
+#. module: delivery_ups
+#: model:ir.model.fields,field_description:delivery_ups.field_delivery_carrier__ups_package_weight_unit
+msgid "Ups Package Weight Unit"
+msgstr "Ups ឯកតាទំងន់កញ្ចប់"
+
+#. module: delivery_ups
+#: model_terms:ir.ui.view,arch_db:delivery_ups.view_delivery_carrier_form_with_provider_ups
+msgid "Value Added Services"
+msgstr "សេវាកម្មបន្ថែមតម្លៃ"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,ups_label_file_type:0
+msgid "ZPL"
+msgstr "ZPL"
+
+#. module: delivery_ups
+#: selection:delivery.carrier,delivery_type:0
+#: selection:product.packaging,package_carrier_type:0
+msgid "bpost"
+msgstr "bpost"
+
+#. module: delivery_ups
+#: model:product.product,weight_uom_name:delivery_ups.product_product_delivery_ups_be
+#: model:product.product,weight_uom_name:delivery_ups.product_product_delivery_ups_us
+#: model:product.template,weight_uom_name:delivery_ups.product_product_delivery_ups_be_product_template
+#: model:product.template,weight_uom_name:delivery_ups.product_product_delivery_ups_us_product_template
+msgid "kg"
+msgstr "គីឡូ"

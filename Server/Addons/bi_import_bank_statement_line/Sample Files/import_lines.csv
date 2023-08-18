@@ -1,0 +1,7 @@
+DATE,Label,PARTNER,REFERENCE,AMOUNT,CURRENCY
+10/9/2020,Label 1,Agrolait,Test,15000,EUR
+10/9/2020,Label 2,,Demo,20000,EUR
+10/9/2020,Label 3,Camptocamp,Reference 1,-87520,EUR
+10/9/2020,Label 4,Agrolait,Reference 2,100000,USD
+10/9/2020,Label 5,Agrolait,Reference 3,-15000,EUR
+10/9/2020,Label 6,Camptocamp,Reference 4,-5000,USD

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="ir.ui.view" id="helpdesk_request_tree_view_inherit">
+        <field name="name">helpdesk.request.tree.view.inherit</field>
+        <field name="model">smartpay_operations.request</field>
+        <field name="inherit_id" ref="smartpay_operations.helpdesk_request_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="user_id" position="after">
+                <field name="commission_amount" sum="Total Commission" attrs="{'invisible': [('request_type','!=','pay_service_bill')]}" groups="account.group_account_manager"/>
+                <field name="commission_paid" attrs="{'invisible': [('request_type','!=','pay_service_bill')]}" groups="account.group_account_manager"/>
+            </field>
+            <xpath expr="//field[@name='user_id']" position="replace"/>
+        </field>
+    </record>
+
+    <record id="view_helpdesk_request_filter_inherit" model="ir.ui.view">
+        <field name="name">smartpay_operations.request.search.view.inherit</field>
+        <field name="model">smartpay_operations.request</field>
+        <field name="inherit_id" ref="smartpay_operations.view_helpdesk_request_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='unassigned']" position="after">
+                <separator/>
+                <filter string="Unpaid Commission" name="unpaid_commission" domain="[('commission_amount', '>', 0), ('commission_paid', '=', False)]"/>
+                <separator/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="commission_paid_server_action" model="ir.actions.server">
+        <field name="name">Mark Request as Commission Paid</field>
+        <field name="model_id" ref="smartpay_operations.model_smartpay_operations_request"/>
+        <field name="binding_model_id" ref="smartpay_operations.model_smartpay_operations_request"/>
+        <field name="state">code</field>
+        <field name="code">records.button_commission_paid()</field>
+    </record>
+
+    <record id="commission_compute_server_action" model="ir.actions.server">
+        <field name="name">Compute Commisions</field>
+        <field name="model_id" ref="smartpay_operations.model_smartpay_operations_request"/>
+        <field name="binding_model_id" ref="smartpay_operations.model_smartpay_operations_request"/>
+        <field name="state">code</field>
+        <field name="code">records.button_compute_commission()</field>
+    </record>
+
+    <record id="commission_server_action" model="ir.actions.server">
+        <field name="name">Add Commisions to Customer Wallets</field>
+        <field name="model_id" ref="smartpay_operations.model_smartpay_operations_request"/>
+        <field name="binding_model_id" ref="smartpay_operations.model_smartpay_operations_request"/>
+        <field name="state">code</field>
+        <field name="code">records.button_commission()</field>
+    </record>
+
+</odoo>

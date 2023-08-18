@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="BillPaymentService" targetNamespace="urn:BillPaymentService/wsdl" xmlns:tns="urn:BillPaymentService/wsdl" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns2="urn:BillPaymentService/types">
+	<types>
+		<schema targetNamespace="urn:BillPaymentService/types" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:soap11-enc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="urn:BillPaymentService/types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<complexType name="calculateCommission">
+				<sequence>
+				  <element name="Request_1" type="tns:Request" nillable="true"/>
+				</sequence>
+			</complexType>
+			<complexType name="Request">
+				<sequence>
+				  <element name="message" type="string" nillable="true"/>
+				  <element name="senderID" type="string" nillable="true"/>
+				  <element name="signature" type="string" nillable="true"/>
+				</sequence>
+			</complexType>
+			<complexType name="calculateCommissionResponse">
+				<sequence>
+				  <element name="result" type="tns:Response" nillable="true"/>
+				</sequence>
+			</complexType>
+			<complexType name="Response">
+				<sequence>
+				  <element name="message" type="string" nillable="true"/>
+				  <element name="receiverID" type="string" nillable="true"/>
+				  <element name="signature" type="string" nillable="true"/>
+				</sequence>
+			</complexType>
+			<complexType name="confirmPayments">
+				<sequence>
+				  <element name="Request_1" type="tns:Request" nillable="true"/>
+				</sequence>
+			</complexType>
+			<complexType name="confirmPaymentsResponse">
+				<sequence>
+				  <element name="result" type="tns:Response" nillable="true"/>
+				</sequence>
+			</complexType>
+			<complexType name="enquireBills">
+				<sequence>
+				  <element name="Request_1" type="tns:Request" nillable="true"/>
+				</sequence>
+			</complexType>
+			<complexType name="enquireBillsResponse">
+				<sequence>
+				  <element name="result" type="tns:Response" nillable="true"/>
+				</sequence>
+			</complexType>
+			<element name="calculateCommission" type="tns:calculateCommission"/>
+			<element name="calculateCommissionResponse" type="tns:calculateCommissionResponse"/>
+			<element name="confirmPayments" type="tns:confirmPayments"/>
+			<element name="confirmPaymentsResponse" type="tns:confirmPaymentsResponse"/>
+			<element name="enquireBills" type="tns:enquireBills"/>
+			<element name="enquireBillsResponse" type="tns:enquireBillsResponse"/>
+		</schema>
+	</types>
+	<message name="BillPaymentServiceSEI_calculateCommission">
+		<part name="parameters" element="ns2:calculateCommission"/>
+	</message>
+	<message name="BillPaymentServiceSEI_calculateCommissionResponse">
+		<part name="result" element="ns2:calculateCommissionResponse"/>
+	</message>
+	<message name="BillPaymentServiceSEI_confirmPayments">
+		<part name="parameters" element="ns2:confirmPayments"/>
+	</message>
+    <message name="BillPaymentServiceSEI_confirmPaymentsResponse">
+		<part name="result" element="ns2:confirmPaymentsResponse"/>
+	</message>
+	<message name="BillPaymentServiceSEI_enquireBills">
+		<part name="parameters" element="ns2:enquireBills"/>
+	</message>
+	<message name="BillPaymentServiceSEI_enquireBillsResponse">
+		<part name="result" element="ns2:enquireBillsResponse"/>
+	</message>
+	<portType name="BillPaymentServiceSEI">
+		<operation name="calculateCommission">
+		  <input message="tns:BillPaymentServiceSEI_calculateCommission"/>
+		  <output message="tns:BillPaymentServiceSEI_calculateCommissionResponse"/>
+		</operation>
+		<operation name="confirmPayments">
+		  <input message="tns:BillPaymentServiceSEI_confirmPayments"/>
+		  <output message="tns:BillPaymentServiceSEI_confirmPaymentsResponse"/>
+		</operation>
+		<operation name="enquireBills">
+		  <input message="tns:BillPaymentServiceSEI_enquireBills"/>
+		  <output message="tns:BillPaymentServiceSEI_enquireBillsResponse"/>
+	    </operation>
+	</portType>
+    <binding name="BillPaymentServiceSEIBinding" type="tns:BillPaymentServiceSEI">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+		<operation name="calculateCommission">
+		  <soap:operation soapAction=""/>
+		  <input>
+			<soap:body use="literal"/>
+		  </input>
+		  <output>
+			<soap:body use="literal"/>
+		  </output>
+		</operation>
+		<operation name="confirmPayments">
+		  <soap:operation soapAction=""/>
+		  <input>
+			<soap:body use="literal"/>
+		  </input>
+		  <output>
+			<soap:body use="literal"/>
+		  </output>
+		</operation>
+		<operation name="enquireBills">
+		  <soap:operation soapAction=""/>
+		  <input>
+			<soap:body use="literal"/>
+		  </input>
+		  <output>
+			<soap:body use="literal"/>
+		  </output>
+		</operation>
+	</binding>
+	<service name="BillPaymentService">
+		<port name="BillPaymentServiceSEIPort" binding="tns:BillPaymentServiceSEIBinding">
+		  <soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+</definitions>

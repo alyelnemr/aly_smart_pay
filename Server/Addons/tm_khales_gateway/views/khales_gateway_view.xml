@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_payment_acquirer_form_with_provider_khales" model="ir.ui.view">
+        <field name="name">payment.acquirer.form.provider.khales</field>
+        <field name="model">payment.acquirer</field>
+        <field name="inherit_id" ref="payment.acquirer_form"/>
+        <field name="arch" type="xml">
+            <xpath expr='//group[@name="acquirer"]' position='after'>
+                <group name="channel" attrs="{'invisible': [('provider', '!=', 'khales')]}">
+                   <field name="khales_channel_ids" nolabel="1">
+                        <tree string="Channels" editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="type"/>
+                            <field name="khales_sender"/>
+                            <field name="khales_receiver"/>
+                            <!--
+                            <field name="khales_originatorCode"/>
+                            <field name="khales_terminalId"/>
+                            <field name="khales_posSerialNumber"/>
+                            <field name="khales_deliveryMethod"/>
+                            <field name="khales_profileCode"/>
+                            <field name="khales_acctId"/>
+                            -->
+                            <field name="khales_bankId"/>
+                            <!--
+                            <field name="khales_acctType"/>
+                            <field name="khales_acctKey"/>
+                            <field name="khales_secureAcctKey"/>
+                            -->
+                            <field name="khales_acctCur"/>
+                            <field name="khales_accessChannel"/>
+                        </tree>
+                        <form string="Channels">
+                            <group>
+                                <field name="name"/>
+                                <field name="type"/>
+                                <field name="sequence"/>
+                                <field name="khales_sender"/>
+                                <field name="khales_receiver"/>
+                                <!--
+                                <field name="khales_originatorCode"/>
+                                <field name="khales_terminalId"/>
+                                <field name="khales_posSerialNumber"/>
+                                <field name="khales_deliveryMethod"/>
+                                <field name="khales_profileCode"/>
+                                <field name="khales_acctId"/>
+                                -->
+                                <field name="khales_bankId"/>
+                                <!--
+                                <field name="khales_acctType"/>
+                                <field name="khales_acctKey"/>
+                                <field name="khales_secureAcctKey"/>
+                                -->
+                                <field name="khales_acctCur"/>
+                                <field name="khales_accessChannel"/>
+                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            </group>
+                        </form>
+                    </field>
+                </group>
+                <group name="endpoint" attrs="{'invisible': [('provider', '!=', 'khales')]}">
+                    <field name="khales_test_url" groups='base.group_no_one'/>
+                    <field name="khales_prod_url" groups='base.group_no_one'/>
+                    <!--<field name="khales_version" groups='base.group_no_one'/>-->
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.cron" id="auto_fetch_khales_biller_details">
+        <field name="name">Auto Fetch Khales Biller Details</field>
+        <field name="model_id" ref="model_payment_acquirer"/>
+        <field name="state">code</field>
+        <field name="code">model.auto_fetch_khales_biller_details()</field>
+        <field name="active" eval="False"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+</odoo>

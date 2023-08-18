@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="res_partner_fawry" model="res.partner">
+            <field name="name">Fawry</field>
+            <field eval="[(6, 0, [ref('tm_base_gateway.res_partner_category_service_providers')])]" name="category_id"/>
+            <field name="supplier">1</field>
+            <field eval="0" name="customer"/>
+            <field name="is_company">1</field>
+            <field name="street">Building 221 – F12 – Financial district</field>
+            <field name="city">Smart Village</field>
+            <field name="country_id" ref="base.eg"/>
+            <field name="email">info@fawry.com</field>
+            <field name="phone">+202 35371171/2/3/4</field>
+            <field name="website">http://www.fawry.com</field>
+            <field name="image" type="base64" file="tm_fawry_gateway/static/src/img/fawry_icon.png"/>
+        </record>
+
+        <record id="payment_acquirer_fawry" model="payment.acquirer">
+            <field name="name">Fawry</field>
+            <field name="image" type="base64" file="tm_fawry_gateway/static/src/img/fawry_icon.png"/>
+            <field name="provider">fawry</field>
+            <field name="sevice_provider">True</field>
+            <field name="related_partner" ref="tm_fawry_gateway.res_partner_fawry"/>
+            <field name="company_id" ref="base.main_company"/>
+            <!--<field name="view_template_id" ref="tm_fawry_gateway.fawry_form"/>--> <!-- payment.default_acquirer_button-->
+            <field name="environment">test</field>
+            <field name="pre_msg"><![CDATA[<p></p>]]></field>
+
+            <field name="sequence">3</field>
+            <field name="module_id" ref="base.module_tm_fawry_gateway"/>
+            <field name="description" type="html">
+                <p>
+                    A payment gateway from Fawry to accept online payments via wallet.
+                </p>
+                <ul class="list-inline">
+                    <li class="list-inline-item"><i class="fa fa-check"/>Online Payment</li>
+                </ul>
+            </field>
+        </record>
+
+        <record id="payment_acquirer_fawry_machine" model="payment.acquirer.channel">
+            <field name="name">Point of Sale</field>
+            <field name="type">machine</field>
+            <field name="acquirer_id" ref="tm_fawry_gateway.payment_acquirer_fawry"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="sequence">0</field>
+            <field name="module_id" ref="base.module_tm_fawry_gateway"/>
+            <field name="fawry_sender">****</field>
+            <field name="fawry_receiver">****</field>
+            <field name="fawry_originatorCode">****</field>
+            <field name="fawry_terminalId">****</field>
+            <field name="fawry_posSerialNumber">****</field>
+            <field name="fawry_deliveryMethod">****</field>
+            <field name="fawry_profileCode">****</field>
+            <field name="fawry_acctId">****</field>
+            <field name="fawry_bankId">****</field>
+            <field name="fawry_acctType">****</field>
+            <field name="fawry_acctKey">****</field>
+            <field name="fawry_secureAcctKey">****</field>
+            <!-- fawry_acctCur -->
+        </record>
+
+        <record id="payment_acquirer_fawry_mobile" model="payment.acquirer.channel">
+            <field name="name">Mobile Banking</field>
+            <field name="type">mobile</field>
+            <field name="acquirer_id" ref="tm_fawry_gateway.payment_acquirer_fawry"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="sequence">1</field>
+            <field name="module_id" ref="base.module_tm_fawry_gateway"/>
+            <field name="fawry_sender">****</field>
+            <field name="fawry_receiver">****</field>
+            <field name="fawry_originatorCode">****</field>
+            <field name="fawry_terminalId">****</field>
+            <field name="fawry_posSerialNumber">****</field>
+            <field name="fawry_deliveryMethod">****</field>
+            <field name="fawry_profileCode">****</field>
+            <field name="fawry_acctId">****</field>
+            <field name="fawry_bankId">****</field>
+            <field name="fawry_acctType">****</field>
+            <field name="fawry_acctKey">****</field>
+            <field name="fawry_secureAcctKey">****</field>
+            <!-- fawry_acctCur -->
+        </record>
+
+        <record id="fawry_wallet_account" model="account.account">
+            <field name="code">FW100001</field>
+            <field name="name">Fawry Wallet</field>
+            <field name="user_type_id" ref="account.data_account_type_liquidity"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <record id="fawry_wallet_journal" model="account.journal">
+            <field name="name">Fawry Wallet</field>
+            <field name="code">FRYW</field>
+            <field name="type">cash</field>
+            <field name="provider_id" ref="payment_acquirer_fawry"/>
+            <field name="company_id" ref="base.main_company"/>
+            <!--<field name="profit_account_id" ref="rsa" />-->
+            <!--<field name="loss_account_id" ref="rsa" />-->
+            <field name="default_debit_account_id" ref="fawry_wallet_account"/>
+            <field name="default_credit_account_id" ref="fawry_wallet_account"/>
+        </record>
+
+    </data>
+</odoo>

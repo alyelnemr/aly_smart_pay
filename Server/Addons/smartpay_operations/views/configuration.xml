@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_smart" model="ir.ui.view">
+        <field name="name">res.config.settings.form.inherit.smart</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="70"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Smartpay Operations" string="Smartpay Operations" data-key="smartpay_operations" >
+                    <h2>Requests</h2>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="request_hours"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here number of hours to expire request
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="request_hours"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Wallet Invitation</h2>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="inviter_bonus"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here bonus amount to inviter
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="inviter_bonus"/>
+                                    </div>
+                                    <div class="mt16">
+                                        <field name="inviter_bonus_currency_id"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="invited_user_bonus"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here bonus amount to invited user
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="invited_user_bonus"/>
+                                    </div>
+                                    <div class="mt16">
+                                        <field name="invited_user_bonus_currency_id"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="bounce_expense_account_id"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here bonus expense account
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="bounce_expense_account_id"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Wallet Notification</h2>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="wallet_recharge_notify_mode"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here Wallet Recharge Notification Mode
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="wallet_recharge_notify_mode"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="wallet_bouns_notify_mode"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here Wallet Bonus Notification Mode
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="wallet_bouns_notify_mode"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="wallet_pay_service_bill_notify_mode"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here Wallet Pay Service Bill Notification Mode
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="wallet_pay_service_bill_notify_mode"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="wallet_cancel_service_bill_notify_mode"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here Wallet Cancel Service Bill Notification Mode
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="wallet_cancel_service_bill_notify_mode"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="wallet_correlation_service_bill_notify_mode"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here Wallet Correlation Service Bill Notification Mode
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="wallet_correlation_service_bill_notify_mode"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="wallet_pay_invoice_notify_mode"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here Wallet Pay Invoice Notification Mode
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="wallet_pay_invoice_notify_mode"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="wallet_transfer_balance_notify_mode"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here Wallet Transfer Balance Notification Mode
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="wallet_transfer_balance_notify_mode"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container" >
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="wallet_customer_cashback_notify_mode"/>
+                                <div class="row">
+                                    <div class="text-muted col-md-8">
+                                        Set here Wallet Customer Cashback Notification Mode
+                                    </div>
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="wallet_customer_cashback_notify_mode"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_smartpay_operations_config" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'smartpay_operations'}</field>
+    </record>
+
+    <menuitem id="menu_smartpay_operations_config" name="Settings" parent="menu_config"
+              sequence="1000" action="action_smartpay_operations_config"/>
+
+</odoo>

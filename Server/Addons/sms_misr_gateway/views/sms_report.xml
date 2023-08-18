@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>        
+        <record id="sms_report_inherited_in_sms_misr_form_view" model="ir.ui.view">
+            <field name="name">wk.sms.repor.form.inherited.sms.misr</field>
+            <field name="model">sms.report</field>
+            <field name="inherit_id" ref="sms_notification.sms_report_form_view"/>          
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='sms_info']" position="inside">
+                    <group string="SMS Misr Related Inforamtion" attrs="{'invisible':[('sms_gateway','!=','sms_misr')]}">
+                        <field name="id" invisible="1"/>
+                        <field name="sms_gateway" invisible="1"/>
+                        <field name="sms_misr_sms_id" readonly="1"/>
+                        <field name="sms_misr_sender" readonly="1"  />
+                        <field name="sms_misr_response_msg" readonly="1"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

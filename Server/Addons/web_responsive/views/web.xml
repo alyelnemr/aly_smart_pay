@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    Copyright 2018 Alexandre Díaz
+    License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
+-->
+
+<odoo>
+
+    <template id="webclient_bootstrap"
+              inherit_id="web.webclient_bootstrap"
+              name="App Drawer - Web Client"
+              >
+        <xpath expr="//t[@t-set='body_classname']" position="attributes">
+            <attribute name="t-value">'o_web_client o_chatter_position_' + (request.env.user.chatter_position or 'normal')</attribute>
+        </xpath>
+    </template>
+
+    <template id="brand_promotion" inherit_id="website_sale.brand_promotion">
+        <xpath expr="//div[hasclass('o_brand_promotion')]" position="replace">
+            <div class="o_brand_promotion">
+                Powered by <a target="_blank" class="badge badge-danger" href="http://www.smartpayeg.com">SmartPay</a>.
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

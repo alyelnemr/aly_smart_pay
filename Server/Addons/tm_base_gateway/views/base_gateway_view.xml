@@ -1,0 +1,1043 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Server Health Check -->
+    <record id="acquirer_kanban_inherit_server_state" model="ir.ui.view">
+        <field name="name">payment.acquirer.kanban.server.state</field>
+        <field name="model">payment.acquirer</field>
+        <field name="inherit_id" ref="payment.acquirer_kanban"/>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <templates position="before">
+                <field name="server_state"/>
+            </templates>
+            <xpath expr='//div[hasclass("o_kanban_image")]' position='before'>
+                <group name="active endpoint">
+                    <div class="float-right" t-if="record.server_state.raw_value == 'online'">
+                        <span id="o_status" class="o_status o_status_green" role="img" aria-label="Online" title="Online"></span>
+                    </div>
+                    <div class="float-right" t-if="record.server_state.raw_value == 'offline'">
+                        <span id="o_status" class="o_status o_status_red" role="img" aria-label="Offline" title="Offline"></span>
+                    </div>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_payment_acquirer_form_with_provider_fawry" model="ir.ui.view">
+        <field name="name">payment.acquirer.form.provider.fawry</field>
+        <field name="model">payment.acquirer</field>
+        <field name="inherit_id" ref="payment.acquirer_form"/>
+        <field name="arch" type="xml">
+            <xpath expr='//group[@name="acquirer"]' position='after'>
+                <group name="active endpoint">
+                    <field name="server_url" readonly="1" force_save="1" groups='base.group_no_one'/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.cron" id="health_check_service_provider_server">
+        <field name="name">Health Check for Service Provider's Server</field>
+        <field name="model_id" ref="model_payment_acquirer"/>
+        <field name="state">code</field>
+        <field name="code">model.health_check_providers_servers()</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+    <record model="ir.cron" id="notify_providers_servers_down">
+        <field name="name">Notify Managers: Service Provider's Server is Down</field>
+        <field name="model_id" ref="model_payment_acquirer"/>
+        <field name="state">code</field>
+        <field name="code">model.notify_providers_servers_down()</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">10</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+    <record id="email_template_for_providers_servers_down" model="mail.template">
+           <field name="name">Provider Server Down</field>
+           <field name="email_from">${(user.email or '')}</field>
+           <field name="subject">Provider Server Down</field>
+           <field name="email_to">${object.get_manager_mail()}</field>
+           <field name="model_id" ref="tm_base_gateway.model_payment_acquirer"/>
+           <field name="auto_delete" eval="False"/>
+           <field name="body_html"><![CDATA[
+<div style="font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255); ">
+    <p>
+    Hello,<br/>
+    <p style="margin-left: 50px;">
+     ${object.related_partner.name} server is down from ${object.offline_time}.
+     </p>
+    <br/>
+    ${user.name}
+</div>
+            ]]></field>
+       </record>
+
+    <!-- Start Mapping Views -->
+
+    <!-- Product Category Mapping -->
+    <record id="product_category_mapping_search_view" model="ir.ui.view">
+        <field name="name">product.category.mapping.search</field>
+        <field name="model">product.category.mapping</field>
+        <field name="arch" type="xml">
+            <search string="Product Categories Mapping">
+                <field name="name" string="Product Categories"/>
+                <field name="parent_id"/>
+            </search>
+        </field>
+    </record>
+    <record id="product_category_mapping_form_view" model="ir.ui.view">
+        <field name="name">product.category.mapping.form</field>
+        <field name="model">product.category.mapping</field>
+        <field name="arch" type="xml">
+            <form class="oe_form_configuration">
+                <sheet>
+                    <field name="image_medium" widget='image' class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="name" string="Category name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="e.g. Lamps"/></h1>
+                    </div>
+                    <group name="first" col="2">
+                        <field name="parent_id" class="oe_inline"/>
+                    </group>
+                    <group string="Providers">
+                        <field name="provider_ids" readonly="1" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="product_category_mapping_list_view" model="ir.ui.view">
+        <field name="name">product.category.mapping.list</field>
+        <field name="model">product.category.mapping</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <tree string="Product Categories Mapping">
+                <field name="display_name" string="Product Category"/>
+            </tree>
+        </field>
+    </record>
+    <record id="product_category_mapping_action_form" model="ir.actions.act_window">
+        <field name="name">Product Categories Mapping</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.category.mapping</field>
+        <field name="view_type">form</field>
+        <field name="search_view_id" ref="product_category_mapping_search_view"/>
+        <field name="view_id" ref="product_category_mapping_list_view"/>
+    </record>
+
+    <menuitem
+            action="tm_base_gateway.product_category_mapping_action_form" id="menu_product_category_mapping_config_purchase"
+            parent="purchase.menu_product_in_config_purchase" sequence="1" />
+
+    <record id="product_category_providerinfo_mapping_form_view" model="ir.ui.view">
+        <field name="name">product.category.providerinfo.mapping.form.view</field>
+        <field name="model">product_category.providerinfo.mapping</field>
+        <field name="arch" type="xml">
+            <form string="Provider Mapping Information">
+                <group>
+                    <group string="Provider">
+                        <field name="product_categ_id" options="{'no_create_edit': True}"/>
+                        <field name="provider_id"/>
+                        <field name="product_categ_name"/>
+                        <field name="product_categ_code"/>
+                    </group>
+                    <group string="Other Information" groups="base.group_multi_company">
+                        <field name="company_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+    <record id="product_category_providerinfo_mapping_search_view" model="ir.ui.view">
+        <field name="name">product.category.providerinfo.mapping.search.view</field>
+        <field name="model">product_category.providerinfo.mapping</field>
+        <field name="arch" type="xml">
+            <search string="Provider Mapping">
+                <field name="provider_id"/>
+                <field name="product_categ_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product Category" name="groupby_product_category" domain="[]" context="{'group_by': 'product_categ_id'}"/>
+                    <filter string="Provider" name="groupby_provider" domain="[]" context="{'group_by': 'provider_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="product_category_providerinfo_mapping_tree_view" model="ir.ui.view">
+        <field name="name">product.category.providerinfo.mapping.tree.view</field>
+        <field name="model">product_category.providerinfo.mapping</field>
+        <field name="arch" type="xml">
+            <tree string="Provider Mapping Information">
+                <field name="sequence" widget="handle"/>
+                <field name="provider_id"/>
+                <field name="product_categ_id"/>
+                <field name="product_categ_name"/>
+                <field name="product_categ_code"/>
+            </tree>
+        </field>
+    </record>
+    <record id="product_category_providerinfo_mapping_type_action" model="ir.actions.act_window">
+        <field name="name">Vendor Product Category Mapping Info</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product_category.providerinfo.mapping</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="context">{'visible_product_tmpl_id':False}</field>
+    </record>
+
+    <!-- Product Template Mapping -->
+    <record id="product_template_mapping_tree_view" model="ir.ui.view">
+        <field name="name">product.template.product.mapping.tree</field>
+        <field name="model">product.template.mapping</field>
+        <field name="arch" type="xml">
+            <tree string="Product Mapping">
+                <field name="name"/>
+                <field name="list_price" string="Sales Price"/>
+                <field name="categ_id"/>
+                <field name="type"/>
+                <field name="uom_id" options="{'no_open': True, 'no_create': True}" groups="uom.group_uom"/>
+                <!--<field name="active" invisible="1"/>-->
+            </tree>
+        </field>
+    </record>
+
+    <!-- base structure of product.template.mapping, common with product.product.mapping -->
+    <record id="product_template_mapping_form_view" model="ir.ui.view">
+        <field name="name">product.template.mapping.common.form</field>
+        <field name="model">product.template.mapping</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <form string="Product Template Mapping">
+                <sheet>
+                    <field name="id" invisible="True"/>
+                    <field name="image_medium" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label class="oe_edit_only" for="name" string="Product Name"/>
+                        <h1><field name="name" placeholder="Product Name"/></h1>
+                        <div name="options" groups="base.group_user">
+                            <div>
+                                <field name="sale_ok"/>
+                                <label for="sale_ok"/>
+                            </div>
+                            <div>
+                                <field name="purchase_ok"/>
+                                <label for="purchase_ok"/>
+                            </div>
+                        </div>
+                    </div>
+                    <notebook>
+                        <page string="General Information" name="general_information">
+                            <group>
+                                <group name="group_general">
+                                    <field name="type"/>
+                                    <field name="categ_id" string="Product Category"/>
+                                </group>
+                                <group name="group_standard_price">
+                                    <field name="list_price" string="Sales Price" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                                    <field name="company_id" groups="base.group_multi_company"
+                                        options="{'no_create': True}"/>
+                                    <field name="uom_id" groups="uom.group_uom" options="{'no_create': True}"/>
+                                    <field name="uom_po_id" groups="uom.group_uom" options="{'no_create': True}"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Purchase" name="purchase" attrs="{'invisible': [('purchase_ok','=',False)]}">
+                            <group string="Vendors" name="vendors">
+                                <field name="seller_ids" context="{'default_product_tmpl_id':context.get('product_tmpl_id',active_id), 'product_template_invisible_variant': True}" nolabel="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_supplierinfo_mapping_tree_view" model="ir.ui.view">
+        <field name="name">product.supplierinfo.mapping.tree.view</field>
+        <field name="model">product.supplierinfo.mapping</field>
+        <field name="arch" type="xml">
+            <tree string="Vendor Mapping Information">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="product_code"/>
+                <field name="product_name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="product_template_mapping_kanban_view" model="ir.ui.view">
+        <field name="name">Product.template.product.mapping.kanban</field>
+        <field name="model">product.template.mapping</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="id"/>
+                <field name="image_small"/>
+                <field name="lst_price"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_image">
+                                <img t-att-src="kanban_image('product.template.mapping', 'image_small', record.id.raw_value)" alt="Product"/>
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <div name="tags"/>
+                                <ul>
+                                    <li>Price: <field name="lst_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"></field></li>
+                                </ul>
+                                <div name="tags"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="product_template_mapping_search_view" model="ir.ui.view">
+        <field name="name">product.template.mapping.search</field>
+        <field name="model">product.template.mapping</field>
+        <field name="arch" type="xml">
+            <search string="Product">
+                <field name="name" string="Product" filter_domain="['|', '|', '|', ('default_code', 'ilike', self), ('product_variant_ids.default_code', 'ilike', self),('name', 'ilike', self), ('barcode', 'ilike', self)]"/>
+                <field name="categ_id" filter_domain="[('categ_id', 'child_of', raw_value)]"/>
+                <separator/>
+                <!--
+                <filter string="Services" name="services" domain="[('type','=','service')]"/>
+                <filter string="Products" name="consumable" domain="[('type', 'in', ['consu', 'product'])]"/>
+                <separator/>
+                -->
+                <filter string="Can be Sold" name="filter_to_sell" domain="[('sale_ok','=',True)]"/>
+                <filter string="Can be Purchased" name="filter_to_purchase" domain="[('purchase_ok', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="product_template_mapping_action" model="ir.actions.act_window">
+        <field name="name">Products Mapping</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.template.mapping</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_type">form</field>
+        <field name="view_id" ref="product_template_mapping_kanban_view"/>
+        <field name="search_view_id" ref="product_template_mapping_search_view"/>
+        <field name="context">{"search_default_filter_to_sell":1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new product mapping
+            </p><p>
+                You must define a product mapping for everything you purchase.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+            action="tm_base_gateway.product_template_mapping_action" id="product_mapping_menu_catalog"
+            parent="purchase.menu_product_in_config_purchase" sequence="2" />
+
+    <!-- End Mapping Views -->
+
+    <record id="view_payment_acquirer_form_with_provider_base" model="ir.ui.view">
+        <field name="name">payment.acquirer.form.provider.base</field>
+        <field name="model">payment.acquirer</field>
+        <field name="inherit_id" ref="payment.acquirer_form"/>
+        <field name="arch" type="xml">
+            <xpath expr='//div[@name="button_box"]' position='inside'>
+                <button name="toggle_debug" type="object" class="oe_stat_button" icon="fa-code" groups="base.group_no_one" attrs="{'invisible': [('sevice_provider', '=', False)]}">
+                    <field name="debug_logging" widget="boolean_button" options='{"terminology": {
+                        "string_true": "Debug requests",
+                        "hover_true": "Disable debug",
+                        "string_false": "No debug",
+                        "hover_false": "Enable debug"
+                    }}'/>
+                </button>
+            </xpath>
+            <xpath expr='//field[@name="provider"]' position='after'>
+                <field name="sevice_provider"/>
+                <field name="related_partner" attrs="{'invisible': [('sevice_provider', '=', False)]}"/>
+                <field name="active" attrs="{'invisible': [('sevice_provider', '=', False)]}" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_journal_provider_form_inherit" model="ir.ui.view">
+        <field name="name">account.journal.provider.form.inherit</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="provider_id" attrs="{'invisible': [('type', 'not in', ['cash'])]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_category_form_view_inherit" model="ir.ui.view">
+        <field name="name">product.category.form</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr='//div[@class="oe_title"]' position='before'>
+                <field name="image_medium" widget='image' class="oe_avatar"/>
+            </xpath>
+            <group name="first" position="after">
+                <group string="Providers">
+                    <field name="provider_ids" readonly="1" nolabel="1"/>
+                </group>
+            </group>
+        </field>
+    </record>
+    
+    <record id="product_category_providerinfo_form_view" model="ir.ui.view">
+        <field name="name">product.category.providerinfo.form.view</field>
+        <field name="model">product_category.providerinfo</field>
+        <field name="arch" type="xml">
+            <form string="Provider Information">
+                <group>
+                    <group string="Provider">
+                        <field name="product_categ_id" options="{'no_create_edit': True}"/>
+                        <field name="provider_id"/>
+                        <field name="product_categ_name"/>
+                        <field name="product_categ_code"/>
+                    </group>
+                    <group string="Other Information" groups="base.group_multi_company">
+                        <field name="company_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_category_providerinfo_search_view" model="ir.ui.view">
+        <field name="name">product.category.providerinfo.search.view</field>
+        <field name="model">product_category.providerinfo</field>
+        <field name="arch" type="xml">
+            <search string="Provider">
+                <field name="provider_id"/>
+                <field name="product_categ_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product Category" name="groupby_product_category" domain="[]" context="{'group_by': 'product_categ_id'}"/>
+                    <filter string="Provider" name="groupby_provider" domain="[]" context="{'group_by': 'provider_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="product_category_providerinfo_tree_view" model="ir.ui.view">
+        <field name="name">product.category.providerinfo.tree.view</field>
+        <field name="model">product_category.providerinfo</field>
+        <field name="arch" type="xml">
+            <tree string="Provider Information">
+                <field name="sequence" widget="handle"/>
+                <field name="provider_id"/>
+                <field name="product_categ_id"/>
+                <field name="product_categ_name"/>
+                <field name="product_categ_code"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="product_category_providerinfo_type_action" model="ir.actions.act_window">
+        <field name="name">Vendor Product Category Info</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product_category.providerinfo</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="context">{'visible_product_tmpl_id':False}</field>
+    </record>
+
+    <record model="ir.ui.view" id="supplier_info_form_inherit">
+        <field name="name">product.supplierinfo.biller.view</field>
+        <field name="model">product.supplierinfo</field>
+        <field name="inherit_id" ref="product.product_supplierinfo_form_view"/>
+        <field name="arch" type="xml">
+            <field name="product_code" position="after">
+                <field name="provider_biller_info" invisible="1"/>
+                <field name="mapping_biller_info" invisible="1"/>
+                <field name="biller_info_mapping">
+                     <tree string="Biller Info Mappings" editable="bottom">
+                        <field name="col1"/>
+                        <!--
+                         <field name="type"/>
+                        <field name="resource_ref" attrs="{'readonly': [('type', '!=', 'reference')]}" options="{'hide_model': True}"/>
+                        <field name="value" attrs="{'readonly': [('type', '=', 'reference')]}" force_save="1"/>
+                         -->
+                    </tree>
+                </field>
+                <field name="biller_info" groups="base.group_erp_manager" attrs="{'readonly':[('mapping_biller_info', '!=', False)]}" force_save="1"/>
+                <field name="custom_biller_info" groups="base.group_erp_manager" attrs="{'invisible':[('mapping_biller_info', '=', False)]}"/>
+            </field>
+            <xpath expr="//group[last()]" position="after">
+                <notebook>
+                    <page string="Commissions">
+                        <field name="commission">
+                             <tree string="Commission" editable="bottom">
+                                 <field name="product_supplierinfo_id" invisible="1"/>
+                                 <field name="vendor"/>
+                                 <field name="vendor_product_code"/>
+                                 <field name="vendor_product_name"/>
+                                 <field name="Amount_Range_From"/>
+                                 <field name="Amount_Range_To"/>
+                                 <field name="Mer_Fee_Amt" readonly="1" groups="base.group_no_one"/>
+                                 <field name="Mer_Comm_Full_Fix_Amt" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '>', 0)]}"/>
+                                 <field name="Comp_Comm_Full_Fix_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}"/>
+                                 <field name="Cust_Comm_Full_Fix_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}" readonly="1"/>
+                                 <field name="Extra_Fee_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}"/>
+                                 <field name="Comp_Total_Comm_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}" readonly="1"/>
+                                 <!--
+                                 <field name="Mer_Comm_Partial_Fix_Amt"/>
+                                 -->
+                                 <field name="Mer_Fee_Prc" readonly="1" groups="base.group_no_one"/>
+                                 <field name="Bill_Merchant_Comm_Prc" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '>', 0)]}"/>
+                                 <field name="Bill_Company_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}"/>
+                                 <field name="Bill_Customer_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}" readonly="1"/>
+                                 <field name="Extra_Fee_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}"/>
+                                 <field name="Comp_Total_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}" readonly="1"/>
+                                 <!--
+                                 <field name="Mer_Comm_Var_Cust_Fee"/>
+                                 <field name="Mer_Comm_Var_Biller_Fee"/>
+                                 <field name="Mer_Comm_Trx_Limit_Min"/>
+                                 <field name="Mer_Comm_Trx_Limit_Max"/>
+                                 <field name="Mer_Comm_Daily_Limit"/>
+                                 -->
+                            </tree>
+                            <form string="Commission">
+                                <sheet>
+                                    <group>
+                                        <group>
+                                            <field name="product_supplierinfo_id" invisible="1"/>
+                                            <field name="vendor"/>
+                                            <field name="vendor_product_code"/>
+                                            <field name="vendor_product_name"/>
+                                        </group>
+                                        <group>
+                                            <field name="Amount_Range_From" readonly="1"/>
+                                            <field name="Amount_Range_To" readonly="1"/>
+                                            <field name="Mer_Fee_Amt" readonly="1" groups="base.group_no_one"/>
+                                            <field name="Mer_Comm_Full_Fix_Amt" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '>', 0)]}"/>
+                                            <field name="Comp_Comm_Full_Fix_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}"/>
+                                            <field name="Cust_Comm_Full_Fix_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}" readonly="1"/>
+                                            <field name="Extra_Fee_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}"/>
+                                            <field name="Comp_Total_Comm_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}" readonly="1"/>
+                                            <!--
+                                            <field name="Mer_Comm_Partial_Fix_Amt"/>
+                                            -->
+                                            <field name="Mer_Fee_Prc" readonly="1" groups="base.group_no_one"/>
+                                            <field name="Bill_Merchant_Comm_Prc" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '>', 0)]}"/>
+                                            <field name="Bill_Company_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}"/>
+                                            <field name="Bill_Customer_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}" readonly="1" />
+                                            <field name="Extra_Fee_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}"/>
+                                            <field name="Comp_Total_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}" readonly="1" />
+                                            <!--
+                                            <field name="Mer_Comm_Var_Cust_Fee"/>
+                                            <field name="Mer_Comm_Var_Biller_Fee"/>
+                                            <field name="Mer_Comm_Trx_Limit_Min"/>
+                                            <field name="Mer_Comm_Trx_Limit_Max"/>
+                                            <field name="Mer_Comm_Daily_Limit"/>
+                                            -->
+                                        </group>
+                                    </group>
+                                </sheet>
+                            </form>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="supplier_info_tree_inherit">
+        <field name="name">product.supplierinfo.biller.tree.view</field>
+        <field name="model">product.supplierinfo</field>
+        <field name="inherit_id" ref="product.product_supplierinfo_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="product_code"/>
+                <field name="product_name"/>
+            </field>
+            <xpath expr="//field[@name='min_qty']" position="replace"/>
+            <xpath expr="//field[@name='product_uom']" position="replace"/>
+            <xpath expr="//field[@name='price']" position="replace"/>
+            <xpath expr="//field[@name='currency_id']" position="replace"/>
+            <xpath expr="//field[@name='date_start']" position="replace"/>
+            <xpath expr="//field[@name='date_end']" position="replace"/>
+        </field>
+    </record>
+
+    <record id="product_supplierinfo_commission_form_view" model="ir.ui.view">
+        <field name="name">product.supplierinfo.commission.form.view</field>
+        <field name="model">product.supplierinfo.commission</field>
+        <field name="arch" type="xml">
+            <form string="Vendor Commission">
+                <group>
+                    <group string="Vendor">
+                        <field name="product_supplierinfo_id" invisible="1"/>
+                        <field name="vendor"/>
+                        <field name="vendor_product_code"/>
+                        <field name="vendor_product_name"/>
+                    </group>
+                    <group string="Commission">
+                        <field name="Amount_Range_From" readonly="1"/>
+                        <field name="Amount_Range_To" readonly="1"/>
+                        <field name="Mer_Fee_Amt" readonly="1" groups="base.group_no_one"/>
+                        <field name="Mer_Comm_Full_Fix_Amt" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '>', 0)]}"/>
+                        <field name="Comp_Comm_Full_Fix_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}"/>
+                        <field name="Cust_Comm_Full_Fix_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}" readonly="1"/>
+                        <field name="Extra_Fee_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}"/>
+                        <field name="Comp_Total_Comm_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}" readonly="1"/>
+                        <!--
+                        <field name="Mer_Comm_Partial_Fix_Amt"/>
+                        -->
+                        <field name="Mer_Fee_Prc" readonly="1" groups="base.group_no_one"/>
+                        <field name="Bill_Merchant_Comm_Prc" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '>', 0)]}"/>
+                        <field name="Bill_Company_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}"/>
+                        <field name="Bill_Customer_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}" readonly="1"/>
+                        <field name="Extra_Fee_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}"/>
+                        <field name="Comp_Total_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}" readonly="1"/>
+                        <!--
+                        <field name="Mer_Comm_Var_Cust_Fee"/>
+                        <field name="Mer_Comm_Var_Biller_Fee"/>
+                        <field name="Mer_Comm_Trx_Limit_Min"/>
+                        <field name="Mer_Comm_Trx_Limit_Max"/>
+                        <field name="Mer_Comm_Daily_Limit"/>
+                        -->
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_supplierinfo_commission_search_view" model="ir.ui.view">
+        <field name="name">product.supplierinfo.commission.search.view</field>
+        <field name="model">product.supplierinfo.commission</field>
+        <field name="arch" type="xml">
+            <search string="Vendor">
+                <field name="product_tmpl_id"/>
+                <field name="vendor"/>
+                <field name="vendor_product_code"/>
+                <filter string="Active" name="active" domain="[('date_end', '&gt;=',  (context_today() - datetime.timedelta(days=1)).strftime('%%Y-%%m-%%d'))]"/>
+                <filter string="Archived" name="archived" domain="[('date_end', '&lt;',  (context_today() - datetime.timedelta(days=1)).strftime('%%Y-%%m-%%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Service" name="groupby_product" domain="[]" context="{'group_by': 'product_tmpl_id'}"/>
+                    <filter string="Vendor" name="groupby_vendor" domain="[]" context="{'group_by': 'vendor'}"/>
+                    <filter string="Vendor Service Code" name="groupby_vendor" domain="[]" context="{'group_by': 'vendor_product_code'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="product_supplierinfo_commission_tree_view" model="ir.ui.view">
+        <field name="name">product.supplierinfo.commission.tree.view</field>
+        <field name="model">product.supplierinfo.commission</field>
+        <field name="arch" type="xml">
+            <tree string="Commission" editable="bottom">
+                 <field name="product_supplierinfo_id" invisible="1"/>
+                 <field name="vendor"/>
+                 <field name="vendor_product_code"/>
+                 <field name="vendor_product_name"/>
+                 <field name="Amount_Range_From" readonly="1"/>
+                 <field name="Amount_Range_To" readonly="1"/>
+                 <field name="Mer_Fee_Amt" readonly="1" groups="base.group_no_one"/>
+                 <field name="Mer_Comm_Full_Fix_Amt" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '>', 0)]}"/>
+                 <field name="Comp_Comm_Full_Fix_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}"/>
+                 <field name="Cust_Comm_Full_Fix_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}" readonly="1"/>
+                 <field name="Extra_Fee_Amt" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '=', 0)]}"/>
+                 <field name="Comp_Total_Comm_Amt" readonly="1"/>
+                 <!--
+                 <field name="Mer_Comm_Partial_Fix_Amt"/>
+                 -->
+                <field name="Mer_Fee_Prc" readonly="1" groups="base.group_no_one"/>
+                 <field name="Bill_Merchant_Comm_Prc" attrs="{'invisible':[('Mer_Comm_Full_Fix_Amt', '>', 0)]}"/>
+                 <field name="Bill_Company_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}"/>
+                 <field name="Bill_Customer_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}" readonly="1"/>
+                 <field name="Extra_Fee_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}"/>
+                 <field name="Comp_Total_Comm_Prc" attrs="{'invisible':[('Bill_Merchant_Comm_Prc', '=', 0)]}" readonly="1"/>
+                 <!--
+                 <field name="Mer_Comm_Var_Cust_Fee"/>
+                 <field name="Mer_Comm_Var_Biller_Fee"/>
+                 <field name="Mer_Comm_Trx_Limit_Min"/>
+                 <field name="Mer_Comm_Trx_Limit_Max"/>
+                 <field name="Mer_Comm_Daily_Limit"/>
+                 -->
+            </tree>
+        </field>
+    </record>
+
+    <record id="product_supplierinfo_commission_type_action" model="ir.actions.act_window">
+        <field name="name">Vendor Commissions</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.supplierinfo.commission</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Product Sold Limit -->
+    <record model="ir.ui.view" id="product_template_form_view_sale_limit">
+        <field name="name">product.template.sale.limit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='invoicing']" position="before">
+                <group string="Sale Limits">
+                    <field name="has_sale_limit"/>
+                    <field name="sale_limit_ids" nolabel="1" attrs="{'invisible': [('has_sale_limit', '=', False)]}"/>
+                    <!--
+                    <group string="Sale Limits" name="sale_limits" attrs="{'invisible': [('product_variant_count','&gt;',1)]}">
+                        <field name="sale_limit_ids" context="{'default_product_tmpl_id':context.get('product_tmpl_id',active_id), 'product_template_invisible_variant': True}" nolabel="1"/>
+                    </group>
+                    <group string="Sale Limits" name="variant_sale_limits" attrs="{'invisible': [('product_variant_count','&lt;=',1)]}">
+                        <field name="variant_sale_limit_ids" context="{'default_product_tmpl_id': context.get('product_tmpl_id', active_id)}" nolabel="1"/>
+                    </group>
+                    -->
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Sale Limit per sold products -->
+    <record id="product_sale_limit_form_view" model="ir.ui.view">
+        <field name="name">product.sale.limit.form.view</field>
+        <field name="model">product.sale.limit</field>
+        <field name="arch" type="xml">
+            <form string="Product Sale Limits">
+                <group>
+                    <group string="Sale Limit"> <!-- product_tmpl_id product_id date_start date_end -->
+                        <field name="limit_type"/>
+                        <field name="limit_amount"/>
+                        <field name="has_over_limit_fees"/>
+                        <field name="over_limit_fees_ids" nolabel="1" attrs="{'invisible': [('has_over_limit_fees', '=', False)]}"/>
+                    </group>
+                    <group string="Other Information" groups="base.group_multi_company">
+                        <field name="company_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_sale_limit_search_view" model="ir.ui.view">
+        <field name="name">product.sale.limit.search.view</field>
+        <field name="model">product.sale.limit</field>
+        <field name="arch" type="xml">
+            <search string="Sale Limit">
+                <field name="product_id"/>
+                <field name="limit_type"/>
+                <field name="limit_amount"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product" name="groupby_product" domain="[]" context="{'group_by': 'product_id'}"/>
+                    <filter string="Type" name="groupby_limit_type" domain="[]" context="{'group_by': 'limit_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="product_sale_limit_tree_view" model="ir.ui.view">
+        <field name="name">product.sale.limit.tree.view</field>
+        <field name="model">product.sale.limit</field>
+        <field name="arch" type="xml">
+            <tree string="Sale Limit">
+                <field name="sequence" widget="handle"/>
+                <field name="limit_type"/>
+                <field name="limit_amount"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Sale Over Limit Fees per sold products -->
+    <record id="product_sale_limit_fees_form_view" model="ir.ui.view">
+        <field name="name">product.sale.limit.fees.form.view</field>
+        <field name="model">product.sale.limit.fees</field>
+        <field name="arch" type="xml">
+            <form string="Product Sale Over Limit Fees">
+                <group>
+                    <group string="Sale Over Limit Fees">
+                        <field name="sale_amount_from"/>
+                        <field name="sale_amount_to"/>
+                        <field name="fees_amount" attrs="{'invisible':[('fees_amount_percentage', '>', 0)]}"/>
+                        <field name="fees_amount_percentage" attrs="{'invisible':[('fees_amount', '>', 0)]}"/>
+                    </group>
+                    <group string="Other Information" groups="base.group_multi_company">
+                        <field name="company_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_sale_limit_fees_search_view" model="ir.ui.view">
+        <field name="name">product.sale.limit.fees.search.view</field>
+        <field name="model">product.sale.limit.fees</field>
+        <field name="arch" type="xml">
+            <search string="Sale Over Limit Fees">
+                <field name="product_id"/>
+                <field name="sale_amount_from"/>
+                <field name="sale_amount_to"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product" name="groupby_product" domain="[]" context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="product_sale_limit_fees_tree_view" model="ir.ui.view">
+        <field name="name">product.sale.limit.fees.tree.view</field>
+        <field name="model">product.sale.limit.fees</field>
+        <field name="arch" type="xml">
+            <tree string="Sale Over Limit Fees" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="sale_amount_from"/>
+                <field name="sale_amount_to"/>
+                <field name="fees_amount" attrs="{'invisible':[('fees_amount_percentage', '>', 0)]}"/>
+                <field name="fees_amount_percentage" attrs="{'invisible':[('fees_amount', '>', 0)]}"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Partner sale Limit per sold products -->
+    <record model="ir.ui.view" id="partner_form_view_product_sale_limit">
+        <field name="name">partner.product.sale.limit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <group name="sale" position="inside">
+                <field name="sale_limit_ids" nolabel="1"/>
+            </group>
+        </field>
+    </record>
+
+    <record id="partner_product_sale_limit_form_view" model="ir.ui.view">
+        <field name="name">partner.product.sale.limit.form.view</field>
+        <field name="model">res.partner.product.sale.limit</field>
+        <field name="arch" type="xml">
+            <form string="Partner Sale Limits per Product">
+                <group>
+                    <group string="Sale Limit"> <!-- partner_id product_id date_start date_end -->
+                        <field name="product_tmpl_id"/>
+                        <field name="limit_type"/>
+                        <field name="limit_amount"/>
+                        <!--
+                        <field name="has_over_limit_fees"/>
+                        <field name="over_limit_fees_ids" nolabel="1" attrs="{'invisible': [('has_over_limit_fees', '=', False)]}"/>
+                        -->
+                        <field name="over_limit_fees_policy"/>
+                        <field name="product_over_limit_fees_ids" nolabel="1" attrs="{'invisible': [('over_limit_fees_policy', '!=', 'product_over_limit_fees')]}"/>
+                        <field name="over_limit_fees_ids" nolabel="1" attrs="{'invisible': [('over_limit_fees_policy', '!=', 'custom_over_limit_fees')]}"/>
+                    </group>
+                    <group string="Other Information" groups="base.group_multi_company">
+                        <field name="company_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="partner_product_sale_limit_search_view" model="ir.ui.view">
+        <field name="name">partner.product.sale.limit.search.view</field>
+        <field name="model">res.partner.product.sale.limit</field>
+        <field name="arch" type="xml">
+            <search string="Sale Limit">
+                <field name="partner_id"/>
+                <field name="product_tmpl_id"/>
+                <field name="limit_type"/>
+                <field name="limit_amount"/>
+                <group expand="0" string="Group By">
+                    <filter string="Partner" name="groupby_partner" domain="[]" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Product" name="groupby_product" domain="[]" context="{'group_by': 'product_tmpl_id'}"/>
+                    <filter string="Type" name="groupby_limit_type" domain="[]" context="{'group_by': 'limit_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="partner_product_sale_limit_tree_view" model="ir.ui.view">
+        <field name="name">partner.product.sale.limit.tree.view</field>
+        <field name="model">res.partner.product.sale.limit</field>
+        <field name="arch" type="xml">
+            <tree string="Sale Limit">
+                <field name="sequence" widget="handle"/>
+                <field name="product_tmpl_id"/>
+                <field name="limit_type"/>
+                <field name="limit_amount"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Sale Over Limit Fees per sold products -->
+    <record id="partner_product_sale_limit_fees_form_view" model="ir.ui.view">
+        <field name="name">partner.product.sale.limit.fees.form.view</field>
+        <field name="model">res.partner.product.sale.limit.fees</field>
+        <field name="arch" type="xml">
+            <form string="Product Sale Over Limit Fees">
+                <group>
+                    <group string="Sale Over Limit Fees">
+                        <field name="sale_amount_from"/>
+                        <field name="sale_amount_to"/>
+                        <field name="fees_amount" attrs="{'invisible':[('fees_amount_percentage', '>', 0)]}"/>
+                        <field name="fees_amount_percentage" attrs="{'invisible':[('fees_amount', '>', 0)]}"/>
+                    </group>
+                    <group string="Other Information" groups="base.group_multi_company">
+                        <field name="company_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="partner_product_sale_limit_fees_search_view" model="ir.ui.view">
+        <field name="name">partner.product.sale.limit.fees.search.view</field>
+        <field name="model">res.partner.product.sale.limit.fees</field>
+        <field name="arch" type="xml">
+            <search string="Sale Over Limit Fees">
+                <field name="product_id"/>
+                <field name="sale_amount_from"/>
+                <field name="sale_amount_to"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product" name="groupby_product" domain="[]" context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="partner_product_sale_limit_fees_tree_view" model="ir.ui.view">
+        <field name="name">partner.product.sale.limit.fees.tree.view</field>
+        <field name="model">res.partner.product.sale.limit.fees</field>
+        <field name="arch" type="xml">
+            <tree string="Sale Over Limit Fees" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="sale_amount_from"/>
+                <field name="sale_amount_to"/>
+                <field name="fees_amount" attrs="{'invisible':[('fees_amount_percentage', '>', 0)]}"/>
+                <field name="fees_amount_percentage" attrs="{'invisible':[('fees_amount', '>', 0)]}"/>
+            </tree>
+        </field>
+    </record>
+
+    <menuitem
+           action="product_supplierinfo_commission_type_action" id="menu_product_commission_action2_purchase"
+           parent="purchase.menu_procurement_management" sequence="17" groups="group_manage_vendor_commission"/>
+
+    <!-- Standard Service -->
+    <record model="ir.ui.view" id="product_template_form_view_sale_limit">
+        <field name="name">product.template.sale.limit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[last()]" position="after">
+                    <page string="Standard Service" name="standard_service" groups="base.group_erp_manager">
+                        <group>
+                            <group col="2">
+                                <field name="bill_type_code"/>
+                                <field name="is_hidden"/>
+                                <field name="bill_ref_type"/>
+                                <field name="pmt_type"/>
+                                <field name="service_type"/>
+                                <field name="bill_type_acctlabel"/>
+                                <field name="acct_input_method"/>
+                                <field name="allow_timeout_receipt"/>
+                                <field name="bill_type_extra_ref_keys">
+                                     <tree string="Bill Type Extra Ref Keys" editable="bottom">
+                                         <field name="name"/>
+                                         <field name="Key"/>
+                                         <field name="is_print_keypart"/>
+                                         <field name="required"/>
+                                         <field name="is_cnfrm_required"/>
+                                         <field name="is_ba_keypart"/>
+                                    </tree>
+                                </field>
+                                <field name="receipt_header"/>
+                                <field name="receipt_footer"/>
+                                <field name="payment_rules">
+                                     <tree string="Payment Rules" editable="bottom">
+                                         <field name="is_inq_rqr"/>
+                                         <field name="is_mob_ntfy"/>
+                                         <field name="is_frac_acpt"/>
+                                         <field name="is_prt_acpt"/>
+                                         <field name="is_ovr_acpt"/>
+                                         <field name="is_adv_acpt"/>
+                                         <field name="is_acpt_card_pmt"/>
+                                    </tree>
+                                </field>
+                                <field name="Fees">
+                                     <tree string="Fees"> <!-- editable="bottom"-->
+                                         <field name="tier"/>
+                                         <field name="is_embedded_fees"/>
+                                    </tree>
+                                </field>
+                                <field name="tax"/>
+                                <field name="payment_ranges">
+                                     <tree string="Payment Ranges"> <!-- editable="bottom"-->
+                                         <field name="lower"/>
+                                         <field name="upper"/>
+                                         <field name="description"/>
+                                    </tree>
+                                </field>
+                                <field name="allow_rct_re_print"/>
+                                <field name="bill_type_status"/>
+                                <field name="bill_type_nature"/>
+                                <field name="corr_bill_type_code"/>
+                                <field name="otp_enabled"/>
+                                <field name="opt_required"/>
+                                <field name="support_pmt_reverse"/>
+                                <field name="timeout"/>
+                                <field name="is_internal_cancel"/>
+                                <field name="has_correlation"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+        </field>
+    </record>
+
+    <record id="tier_tree_view" model="ir.ui.view">
+        <field name="name">tier.tree.view</field>
+        <field name="model">tier</field>
+        <field name="arch" type="xml">
+            <tree string="Tier"> <!-- editable="bottom"-->
+                <field name="lower_amt"/>
+                <field name="upper_amt"/>
+                <field name="fixed_amount"/>
+                <field name="percent"/>
+                <field name="start_date"/>
+                <field name="expiry_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="fixed_amount_tree_view" model="ir.ui.view">
+        <field name="name">fixed.amount.tree.view</field>
+        <field name="model">fixed.amount</field>
+        <field name="arch" type="xml">
+            <tree string="Fixed Amount" editable="bottom">
+                <field name="amount"/>
+                <field name="cur_code"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="percent_tree_view" model="ir.ui.view">
+        <field name="name">percent.tree.view</field>
+        <field name="model">percent</field>
+        <field name="arch" type="xml">
+            <tree string="Percent" editable="bottom">
+                <field name="value"/>
+                <field name="min_amt"/>
+                <field name="max_amt"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>
