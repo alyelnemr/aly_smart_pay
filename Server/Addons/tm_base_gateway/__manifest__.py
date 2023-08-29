@@ -14,6 +14,8 @@
         'security/base_gateway_security.xml',
         'data/base_gateway_data.xml',
         'views/base_gateway_view.xml',
+        'views/pmt_service_type.xml',
+        'views/product_template.xml',
         'views/res_config_settings_views.xml',
     ],
     'license': 'OEEL-1',

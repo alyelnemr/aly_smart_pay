@@ -1,9 +1,9 @@
 import logging
 
-from odoo import api, fields, models,_
-from odoo.exceptions import ValidationError
+from odoo import api, fields, models
 
 _logger = logging.getLogger(__name__)
+
 
 class ProductCategories(models.Model):
     _inherit = "product.category"
@@ -33,7 +33,8 @@ class ProductCategories(models.Model):
         for child_id in self.child_id:
             for tag_id in child_id.tag_ids:
                 tag_ids.append(tag_id.id)
-        self.tag_ids = self.env['product.tags'].sudo().search([('id','in',tag_ids)])
+        self.tag_ids = self.env['product.tags'].sudo().search([('id', 'in', tag_ids)])
+
 
 class product_template(models.Model):
     _inherit = 'product.template'

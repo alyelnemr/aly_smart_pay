@@ -1,5 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <data>
+
+        <record id="pmt_type_post_paid" model="pmt.type">
+            <field name="name">POST</field>
+            <field name="description">Post-Paid</field>
+        </record>
+        <record id="pmt_type_pre_paid" model="pmt.type">
+            <field name="name">PREP</field>
+            <field name="description">Pre-Paid</field>
+        </record>
+        <record id="pmt_type_voucher" model="pmt.type">
+            <field name="name">VOCH</field>
+            <field name="description">Voucher</field>
+        </record>
+
+
+
+
+        <record id="service_type_cip" model="service.type">
+            <field name="name">CIP</field>
+            <field name="description">Customer Initiated Payment</field>
+        </record>
+        <record id="service_type_elc" model="service.type">
+            <field name="name">ELC</field>
+            <field name="description">Electricity</field>
+        </record>
+        <record id="service_type_phone" model="service.type">
+            <field name="name">PHN</field>
+            <field name="description">Phone</field>
+        </record>
+        <record id="service_type_ins" model="service.type">
+            <field name="name">INS</field>
+            <field name="description">Insurance</field>
+        </record>
+        <record id="service_type_bks" model="service.type">
+            <field name="name">BKS</field>
+            <field name="description">Bank Service</field>
+        </record>
+        <record id="service_type_gov" model="service.type">
+            <field name="name">GOV</field>
+            <field name="description">Government Service</field>
+        </record>
+        <record id="service_type_med" model="service.type">
+            <field name="name">MED</field>
+            <field name="description">Medical</field>
+        </record>
+        <record id="service_type_ccr" model="service.type">
+            <field name="name">CCR</field>
+            <field name="description">Credit Card</field>
+        </record>
+        <record id="service_type_utl" model="service.type">
+            <field name="name">UTL</field>
+            <field name="description">Utility</field>
+        </record>
+        <record id="service_type_exam" model="service.type">
+            <field name="name">EXM</field>
+            <field name="description">University Exam Fees</field>
+        </record>
+        <record id="service_type_travel" model="service.type">
+            <field name="name">TRV</field>
+            <field name="description">Travel</field>
+        </record>
+
+
+
+
+        <record id="account_input_method_kp" model="account.input.method">
+            <field name="name">KP</field>
+            <field name="description">Key pad</field>
+        </record>
+        <record id="account_input_method_cr" model="account.input.method">
+            <field name="name">CR</field>
+            <field name="description">Card Reader</field>
+        </record>
+        <record id="account_input_method_kc" model="account.input.method">
+            <field name="name">KC</field>
+            <field name="description">KC</field>
+        </record>
+        <record id="account_input_method_kc" model="account.input.method">
+            <field name="name">SC (ESC, WCS, GCS)</field>
+            <field name="description">Electricity, Water, Gas Smart card</field>
+        </record>
+
+
+
+
+        <record id="billing_account_key_type_key1" model="billing.account.key.type">
+            <field name="name">Key1</field>
+            <field name="description">The First Key</field>
+        </record>
+        <record id="billing_account_key_type_key2" model="billing.account.key.type">
+            <field name="name">Key2</field>
+            <field name="description">The Second Key</field>
+        </record>
+        <record id="billing_account_key_type_key3" model="billing.account.key.type">
+            <field name="name">Key3</field>
+            <field name="description">The Third Key</field>
+        </record>
+        <record id="billing_account_key_type_key4" model="billing.account.key.type">
+            <field name="name">Key4</field>
+            <field name="description">The Fourth Key</field>
+        </record>
+        <record id="billing_account_key_type_key5" model="billing.account.key.type">
+            <field name="name">Key5</field>
+            <field name="description">The Fifth Key</field>
+        </record>
+        <record id="billing_account_key_type_key6" model="billing.account.key.type">
+            <field name="name">Key6</field>
+            <field name="description">The Sixth Key</field>
+        </record>
+
+    </data>
     <data noupdate="1">
 
         <record id="res_partner_category_service_providers" model="res.partner.category">
