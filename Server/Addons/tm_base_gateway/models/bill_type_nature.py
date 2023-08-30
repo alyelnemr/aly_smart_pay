@@ -5,11 +5,11 @@
 from odoo import fields, models, api
 
 
-class PmtType(models.Model):
-    _name = 'pmt.type'
-    _description = 'Payment Type post-paid, pre-paid or voucher or other'
+class BillType(models.Model):
+    _name = 'bill.type.nature'
+    _description = 'Bill Type Nature Open Enum'
 
-    name = fields.Char('Name', required=True)
+    name = fields.Char('Bill Type Nature', required=True)
     description = fields.Char(string='Description')
 
     @api.multi

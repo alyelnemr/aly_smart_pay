@@ -9,7 +9,7 @@ class PercentRange(models.Model):
     _name = 'percent.range'
     _description = 'Percent Range'
 
-    name = fields.Char('Percent Label', required=True)
+    name = fields.Char('Percent Title', required=True)
     value = fields.Float('Value')
     min_amt = fields.Float('Min Amount')
     max_amt = fields.Float('Max Amount')

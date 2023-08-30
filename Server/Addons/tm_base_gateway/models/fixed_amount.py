@@ -9,7 +9,7 @@ class FixedAmount(models.Model):
     _name = 'fixed.amount'
     _description = 'Fixed Amount'
 
-    name = fields.Char('Fixed Amount Name', required=True)
+    name = fields.Char('Title', required=True)
     amount = fields.Float(string='Amount')
     currency_code = fields.Selection([('egp', 'EGP')], string='Cur Code')
     currency_code_id = fields.Many2one('currency.code', 'Currency Code')

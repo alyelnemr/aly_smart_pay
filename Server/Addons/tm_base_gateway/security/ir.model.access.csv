@@ -54,4 +54,10 @@ access_percent_all,percent.all,model_percent_range,base.group_user,1,0,1,0
 access_percent_system,percent.system,model_percent_range,base.group_system,1,1,1,1
 access_currency_code,access.currency.code,model_currency_code,base.group_user,1,0,1,0
 access_currency_code_system,access.currency.code.system,model_currency_code,base.group_system,1,1,1,1
+access_bill_type,access.bill.type,model_bill_type,base.group_user,1,0,1,0
+access_bill_type_system,access.bill.type.system,model_bill_type,base.group_system,1,1,1,1
+access_bill_type_nature,access.bill.type.nature,model_bill_type_nature,base.group_user,1,0,1,0
+access_bill_type_nature_system,access.bill.type.nature.system,model_bill_type_nature,base.group_system,1,1,1,1
+access_timeout_enum,access.timeout.enum,model_timeout_enum,base.group_user,1,0,1,0
+access_timeout_enum_system,access.timeout.enum.system,model_timeout_enum,base.group_system,1,1,1,1
 

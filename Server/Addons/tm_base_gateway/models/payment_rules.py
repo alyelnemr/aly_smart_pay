@@ -15,7 +15,7 @@ class PaymentRules(models.Model):
     _name = 'payment.rules'
     _description = 'Payment Rules'
 
-    name = fields.Char('Label', required=True)
+    name = fields.Char('Title', required=True)
     product_id = fields.Many2one('product.template', string='Product')
     is_inq_rqr = fields.Boolean(string='Is Inquiry Rerquired')
     is_mob_ntfy = fields.Boolean(string='Is Mobile Notify')

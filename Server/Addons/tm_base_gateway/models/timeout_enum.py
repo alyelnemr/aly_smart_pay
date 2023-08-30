@@ -5,11 +5,11 @@
 from odoo import fields, models, api
 
 
-class PmtType(models.Model):
-    _name = 'pmt.type'
-    _description = 'Payment Type post-paid, pre-paid or voucher or other'
+class TimeoutEnum(models.Model):
+    _name = 'timeout.enum'
+    _description = 'Timeout Open Enum'
 
-    name = fields.Char('Name', required=True)
+    name = fields.Char('Timeout Title', required=True)
     description = fields.Char(string='Description')
 
     @api.multi

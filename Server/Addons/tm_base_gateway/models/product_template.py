@@ -23,7 +23,7 @@ class ProductTemplate(models.Model):
     # '', '', '', '', '', '', '', '', '', '',
     # '', '', '', '', '', '', '', '', '']
     bill_type_code = fields.Char(string='Bill Type Code')
-    is_hidden = fields.Boolean(string='Hidden')
+    is_hidden = fields.Boolean(string='Is Hidden')
     bill_ref_type = fields.Boolean(string='Bill Ref Type')
     pmt_type_id = fields.Many2one('pmt.type', string='PMT Type')
     service_type_id = fields.Many2one('service.type', string='Service Type')
@@ -42,17 +42,17 @@ class ProductTemplate(models.Model):
     payment_rules_ids = fields.One2many('payment.rules', 'product_id')
     service_fees_ids = fields.One2many('service.fees', 'product_id')
     tax_amount = fields.Float(string='Tax')
-    payment_ranges = fields.One2many('payment.ranges', 'lower')
+    payment_ranges_ids = fields.One2many('payment.ranges', 'product_id')
     allow_rct_re_print = fields.Boolean(string='Allow Receipt Reprint')
     bill_type_status = fields.Selection(
         [('available', 'Available'), ('availpend', 'AvailPend'), ('deleted', 'Deleted'), ('delpend', 'DelPend')],
-        default='available', string='Bill Type Status')
-    bill_type_nature = fields.Selection([('cashout_inq', 'CASHOUT_INQ'), ('cashout_corr', 'CASHOUT_CORR')],
-                                        string='PMT Type')
+        default='available', string='Bill Type Status', required=True)
+    bill_type_id = fields.Many2one('bill.type', string='Type')
+    bill_type_nature_id = fields.Many2one('bill.type.nature', string='Bill Type Nature')
     corr_bill_type_code = fields.Char(string='Corr Bill Type Code')
     otp_enabled = fields.Boolean(string='OTP Enabled')
     opt_required = fields.Boolean(string='OTP Required')
     support_pmt_reverse = fields.Boolean(string='Support PMT Reverse')
-    timeout = fields.Selection([('', '')], string='Timeout')
-    is_internal_cancel = fields.Boolean(string='Internal Cancel')
-    has_correlation = fields.Boolean(string='Correlation')
+    timeout_enum_id = fields.Many2one('timeout.enum', string='Timeout')
+    is_internal_cancel = fields.Boolean(string='Is Internal Cancel')
+    has_correlation = fields.Boolean(string='Has Correlation')
