@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_users_form_inherit_otp" model="ir.ui.view">
+            <field name="name">view.users.form.inherit.otp</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[hasclass('oe_title')]//group//field[@name='partner_id']"
+                       position="after">
+                    <field name="user_status" groups="base_smartpay_otp.group_otp_admin"/>
+                </xpath>
+                <!--     User's Fields using on OTP        -->
+                <xpath expr="//notebook/page[2]" position="after">
+                    <page string="OTP" name="otp" groups="base_smartpay_otp.group_otp_admin">
+                        <group>
+                            <field name="otp_active" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="otp_status" readonly="1"/>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="reset_code" invisible="0"/>
+                                <field name="reset_code_time" readonly="1" invisible="0"/>
+                                <field name="number_of_generate_code" readonly="1" invisible="0"/>
+                            </group>
+                            <group>
+                                <field name="otp_code" readonly="1" invisible="0"/>
+                                <field name="otp_time" readonly="1" invisible="0"/>
+                                <field name="number_of_generate_otp_code" readonly="1" invisible="0"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="secrete_code" readonly="1" invisible="0"/>
+                                <field name="secrete_code_time" readonly="1" invisible="0"/>
+                            </group>
+                            <group>
+                                <field name="temp_password_date" readonly="1"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+        <!-- Inherit Search View to Modify it -->
+        <record id="view_users_search" model="ir.ui.view">
+            <field name="name">view.users.search</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="otp_active"/>
+                </xpath>
+                <xpath expr="//filter[@name='Inactive']" position="after">
+                    <separator/>
+                    <filter name="otp_enable" string="OTP Enable" domain="[('otp_active','=',True)]"/>
+                    <separator/>
+                    <filter name="otp_disable" string="OTP Disable" domain="[('otp_active','=',False)]"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

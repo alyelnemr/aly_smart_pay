@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form_otp" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.otp</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='integration']" position="after">
+                    <div id="group_otp_admin" groups="base_smartpay_otp.group_otp_admin">
+                        <h2>OTP Settings</h2>
+                        <div class="row mt16 o_settings_container" id="otp_settings">
+                            <!--      Temp-Password Configuration     -->
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="temp_password_settings" string="Temp-Password Configuration"/>
+                                    <div class="text-muted">
+                                        Set temp-password configuration
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <label for="temp_password_length" string="Length"
+                                                   class="col-3 col-lg-3 o_light_label"/>
+                                            <field name="temp_password_length" class="oe_inline"/>
+                                        </div>
+                                        <div class="mt16">
+                                            <label for="temp_password_duration" string="Expired Duration"
+                                                   class="col-3 col-lg-3 o_light_label"
+                                            />
+                                            <field name="temp_password_duration" class="oe_inline"/>
+                                            <field name="temp_password_period" class="oe_inline"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--      Generate Code Configuration      -->
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="generate_code_settings" string="Generate Code Configuration"/>
+                                    <div class="text-muted">
+                                        Set generate code configuration
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <label for="generated_code_length" string="Length"
+                                                   class="col-3 col-lg-3 o_light_label"/>
+                                            <field name="generated_code_length" class="oe_inline"/>
+                                        </div>
+                                        <div class="mt16">
+                                            <label for="generated_code_max_number"
+                                                   string="Generated"
+                                                   class="col-3 col-lg-3 o_light_label"/>
+                                            <field name="generated_code_max_number" class="oe_inline"/>
+                                        </div>
+                                        <div class="mt16">
+                                            <label for="generated_code_expired_duration" string="Expired Duration"
+                                                   class="col-3 col-lg-3 o_light_label"
+                                            />
+                                            <field name="generated_code_expired_duration" class="oe_inline"/>
+                                            <field name="generated_code_period" class="oe_inline"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--      OTP Configuration      -->
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="otp_configuration" string="OTP Configuration"/>
+                                    <div class="text-muted">
+                                        Set OTP configuration
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <label for="otp_length" string="Length"
+                                                   class="col-3 col-lg-3 o_light_label"/>
+                                            <field name="otp_length" class="oe_inline"/>
+                                        </div>
+                                        <div class="mt16">
+                                            <label for="otp_max_number"
+                                                   string="Generated"
+                                                   class="col-3 col-lg-3 o_light_label"/>
+                                            <field name="otp_max_number" class="oe_inline"/>
+                                        </div>
+                                        <div class="mt16">
+                                            <label for="otp_expired_duration" string="Expired Duration"
+                                                   class="col-3 col-lg-3 o_light_label"
+                                            />
+                                            <field name="otp_expired_duration" class="oe_inline"/>
+                                            <field name="otp_period" class="oe_inline"/>
+                                        </div>
+                                        <div class="mt16">
+                                            <label for="otp_method" string="Method"
+                                                   class="col-3 col-lg-3 o_light_label"
+                                            />
+                                            <field name="otp_method" class="oe_inline"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--      Secrete Code Configuration      -->
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="secrete_code_configuration"
+                                           string="Secrete Code Configuration"/>
+                                    <div class="text-muted">
+                                        Set Secrete Code Configuration
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <label for="secret_code_length" string="Length"
+                                                   class="col-3 col-lg-3 o_light_label"/>
+                                            <field name="secret_code_length" class="oe_inline"/>
+                                        </div>
+                                        <div class="mt16">
+                                            <label for="secret_code_duration" string="Expired Duration"
+                                                   class="col-3 col-lg-3 o_light_label"
+                                            />
+                                            <field name="secret_code_duration" class="oe_inline"/>
+                                            <field name="secret_code_period" class="oe_inline"/>
+                                        </div>
+                                        <div class="mt16">
+                                            <label for="secret_code_added" string="Our Code"
+                                                   class="col-3 col-lg-3 o_light_label"
+                                            />
+                                            <field name="secret_code_added" class="oe_inline"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--      New Password Configuration      -->
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="new_password_configuration"
+                                           string="New Password Configuration"/>
+                                    <div class="text-muted">
+                                        Set New Password Configuration
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16">
+                                            <label for="new_password_length" string="Length"
+                                                   class="col-3 col-lg-3 o_light_label"/>
+                                            <field name="new_password_length" class="oe_inline"/>
+                                        </div>
+                                        <div class="mt16">
+                                            <label for="new_password_expired_duration" string="Expired Duration"
+                                                   class="col-3 col-lg-3 o_light_label"
+                                            />
+                                            <field name="new_password_expired_duration" class="oe_inline"/>
+                                            <field name="new_password_period" class="oe_inline"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
