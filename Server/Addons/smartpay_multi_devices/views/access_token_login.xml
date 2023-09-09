@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="api_access_token_form_view" model="ir.ui.view">
+            <field name="name">api.access.token.form.view</field>
+            <field name="model">api.access_token</field>
+            <field name="arch" type="xml">
+                <form string="Other Login Form">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-check">
+                                <field name="active" widget="boolean_button" options='{"terminology": "active"}'/>
+                            </button>
+                        </div>
+                        <field name="image" widget='image' readonly="True" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <label for="user_name"/>
+                            <h1>
+                                <field name="user_name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="user_id" readonly="1" invisible="1"/>
+                                <field name="device_status"/>
+                                <field name="machine_serial"/>
+                                <field name="company_id" options="{'no_create': True, 'no_edit': True}"
+                                       groups="base.group_multi_company"/>
+                            </group>
+                            <group>
+                                <field name="allowed_product_tag_ids" widget="many2many_tags"/>
+                                <field name="commission"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Token" name="token_info"
+                            attrs="{'invisible': [('token', '=', False)]}"
+                            >
+                                <group>
+                                    <field name="token" readonly="1"/>
+                                    <field name="password" readonly="1"
+                                           invisible="1" password="True"/>
+                                    <field name="expires" readonly="1"/>
+                                </group>
+                            </page>
+                            <page string="OTP" name="device_otp"
+                                  groups="base_smartpay_otp.group_otp_admin">
+                                <group>
+                                    <field name="otp_active" widget="boolean_toggle"/>
+                                </group>
+                                <group>
+                                    <field name="otp_status" readonly="1"/>
+                                </group>
+                                <group>
+                                    <group>
+                                        <field name="generate_code" invisible="0"/>
+                                        <field name="generate_code_time" readonly="1" invisible="0"/>
+                                        <field name="number_of_generate_code" readonly="1" invisible="0"/>
+                                    </group>
+                                    <group>
+                                        <field name="otp_code" readonly="1" invisible="0"/>
+                                        <field name="otp_time" readonly="1" invisible="0"/>
+                                        <field name="number_of_generate_otp_code" readonly="1" invisible="0"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group>
+                                        <field name="secrete_code" readonly="1" invisible="0"/>
+                                        <field name="secrete_code_time" readonly="1" invisible="0"/>
+                                    </group>
+                                    <group>
+                                        <field name="temp_password_date" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="api_access_token_tree_view" model="ir.ui.view">
+            <field name="name">api.access.token.tree.form</field>
+            <field name="model">api.access_token</field>
+            <field name="arch" type="xml">
+                <tree string="Other Login tree">
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="user_id" readonly="1" invisible="0"/>
+                    <field name="user_name"/>
+                    <field name="device_status"/>
+                    <field name="machine_serial"/>
+                    <field name="allowed_product_tag_ids" widget="many2many_tags"/>
+                    <field name="commission"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="api_access_token_search_view" model="ir.ui.view">
+            <field name="name">api.access_token.search</field>
+            <field name="model">api.access_token</field>
+            <field name="arch" type="xml">
+                <search string="api.access_token">
+                    <field name="user_id"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="user_name"/>
+                    <field name="device_status"/>
+                    <field name="otp_active"/>
+                    <field name="active"/>
+                    <field name="machine_serial"/>
+                    <field name="commission"/>
+                    <filter name="Inactive" string="Inactive Login" domain="[('active','=',False)]"/>
+                    <separator/>
+                    <filter string="My Other Accounts" name="my_other_accounts"
+                            domain="[('user_id', '=', uid)]"/>
+                    <separator/>
+                    <filter name="otp_enable" string="OTP Enable" domain="[('otp_active','=',True)]"/>
+                    <separator/>
+                    <filter name="otp_disable" string="OTP Disable" domain="[('otp_active','=',False)]"/>
+                    <group expand="1" string="Group By">
+                        <filter string="User" name="group_by_user" domain="[]"
+                                context="{'group_by':'user_id'}"/>
+                        <filter string="Company" name="group_by_company" domain="[]"
+                                context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="api_access_token_act_window" model="ir.actions.act_window">
+            <field name="name">Multi Devices</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">api.access_token</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_my_other_accounts': 1, 'default_user_id': uid}</field>
+            <field name="search_view_id" ref="api_access_token_search_view"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    There is no examples click here to add new other login to your account.
+                </p>
+            </field>
+        </record>
+
+        <menuitem name="Other Devices"
+                  id="menu_api_access_token"
+                  action="api_access_token_act_window"
+                  parent="base.menu_users"
+                  sequence="1"/>
+
+    </data>
+</odoo>

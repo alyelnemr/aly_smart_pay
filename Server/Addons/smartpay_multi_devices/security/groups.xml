@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!--   Multi Company Rule     -->
+        <record id="access_token_multi_company_rule" model="ir.rule">
+            <field name="name">Access Token Multi Company Rule</field>
+            <field name="model_id" ref="model_api_access_token"/>
+            <field eval="True" name="global"/>
+            <field name="domain_force">
+                ['|',('company_id','=',False),
+                ('company_id','in',[user.company_id.id])]
+            </field>
+        </record>
+
+    </data>
+</odoo>

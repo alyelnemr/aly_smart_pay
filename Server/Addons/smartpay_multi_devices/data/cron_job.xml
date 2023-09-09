@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="migrate_info_to_devices_cron" forcecreate='True' model="ir.cron">
+            <field name="name">Multi Device Migration</field>
+            <field name="active" eval="False"/>
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">months</field>
+            <field name="numbercall">-1</field>
+            <field name="model_id" ref="smartpay_multi_devices.model_res_users"/>
+            <field name="state">code</field>
+            <field name="code">model.migrate_info_to_devices()</field>
+        </record>
+
+    </data>
+</odoo>

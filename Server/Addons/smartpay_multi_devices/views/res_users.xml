@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Inherit res users restful view -->
+        <record id="token_view_users_form_inherit" model="ir.ui.view">
+            <field name="name">token.view.users.form.inherit</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="restful.view_users_form_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='token_ids']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit base_smartpay_otp res users view -->
+        <record id="view_users_form_inherit_otp" model="ir.ui.view">
+            <field name="name">view.users.form.inherit.otp</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base_smartpay_otp.view_users_form_inherit_otp"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_status']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//page[@name='otp']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="multi_devices_res_users_form_inherit" model="ir.ui.view">
+            <field name="name">multi.devices.res.users.form.inherit</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="add_device"
+                            string="Add device"
+                            class="btn btn-primary"
+                            type="object"/>
+                </xpath>
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="action_open_devices" type="object" icon="fa-users"
+                            class="oe_stat_button">
+                        <field string="N.Devices" name="count_devices" widget="statinfo"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
