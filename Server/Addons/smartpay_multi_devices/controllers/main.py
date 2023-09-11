@@ -142,6 +142,7 @@ class DeviceOtpLogin(OtpLogin):
                 'company_id': request.env.user.company_id.id if device else None,
                 'access_token': access_token,
                 'expires_in': self._get_expires_in(),
+                'transfer_to_salesperson': request.env.user.transfer_to_salesperson,
             }, default=date_utils.json_default),
         )
 
