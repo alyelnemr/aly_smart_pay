@@ -38,9 +38,6 @@ _logger = logging.getLogger(__name__)
 
 class RequestApiTempTags(SmartAPIController.RequestApiTemp):
 
-    def __init__(self):
-        self._token = request.env['api.access_token'].sudo()
-
     @validate_token
     @http.route('/api/get_sevice_categories', type="http", auth="none", methods=["POST"], csrf=False)
     def get_sevice_categories(self, **payload):
@@ -54,13 +51,12 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
                 domain.pop(domain.index(item))
                 break
         access_token = request.httprequest.headers.get("access_token")
-        # _token = request.env['api.access_token'].sudo()
-        device = self._token.search([
+        _token = request.env['api.access_token'].sudo()
+        device = _token.search([
             ('active', '=', True),
             ("token", "=", access_token),
-            ("user_id.active", "=", True),
             ("user_id", "=", request.env.user.id),
-        ], limit=1)
+        ], limit=1).filtered(lambda d: d.user_id.active)
         _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
         # user = request.env['res.users'].sudo().search([('id', '=', request.env.user.id)], limit=1)
         if device.allowed_product_tag_ids:
@@ -135,13 +131,12 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
                 break
         # user = request.env['res.users'].sudo().search([('id', '=', request.env.user.id)], limit=1)
         access_token = request.httprequest.headers.get("access_token")
-        # _token = request.env['api.access_token'].sudo()
-        device = self._token.search([
+        _token = request.env['api.access_token'].sudo()
+        device = _token.search([
             ('active', '=', True),
             ("token", "=", access_token),
-            ("user_id.active", "=", True),
             ("user_id", "=", request.env.user.id),
-        ], limit=1)
+        ], limit=1).filtered(lambda d: d.user_id.active)
         _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
 
         if device.allowed_product_tag_ids:
@@ -217,13 +212,12 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
                 break
         # user = request.env['res.users'].sudo().search([('id', '=', request.env.user.id)], limit=1)
         access_token = request.httprequest.headers.get("access_token")
-        # _token = request.env['api.access_token'].sudo()
-        device = self._token.search([
+        _token = request.env['api.access_token'].sudo()
+        device = _token.search([
             ('active', '=', True),
             ("token", "=", access_token),
-            ("user_id.active", "=", True),
             ("user_id", "=", request.env.user.id),
-        ], limit=1)
+        ], limit=1).filtered(lambda d: d.user_id.active)
         _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
 
         if device.allowed_product_tag_ids:
@@ -332,13 +326,12 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
                 break
         # user = request.env['res.users'].sudo().search([('id', '=', request.env.user.id)], limit=1)
         access_token = request.httprequest.headers.get("access_token")
-        # _token = request.env['api.access_token'].sudo()
-        device = self._token.search([
+        _token = request.env['api.access_token'].sudo()
+        device = _token.search([
             ('active', '=', True),
             ("token", "=", access_token),
-            ("user_id.active", "=", True),
             ("user_id", "=", request.env.user.id),
-        ], limit=1)
+        ], limit=1).filtered(lambda d: d.user_id.active)
         _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
 
         if device.allowed_product_tag_ids:
@@ -359,7 +352,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
 
             if service_category.image_medium:
                 category.update({"image": "/web/image?model=%s&field=image_medium&id=%s" % (
-                "product.category", service_category.id)})
+                    "product.category", service_category.id)})
 
             if lang == "en_US":
                 category.update({"name": service_category.name})
@@ -387,7 +380,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
 
                 if service_biller.image_medium:
                     biller.update({"image": "/web/image?model=%s&field=image_medium&id=%s" % (
-                    "product.category", service_biller.id)})
+                        "product.category", service_biller.id)})
 
                 if lang == "en_US":
                     biller.update({"name": service_biller.name})
