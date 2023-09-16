@@ -1,5 +1,7 @@
 import json
 import logging
+import ast
+
 import werkzeug.wrappers
 from odoo import http, _
 from odoo.http import request
@@ -14,6 +16,7 @@ from odoo.addons.restful.common import (
 )
 from odoo.addons.smartpay_multi_devices.tools.check_otp import check_device_otp_enable
 from odoo.addons.smartpay_multi_devices.tools.validate_token import validate_token
+from odoo.addons.smartpay_multi_devices.tools.parse_many2x_fields import parse_many2x_fields
 from odoo.addons.base_smartpay_otp.controllers.otp import OtpLogin, OTPController
 
 _logger = logging.getLogger(__name__)
@@ -30,6 +33,14 @@ class InheritAPIController(APIController):
         model = request.env[self._model].sudo().search([("model", "=", model)], limit=1)
         if model:
             domain, fields, offset, limit, order = extract_arguments(payload)
+            # if payload.get("partnerFields"):
+            partner_data = {}
+            if payload.get("partnerFields") and ioc_name == 'res.users':
+                partnerFields = ast.literal_eval(payload.get("partnerFields", ""))
+                partner_sudo = request.env.user.sudo().partner_id
+                partner_data = partner_sudo.read(partnerFields)
+                parse_many2x_fields(partner_sudo, partner_data, dict(partner_sudo._fields), partnerFields)
+
             data = (
                 request.env[model.model]
                 .sudo()
@@ -43,6 +54,7 @@ class InheritAPIController(APIController):
             )
             if id:
                 domain = [("id", "=", int(id))]
+                object_sudo = request.env[model.model].sudo()
                 data = (
                     request.env[model.model]
                     .sudo()
@@ -54,6 +66,13 @@ class InheritAPIController(APIController):
                         order=order,
                     )
                 )
+                parse_many2x_fields(object_sudo, data, dict(object_sudo._fields), fields)
+
+            # if partner_data and data:
+            #     data = dict(**partner_data,**data)
+            if partner_data and data:
+                data = data + partner_data
+                return valid_response(data)
             if data:
                 return valid_response(data)
             else:
