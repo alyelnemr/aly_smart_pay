@@ -36,10 +36,12 @@ class InheritAPIController(APIController):
             # if payload.get("partnerFields"):
             partner_data = {}
             if payload.get("partnerFields") and ioc_name == 'res.users':
-                partnerFields = ast.literal_eval(payload.get("partnerFields", ""))
+                partner_fields = ast.literal_eval(payload.get("partnerFields", ""))
                 partner_sudo = request.env.user.sudo().partner_id
-                partner_data = partner_sudo.read(partnerFields)
-                parse_many2x_fields(partner_sudo, partner_data, dict(partner_sudo._fields), partnerFields)
+                partner_data = partner_sudo.read(partner_fields)
+                _logger.info("Before partner_data: {}".format(partner_data))
+                parse_many2x_fields(partner_sudo, partner_data, dict(partner_sudo._fields), partner_fields)
+                _logger.info("After partner_data: {}".format(partner_data))
 
             data = (
                 request.env[model.model]
@@ -66,14 +68,14 @@ class InheritAPIController(APIController):
                         order=order,
                     )
                 )
+                _logger.info("Before object data: {}".format(data))
                 parse_many2x_fields(object_sudo, data, dict(object_sudo._fields), fields)
+                _logger.info("After object data: {}".format(data))
 
-            # if partner_data and data:
-            #     data = dict(**partner_data,**data)
             if partner_data and data:
                 data = data + partner_data
                 return valid_response(data)
-            if data:
+            elif data:
                 return valid_response(data)
             else:
                 return valid_response(data)
