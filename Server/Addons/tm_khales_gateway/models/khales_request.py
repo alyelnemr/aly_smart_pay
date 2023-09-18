@@ -486,7 +486,10 @@ class KHALESRequest():
             xml_message += '''</PmtInfo></PmtRec>'''
 
             if msgCode == "RPADVRQ":
-                xml_message += '''</PmtAdviceRq>'''
+                xml_message += '''<SourceAddressDetails>'''
+                xml_message += '''<TerminalId>''' + str(posSerialNumber) + '''</TerminalId>'''
+                xml_message += '''<GovernorateCode>''' + '1' + '''</GovernorateCode>'''
+                xml_message += '''</SourceAddressDetails></PmtAdviceRq>'''
 
             if msgCode == "CNLPMTRQ":
                 if cancelReason:
