@@ -33,10 +33,10 @@ class InheritAPIController(APIController):
         model = request.env[self._model].sudo().search([("model", "=", model)], limit=1)
         if model:
             domain, fields, offset, limit, order = extract_arguments(payload)
-            # if payload.get("partnerFields"):
+            # if payload.get("partner_fields"):
             partner_data = {}
-            if payload.get("partnerFields") and ioc_name == 'res.users':
-                partner_fields = ast.literal_eval(payload.get("partnerFields", ""))
+            if payload.get("partner_fields") and ioc_name == 'res.users':
+                partner_fields = ast.literal_eval(payload.get("partner_fields", ""))
                 partner_sudo = request.env.user.sudo().partner_id
                 partner_data = partner_sudo.read(partner_fields)
                 _logger.info("Before partner_data: {}".format(partner_data))
