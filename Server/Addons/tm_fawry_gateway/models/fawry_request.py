@@ -24,7 +24,7 @@ _logger = logging.getLogger(__name__)
 # logging.getLogger('suds.transport').setLevel(logging.DEBUG)
 
 FAWRY_TIMOUT = 60 # timeout in second
-FAWRY_TIMOUT_RETRY = 10 # Retry x time to call provider when timeout
+FAWRY_TIMOUT_RETRY = 3 # Retry x time to call provider when timeout
 FAWRY_ERROR_MAP = {
     '1': _("Failed to log received Data."),
     '2': _("No Log Storage Configured."),
@@ -1585,6 +1585,7 @@ class FAWRYRequest():
             except Exception as e:
                 _logger.error("FW [reverse_bill] Exception Error: %s - %s" % (requestNumber or 'None', str(e)))
                 #return self.get_error_message('-2', 'FW Exception Found:\n%s' % e)
+                retry += 1
                 if retry < FAWRY_TIMOUT_RETRY:
                     time.sleep(60)
                     _logger.info("Http error Retry Reverse Payment: %s - %s" % (retry, billRefNumber))
