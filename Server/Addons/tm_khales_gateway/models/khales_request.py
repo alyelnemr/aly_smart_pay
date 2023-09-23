@@ -4,29 +4,34 @@
 
 import logging
 import os
-from datetime import datetime, timedelta
+import requests
+import urllib3
+import urllib.parse
 import uuid
+import suds
+import xmltodict
+
+from datetime import datetime, timedelta
 from collections import OrderedDict
 
-import suds
 from suds.client import Client
 from suds.plugin import MessagePlugin
+from suds.sax.element import Element
+
 from socket import timeout
 
 from suds.sax.text import Raw
-import xmltodict
 
 SUDS_VERSION = suds.__version__
 
 from odoo import fields, _
 
-
 _logger = logging.getLogger(__name__)
 # uncomment to enable logging of SOAP requests and responses
 # logging.getLogger('suds.transport').setLevel(logging.DEBUG)
 
-KHALES_TIMOUT = 30 # timeout in second
-KHALES_TIMOUT_RETRY = 3 # Retry x time to call provider when timeout
+KHALES_TIMOUT = 30  # timeout in second
+KHALES_TIMOUT_RETRY = 3  # Retry x time to call provider when timeout
 KHALES_ERROR_MAP = {
     '1': _('Request processed successfully, but fetch limit reached. Some records may not have been fetched'),
     '1102': _('Invalid Sender Code'),
@@ -74,8 +79,10 @@ KHALES_ERROR_MAP = {
     '1113': _('Repeated Sequence'),
     '1114': _('PayAmt Curcode Not Matched With Original Amount Due Master'),
     '1115': _('For Range Payment Mode, Payment Amount Should Be Greater Than or Equal To The Minimum Amount'),
-    '1116': _('For Range Payment Mode, and Maximum Amount Not Equal To Zero, Payment Amount Should Be Less Than or Equal Maximum Amount'),
-    '1117': _('For Installment Payment Mode, Payment Amount Should Be Multiple of The Installment Amount or Equal To The Amount Due'),
+    '1116': _(
+        'For Range Payment Mode, and Maximum Amount Not Equal To Zero, Payment Amount Should Be Less Than or Equal Maximum Amount'),
+    '1117': _(
+        'For Installment Payment Mode, Payment Amount Should Be Multiple of The Installment Amount or Equal To The Amount Due'),
     '1118': _('Missing Exact Payment Currency Amount'),
     '1119': _('PayAmt’s Sequence Not Matched With An Existing Bill’s Currency Amount'),
     '1120': _('Invalid Bank Id'),
@@ -93,8 +100,10 @@ KHALES_ERROR_MAP = {
     '9010': _('Missing Exact Payment Currency Amount'),
     '9011': _('PayAmt Can’t Be Zero'),
     '9012': _('For Range Payment Mode, Payment Amount Should Be Greater Than or Equal To The Minimum Amount'),
-    '9013': _('For Range Payment Mode, and Maximum Amount Not Equal To Zero, Payment Amount Should Be Less Than or Equal Maximum Amount'),
-    '9014': _('For Installment Payment Mode, Payment Amount Should Be Multiple of The Installment Amount or Equal To The Amount Due'),
+    '9013': _(
+        'For Range Payment Mode, and Maximum Amount Not Equal To Zero, Payment Amount Should Be Less Than or Equal Maximum Amount'),
+    '9014': _(
+        'For Installment Payment Mode, Payment Amount Should Be Multiple of The Installment Amount or Equal To The Amount Due'),
     '9015': _('PayAmt Curcode Not Matched With Original Amount Due Master'),
     '9016': _('Not Valid Fees Amount'),
     '9017': _('Not Valid Fees Currency'),
@@ -123,8 +132,10 @@ KHALES_ERROR_MAP = {
     '9040': _('The Customer Payment Name Is Required'),
 }
 
+
 class LogPlugin(MessagePlugin):
     """ Small plugin for suds that catches out/ingoing XML requests and logs them"""
+
     def __init__(self, debug_logger):
         self.debug_logger = debug_logger
 
@@ -133,6 +144,7 @@ class LogPlugin(MessagePlugin):
 
     def received(self, context):
         self.debug_logger(context.reply, 'khales_response')
+
 
 '''
 class FixRequestNamespacePlug(MessagePlugin):
@@ -143,14 +155,17 @@ class FixRequestNamespacePlug(MessagePlugin):
         context.envelope = context.envelope.prune()
 '''
 
+
 class KHALESRequest():
     def __init__(self, debug_logger, endurl, env,
-                 sender, receiver, # version, originatorCode, terminalId, deliveryMethod,                           # msgCode: BRSINQRQ, RBINQRQ, RFINQRQ, RPADVRQ and CNLPMTRQ
+                 sender, receiver,
+                 # version, originatorCode, terminalId, deliveryMethod,                           # msgCode: BRSINQRQ, RBINQRQ, RFINQRQ, RPADVRQ and CNLPMTRQ
                  # profileCode=None,                                                                                  # msgCode: BillerInqRq
-                 bankId=None,                                                                                       # msgCode: RBINQRQ, RPADVRQ and CNLPMTRQ
+                 bankId=None,  # msgCode: RBINQRQ, RPADVRQ and CNLPMTRQ
                  # acctId=None, acctType=None, acctKey=None, secureAcctKey=None, acctCur=None, posSerialNumber=None   # msgCode: PmtAddRq
-                 accessChannel=None,                                                                                # msgCode: RBINQRQ, RPADVRQ and CNLPMTRQ
-                 acctCur=None                                                                                       # msgCode: RFINQRQ, RPADVRQ and CNLPMTRQ
+                 accessChannel=None,  # msgCode: RBINQRQ, RPADVRQ and CNLPMTRQ
+                 acctCur=None,
+                 khales_channel=None  # kahles provider channel object
                  ):
         self.debug_logger = debug_logger
         # Production and Testing url
@@ -158,31 +173,41 @@ class KHALESRequest():
         self.env = env
 
         # Basic detail require to authenticate
-        self.sender = sender                         # sender: 0023                               ==> Per Channel
-        self.receiver = receiver                     # receiver: EPAY                             ==> Per Channel
+        self.sender = sender  # sender: 0023                               ==> Per Channel
+        self.receiver = receiver  # receiver: EPAY                             ==> Per Channel
         # self.version = version                       # version: V1.0
         # self.originatorCode = originatorCode         # originatorCode: SmartPay2
         # self.terminalId = terminalId                 # terminalId: 104667                         ==> Per Channel
         # self.deliveryMethod = deliveryMethod         # DeliveryMethod: MOB                        ==> Per Channel
         # if profileCode:
-            # self.profileCode = profileCode           # ProfileCode: 22013                         ==> Per Channel
+        # self.profileCode = profileCode           # ProfileCode: 22013                         ==> Per Channel
         # if acctId:
-            # self.acctId = acctId                     # acctId: 104667                             ==> Per Channel
+        # self.acctId = acctId                     # acctId: 104667                             ==> Per Channel
         if bankId:
-            self.bankId = bankId                     # bankId: 1023                               ==> Per Channel
+            self.bankId = bankId  # bankId: 1023                               ==> Per Channel
         # if acctType:
-            # self.acctType = acctType                 # acctType: SDA                             ==> Per Channel
+        # self.acctType = acctType                 # acctType: SDA                             ==> Per Channel
         # if acctKey:
-            # self.acctKey = acctKey                   # acctKey: 1234                             ==> Per Channel
+        # self.acctKey = acctKey                   # acctKey: 1234                             ==> Per Channel
         # if secureAcctKey:
-            # self.secureAcctKey = secureAcctKey       # secureAcctKey: gdyb21LQTcIANtvYMT7QVQ==   ==> Per Channel
+        # self.secureAcctKey = secureAcctKey       # secureAcctKey: gdyb21LQTcIANtvYMT7QVQ==   ==> Per Channel
         if acctCur:
-            self.acctCur = acctCur.name              # acctCur: EGP                              ==> Per Channel
+            self.acctCur = acctCur.name  # acctCur: EGP                              ==> Per Channel
         # self.posSerialNumber = posSerialNumber       # posSerialNumber: 332-491-1222             ==> Per Channel
         if accessChannel:
-            self.accessChannel = accessChannel       # accessChannel: POS                        ==> Per Channel
+            self.accessChannel = accessChannel  # accessChannel: POS                        ==> Per Channel
 
         self.wsdl = '../api/BillPaymentService.wsdl'
+        self.khales_channel = khales_channel
+        _logger.info("Set Khales channels: {}".format(self.khales_channel))
+
+    @staticmethod
+    def _add_security_header(token, client, namespace='ns2'):
+        ssn_name = (namespace, 'http://namespaces/Authorization')
+        value = "Bearer {}".format(token)
+        header_token = Element('Authorization', ns=ssn_name).setText(value)
+        client.set_options(soapheaders=header_token)
+        _logger.info("After Add Authorization Client {}".format(client))
 
     '''
         def _add_security_header(self, client, namspace):
@@ -213,6 +238,32 @@ class KHALESRequest():
             self.SignonProfileType.Version = self.version
         '''
 
+    def _generate_access_token(self):
+        if not self.khales_channel:
+            _logger.info("Not set khales channel object.")
+            return {}
+
+        _logger.info("Generating access token")
+        url = self.khales_channel.khales_url_access_token
+        grant_type = self.khales_channel.khales_client_grant_type
+        client_secret = self.khales_channel.khales_client_secret
+        client_id = self.khales_channel.khales_client_id
+        client_secret = urllib.parse.quote(client_secret, safe='!')
+        payload = 'grant_type={}&client_secret={}&client_id={}'.format(grant_type, client_secret, client_id)
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        urllib3.disable_warnings()
+        _logger.info('---->> Payload {}'.format(payload))
+
+        try:
+            response = requests.post(url, headers=headers, data=payload, verify=False)
+            token = response.json()
+            _logger.info("Successfully generation access token {}".format(token))
+            return response.json()
+        except Exception as e:
+            _logger.info('Exception while generating access token: {}'.format(e))
+            return {}
+
     def _set_client(self, wsdl
                     # , api, root
                     ):
@@ -226,6 +277,13 @@ class KHALESRequest():
                         # plugins=[FixRequestNamespacePlug(root), LogPlugin(self.debug_logger)]
                         plugins=[LogPlugin(self.debug_logger)]
                         )
+        access_token = self._generate_access_token()
+        if access_token.get('access_token', ""):
+            token = access_token['access_token']
+            _logger.info("Set access_token in security_header")
+
+            self._add_security_header(token, client)
+
         # self._add_security_header(client)
         client.set_options(location='%s'
                                     # '%s'
@@ -262,16 +320,17 @@ class KHALESRequest():
                 result['error_message_to_be_translated'] = msg
         return result
 
-    def _buildRequest(self, client, msgCode, languagePref, namespace, posSerialNumber=None, # suppressEcho,
+    def _buildRequest(self, client, msgCode, languagePref, namespace, posSerialNumber=None,  # suppressEcho,
                       # pmtType=None, billTypeCode=None, billingAcct=None, extraBillingAcctKeys=None,              # msgCode: BillInqRq, PmtAddRq
                       # amt=None, curCode=None, pmtMethod=None, notifyMobile=None,                                 # msgCode: PmtAddRq
                       # billRefNumber=None,                                                                        # msgCode: PmtAddRq & pmtType: POST
                       # billerId=None,                                                                             # msgCode: PmtAddRq & pmtType: PREP
-                      billingAcct=None, billerId=None,                                                             # msgCode: RBINQRQ, RPADVRQ, CNLPMTRQ
-                      serviceType=None, additionInfo=None,                                                         # msgCode: RBINQRQ
-                      ePayBillRecID=None, payAmts=None,                                                            # msgCode: RFINQRQ, RPADVRQ, CNLPMTRQ
-                      pmtId=None, pmtIdType=None, feesAmts=None, billNumber=None, pmtMethod=None, pmtRefInfo=None, # msgCode: RPADVRQ, CNLPMTRQ
-                      cancelReason = None                                                                          # msgCode: CNLPMTRQ
+                      billingAcct=None, billerId=None,  # msgCode: RBINQRQ, RPADVRQ, CNLPMTRQ
+                      serviceType=None, additionInfo=None,  # msgCode: RBINQRQ
+                      ePayBillRecID=None, payAmts=None,  # msgCode: RFINQRQ, RPADVRQ, CNLPMTRQ
+                      pmtId=None, pmtIdType=None, feesAmts=None, billNumber=None, pmtMethod=None, pmtRefInfo=None,
+                      # msgCode: RPADVRQ, CNLPMTRQ
+                      cancelReason=None  # msgCode: CNLPMTRQ
                       ):
 
         '''
@@ -385,7 +444,12 @@ class KHALESRequest():
         if payAmts and isinstance(payAmts, OrderedDict):
             payAmts = [payAmts]
         posSerialNumber = posSerialNumber or '%s%s' % (self.bankId, self.sender)
-        xml_message = '''<![CDATA[<EFBPS><SignonRq><ClientDt>''' + str((datetime.now() + timedelta(hours=2)).isoformat()) + '''</ClientDt><LanguagePref>''' + str(languagePref) + '''</LanguagePref><SignonProfile><Sender>''' + self.sender + '''</Sender><Receiver>''' + self.receiver + '''</Receiver><MsgCode>''' + str(msgCode) + '''</MsgCode></SignonProfile></SignonRq><BankSvcRq><RqUID>''' + '%s-%s' % (posSerialNumber, (datetime.now() + timedelta(hours=2)).strftime('%Y%m%d%H%M%S')) + '''</RqUID>''' # str(uuid.uuid1().time_low)
+        xml_message = '''<![CDATA[<EFBPS><SignonRq><ClientDt>''' + str(
+            (datetime.now() + timedelta(hours=2)).isoformat()) + '''</ClientDt><LanguagePref>''' + str(
+            languagePref) + '''</LanguagePref><SignonProfile><Sender>''' + self.sender + '''</Sender><Receiver>''' + self.receiver + '''</Receiver><MsgCode>''' + str(
+            msgCode) + '''</MsgCode></SignonProfile></SignonRq><BankSvcRq><RqUID>''' + '%s-%s' % (posSerialNumber, (
+                datetime.now() + timedelta(hours=2)).strftime(
+            '%Y%m%d%H%M%S')) + '''</RqUID>'''  # str(uuid.uuid1().time_low)
 
         if msgCode == "RBINQRQ":
             xml_message += '''<BillInqRq><BankId>''' + self.bankId + '''</BankId><AccessChannel>''' + self.accessChannel + '''</AccessChannel><AccountId>'''
@@ -425,7 +489,6 @@ class KHALESRequest():
                 xml_message += '''</PayAmt>'''
             xml_message += '''</FeeInqRq>'''
 
-
         if msgCode == "RPADVRQ" or msgCode == "CNLPMTRQ":
             if msgCode == "RPADVRQ":
                 xml_message += '''<PmtAdviceRq>'''
@@ -460,7 +523,7 @@ class KHALESRequest():
                 if feesAmt.get("CurCode"):
                     xml_message += '''<CurCode>''' + str(feesAmt.get("CurCode")) + '''</CurCode>'''
                 xml_message += '''</FeesAmt>'''
-            xml_message += '''<PrcDt>''' + str(fields.Datetime.now()).replace(' ','T') + '''</PrcDt>'''
+            xml_message += '''<PrcDt>''' + str(fields.Datetime.now()).replace(' ', 'T') + '''</PrcDt>'''
             if billNumber:
                 xml_message += '''<BillNumber>''' + str(billNumber) + '''</BillNumber>'''
             xml_message += '''<AccountId>'''
@@ -502,7 +565,7 @@ class KHALESRequest():
 
         request_1 = client.factory.create('{}:Request'.format(namespace))
         request_1.message = Raw(xml_message)
-        request_1.senderID = self.sender # ("%Configuration Value will be provided by Khales%")
+        request_1.senderID = self.sender  # ("%Configuration Value will be provided by Khales%")
         request_1.signature = '?'
         return request_1
 
@@ -730,7 +793,8 @@ class KHALESRequest():
 
             result = {}
             # result['billerRecTypes'] = khalesResponse.BankSvcRs.BillerInqRs.BillerRec
-            result['serviceGroupTypes'] = response_message_dict['EFBPS']['BankSvcRs']['BillerInqRs']['ServiceGroup'] # khalesResponse.BankSvcRs.GetBillersRs.ServiceGroup
+            result['serviceGroupTypes'] = response_message_dict['EFBPS']['BankSvcRs']['BillerInqRs'][
+                'ServiceGroup']  # khalesResponse.BankSvcRs.GetBillersRs.ServiceGroup
             # _logger.info("Khales Biller Details Result: " + str(result))
 
             return result
@@ -797,7 +861,7 @@ class KHALESRequest():
             # _logger.info("After Calling RBINQRQ _buildResponse")
 
             result = {}
-            result['billRecType'] = response_message_dict['EFBPS']['BankSvcRs']['BillInqRs']['BillRec']#[0]
+            result['billRecType'] = response_message_dict['EFBPS']['BankSvcRs']['BillInqRs']['BillRec']  # [0]
             # _logger.info("Khales Bill Details Result: " + str(result))
 
             return result
@@ -908,7 +972,8 @@ class KHALESRequest():
         '''
         namespace = 'ns2'
         EFBPS = self._buildRequest(client=client, msgCode="RPADVRQ", languagePref=languagePref, namespace=namespace,
-                                   posSerialNumber=posSerialNumber, billingAcct=billingAcct, additionInfo=additionInfo, billerId=billerId,
+                                   posSerialNumber=posSerialNumber, billingAcct=billingAcct, additionInfo=additionInfo,
+                                   billerId=billerId,
                                    ePayBillRecID=ePayBillRecID, payAmts=payAmts, pmtId=pmtId, pmtIdType=pmtIdType,
                                    feesAmts=feesAmts, billNumber=billNumber, pmtMethod=pmtMethod, pmtRefInfo=pmtRefInfo)
         # _logger.info("EFBPS Request: " + str(EFBPS))
@@ -924,7 +989,8 @@ class KHALESRequest():
                 retry = KHALES_TIMOUT_RETRY
 
                 response_message_dict = xmltodict.parse(khalesResponse.message)
-                status_code = response_message_dict['EFBPS']['BankSvcRs']['Status']['StatusCode'] # ['PmtAdviceRs']['PmtRecAdviceStatus']
+                status_code = response_message_dict['EFBPS']['BankSvcRs']['Status'][
+                    'StatusCode']  # ['PmtAdviceRs']['PmtRecAdviceStatus']
                 short_desc = response_message_dict['EFBPS']['BankSvcRs']['Status']['ShortDesc']
 
                 # Check if process is not success then return reason for that
@@ -959,12 +1025,14 @@ class KHALESRequest():
                 else:
                     retry += 1
                 if retry < KHALES_TIMOUT_RETRY:
-                    _logger.info("Timeout Retry Payment: %s - %s" %(retry, ePayBillRecID))
+                    _logger.info("Timeout Retry Payment: %s - %s" % (retry, ePayBillRecID))
                     client = self._set_client(self.wsdl)
                     namespace = 'ns2'
                     EFBPS = self._buildRequest(client=client, msgCode="RPADVRQ", languagePref=languagePref,
-                                               namespace=namespace, posSerialNumber=posSerialNumber, billingAcct=billingAcct,
-                                               billerId=billerId, ePayBillRecID=ePayBillRecID, payAmts=payAmts, pmtId=pmtId,
+                                               namespace=namespace, posSerialNumber=posSerialNumber,
+                                               billingAcct=billingAcct,
+                                               billerId=billerId, ePayBillRecID=ePayBillRecID, payAmts=payAmts,
+                                               pmtId=pmtId,
                                                pmtIdType=pmtIdType, feesAmts=feesAmts, billNumber=billNumber,
                                                pmtMethod=pmtMethod, pmtRefInfo=pmtRefInfo)
                 if retry == KHALES_TIMOUT_RETRY:
@@ -973,8 +1041,8 @@ class KHALESRequest():
                         result_payment = self.cancel_payment(languagePref, billingAcct, billerId, ePayBillRecID,
                                                              payAmts, pmtId, pmtIdType, feesAmts,
                                                              billNumber, pmtMethod, pmtRefInfo, '001', requestNumber,
-                                                             TIMOUT_RETRY=KHALES_TIMOUT_RETRY-2)
-                        if result_payment.get('cancelPmtRsType'): # Cancel Success
+                                                             TIMOUT_RETRY=KHALES_TIMOUT_RETRY - 2)
+                        if result_payment.get('cancelPmtRsType'):  # Cancel Success
                             return self.get_error_message('CANCEL_SUCCESS', 'KH Server timeout:\n%s' % e)
                     return self.get_error_message('0', 'KH Server timeout:\n%s' % e)
             except IOError as e:
@@ -987,8 +1055,10 @@ class KHALESRequest():
                     client = self._set_client(self.wsdl)
                     namespace = 'ns2'
                     EFBPS = self._buildRequest(client=client, msgCode="RPADVRQ", languagePref=languagePref,
-                                               namespace=namespace, posSerialNumber=posSerialNumber, billingAcct=billingAcct,
-                                               billerId=billerId, ePayBillRecID=ePayBillRecID, payAmts=payAmts, pmtId=pmtId,
+                                               namespace=namespace, posSerialNumber=posSerialNumber,
+                                               billingAcct=billingAcct,
+                                               billerId=billerId, ePayBillRecID=ePayBillRecID, payAmts=payAmts,
+                                               pmtId=pmtId,
                                                pmtIdType=pmtIdType, feesAmts=feesAmts, billNumber=billNumber,
                                                pmtMethod=pmtMethod, pmtRefInfo=pmtRefInfo)
                 if retry == KHALES_TIMOUT_RETRY:
@@ -997,8 +1067,8 @@ class KHALESRequest():
                         result_payment = self.cancel_payment(languagePref, billingAcct, billerId, ePayBillRecID,
                                                              payAmts, pmtId, pmtIdType, feesAmts,
                                                              billNumber, pmtMethod, pmtRefInfo, '001', requestNumber,
-                                                             TIMOUT_RETRY=KHALES_TIMOUT_RETRY-2)
-                        if result_payment.get('cancelPmtRsType'): # Cancel Success
+                                                             TIMOUT_RETRY=KHALES_TIMOUT_RETRY - 2)
+                        if result_payment.get('cancelPmtRsType'):  # Cancel Success
                             return self.get_error_message('CANCEL_SUCCESS', 'KH Server Not Found:\n%s' % e)
                     return self.get_error_message('-1', 'KH Server Not Found:\n%s' % e)
             except Exception as e:
@@ -1015,8 +1085,10 @@ class KHALESRequest():
                     client = self._set_client(self.wsdl)
                     namespace = 'ns2'
                     EFBPS = self._buildRequest(client=client, msgCode="RPADVRQ", languagePref=languagePref,
-                                               namespace=namespace, posSerialNumber=posSerialNumber, billingAcct=billingAcct,
-                                               billerId=billerId, ePayBillRecID=ePayBillRecID, payAmts=payAmts, pmtId=pmtId,
+                                               namespace=namespace, posSerialNumber=posSerialNumber,
+                                               billingAcct=billingAcct,
+                                               billerId=billerId, ePayBillRecID=ePayBillRecID, payAmts=payAmts,
+                                               pmtId=pmtId,
                                                pmtIdType=pmtIdType, feesAmts=feesAmts, billNumber=billNumber,
                                                pmtMethod=pmtMethod, pmtRefInfo=pmtRefInfo)
                 if retry == KHALES_TIMOUT_RETRY:
@@ -1029,7 +1101,6 @@ class KHALESRequest():
                         if result_payment.get('cancelPmtRsType'):  # Cancel Success
                             return self.get_error_message('CANCEL_SUCCESS', 'KH Server Not Found:\n%s' % e)
                     return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
-
 
     def _simulate_pay_bill_response(self, billingAcct, billerId, ePayBillRecID, payAmts, pmtId, pmtIdType, feesAmts,
                                     billNumber, pmtMethod, pmtRefInfo):
@@ -1120,10 +1191,10 @@ class KHALESRequest():
         result = {
             "PmtRecAdviceStatus": {
                 "PmtTransId": {
-                  "PmtId": "%s" % pmtId,
-                  "PmtIdType": "EPTN"
+                    "PmtId": "%s" % pmtId,
+                    "PmtIdType": "EPTN"
                 },
-                "SettlDt": "%s" % str(now).replace(' ','T')
+                "SettlDt": "%s" % str(now).replace(' ', 'T')
             },
             "billingAcct": "%s" % billingAcct,
             "billRefNumber": "%s" % billNumber,
@@ -1143,9 +1214,9 @@ class KHALESRequest():
         return result
 
     def cancel_payment(self, languagePref, posSerialNumber,
-                 billingAcct, billerId, ePayBillRecID,
-                 payAmts, pmtId, pmtIdType, feesAmts,
-                 billNumber, pmtMethod, pmtRefInfo, cancelReason, requestNumber=None, TIMOUT_RETRY=0):
+                       billingAcct, billerId, ePayBillRecID,
+                       payAmts, pmtId, pmtIdType, feesAmts,
+                       billNumber, pmtMethod, pmtRefInfo, cancelReason, requestNumber=None, TIMOUT_RETRY=0):
         client = self._set_client(self.wsdl)
 
         '''
@@ -1192,7 +1263,7 @@ class KHALESRequest():
                 # _logger.info("After Calling CNLPMTRQ _buildResponse")
 
                 result = {}
-                result['cancelPmtRsType'] = response_message_dict['EFBPS']['BankSvcRs'] # ['PaySvcRs']['CancelPmtRs']
+                result['cancelPmtRsType'] = response_message_dict['EFBPS']['BankSvcRs']  # ['PaySvcRs']['CancelPmtRs']
                 # _logger.info("Khales Cancel Payment Result: " + str(result))
 
                 return result

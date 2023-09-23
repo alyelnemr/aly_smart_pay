@@ -8,13 +8,18 @@
         <field name="arch" type="xml">
             <xpath expr='//group[@name="acquirer"]' position='after'>
                 <group name="channel" attrs="{'invisible': [('provider', '!=', 'khales')]}">
-                   <field name="khales_channel_ids" nolabel="1">
+                    <field name="khales_channel_ids" nolabel="1">
                         <tree string="Channels" editable="bottom">
                             <field name="sequence" widget="handle"/>
                             <field name="name"/>
                             <field name="type"/>
                             <field name="khales_sender"/>
                             <field name="khales_receiver"/>
+                            <field name="khales_client_id"/>
+                            <field name="khales_client_secret"/>
+                            <field name="khales_client_grant_type"/>
+                            <field name="khales_url_access_token"/>
+                            <field name="khales_access_token" invisible="1"/>
                             <!--
                             <field name="khales_originatorCode"/>
                             <field name="khales_terminalId"/>
@@ -39,6 +44,11 @@
                                 <field name="sequence"/>
                                 <field name="khales_sender"/>
                                 <field name="khales_receiver"/>
+                                <field name="khales_client_id"/>
+                                <field name="khales_client_secret"/>
+                                <field name="khales_client_grant_type"/>
+                                <field name="khales_url_access_token"/>
+                                <field name="khales_access_token" invisible="1"/>
                                 <!--
                                 <field name="khales_originatorCode"/>
                                 <field name="khales_terminalId"/>
@@ -55,7 +65,8 @@
                                 -->
                                 <field name="khales_acctCur"/>
                                 <field name="khales_accessChannel"/>
-                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                                <field name="company_id" groups="base.group_multi_company"
+                                       options="{'no_create': True}"/>
                             </group>
                         </form>
                     </field>

@@ -15,33 +15,49 @@ from odoo.addons.tm_base_gateway.common import (
 
 _logger = logging.getLogger(__name__)
 
+logging.basicConfig(level=logging.INFO)
+logging.getLogger('suds.client').setLevel(logging.DEBUG)
+logging.getLogger('suds.transport').setLevel(logging.DEBUG)
+
+
 class AcquirerKhalesChannel(models.Model):
     _inherit = 'payment.acquirer.channel'
     _order = "sequence"
 
-    khales_sender = fields.Char('Sender', required_if_provider='khales', groups='base.group_user')                              # sender: 0023
-    khales_receiver = fields.Char('Receiver', required_if_provider='khales', groups='base.group_user')                          # receiver: EPAY
+    khales_sender = fields.Char('Sender', required_if_provider='khales', groups='base.group_user')  # sender: 0023
+    khales_receiver = fields.Char('Receiver', required_if_provider='khales', groups='base.group_user')  # receiver: EPAY
     # khales_originatorCode = fields.Char('Originator Code', required_if_provider='khales', groups='base.group_user')             # originatorCode: SmartPay2
     # khales_terminalId = fields.Char('Terminal ID', required_if_provider='khales', groups='base.group_user')                     # terminalId: 104667
     # khales_posSerialNumber = fields.Char('POS Serial Number', groups='base.group_user')                                         # SerialNumber: 332-491-1222
     # khales_deliveryMethod = fields.Char('Delivery Method', required_if_provider='khales', groups='base.group_user')             # DeliveryMethod: MOB
     # khales_profileCode = fields.Char('Profile Code', required_if_provider='khales', groups='base.group_user')                   # ProfileCode: 22013
-    khales_bankId = fields.Char('Bank ID', required_if_provider='khales', groups='base.group_user')                             # bankId: 1023
+    khales_bankId = fields.Char('Bank ID', required_if_provider='khales', groups='base.group_user')  # bankId: 1023
     # khales_acctId = fields.Char('Account ID', required_if_provider='khales', groups='base.group_user')                          # acctId: 104667
     # khales_acctType = fields.Char("Account Type", required_if_provider='khales', groups='base.group_user', default='SDA')       # acctType: SDA
     # khales_acctKey = fields.Char('Account Key', required_if_provider='khales', groups='base.group_user')                        # acctKey: 1234
     # khales_secureAcctKey = fields.Char('Secure Account Key', required_if_provider='khales', groups='base.group_user')           # secureAcctKey: gdyb21LQTcIANtvYMT7QVQ==
     khales_acctCur = fields.Many2one("res.currency", string='Account Currency', required_if_provider='khales',
-                                      groups='base.group_user', default=lambda self: self.env.user.company_id.currency_id)      # acctCur: EGP
+                                     groups='base.group_user',
+                                     default=lambda self: self.env.user.company_id.currency_id)  # acctCur: EGP
     khales_acctCurCode = fields.Char('Account Currency Code', required_if_provider='khales', groups='base.group_user',
-                                     default='818')                                                                             # acctCurCode: 818
-    khales_pmtType = fields.Char('Payment Type', required_if_provider='khales', groups='base.group_user', default='BNKPTN')     # pmtType: BNKPTN
-    khales_pmtMethod = fields.Char('Payment Method', required_if_provider='khales', groups='base.group_user', default='ACTDEB') # pmtMethod: ACTDEB
-    khales_accessChannel = fields.Selection([('ATM', 'Bank ATM'), ('IVR', 'Interactive Voice Recognition System'), ('KIOSK', 'Bank Kiosk'),
-                                             ('INTERNET', 'Internet Browser'), ('PORTAL', 'EPAY’s Portal for Bank/Biller Interfacing'),
-                                             ('BTELLER', 'Bank Teller'), ('POS', 'Point of Sale'), ('DDS', 'Direct Debit Service')],
-                                            string='Access Chennel', default='POS',
-                                            required_if_provider='khales', groups='base.group_user')
+                                     default='818')  # acctCurCode: 818
+    khales_pmtType = fields.Char('Payment Type', required_if_provider='khales', groups='base.group_user',
+                                 default='BNKPTN')  # pmtType: BNKPTN
+    khales_pmtMethod = fields.Char('Payment Method', required_if_provider='khales', groups='base.group_user',
+                                   default='ACTDEB')  # pmtMethod: ACTDEB
+    khales_accessChannel = fields.Selection(
+        [('ATM', 'Bank ATM'), ('IVR', 'Interactive Voice Recognition System'), ('KIOSK', 'Bank Kiosk'),
+         ('INTERNET', 'Internet Browser'), ('PORTAL', 'EPAY’s Portal for Bank/Biller Interfacing'),
+         ('BTELLER', 'Bank Teller'), ('POS', 'Point of Sale'), ('DDS', 'Direct Debit Service')],
+        string='Access Chennel', default='POS',
+        required_if_provider='khales', groups='base.group_user')
+
+    khales_client_id = fields.Char('Client ID', groups='base.group_user')
+    khales_client_secret = fields.Char('Client Secret', groups='base.group_user')
+    khales_client_grant_type = fields.Char('Client Grant Type', groups='base.group_user')
+    khales_access_token = fields.Char('Khales Access Token', groups='base.group_user')
+    khales_url_access_token = fields.Char('Khales Url Access Token', groups='base.group_user')
+
 
 class AcquirerKhales(models.Model):
     _inherit = 'payment.acquirer'
@@ -65,11 +81,12 @@ class AcquirerKhales(models.Model):
     #                                 groups='base.group_user', default=lambda self: self.env.user.company_id.currency_id)      # acctCur: EGP
 
     khales_test_url = fields.Char("Test url", required_if_provider='khales',
-                                 default='http://10.60.0.138:9081/bulkpay/BillPaymentService')
+                                  default='http://10.60.0.138:9081/bulkpay/BillPaymentService')
     khales_prod_url = fields.Char("Production url", required_if_provider='khales',
-                                 default='http://10.60.0.138:9081/bulkpay/BillPaymentService')
+                                  default='http://10.60.0.138:9081/bulkpay/BillPaymentService')
 
-    khales_channel_ids = fields.One2many('payment.acquirer.channel', 'acquirer_id', string='Khales Channels', copy=False)
+    khales_channel_ids = fields.One2many('payment.acquirer.channel', 'acquirer_id', string='Khales Channels',
+                                         copy=False)
 
     def log_xml(self, xml_string, func):
         self.ensure_one()
@@ -84,13 +101,13 @@ class AcquirerKhales(models.Model):
                     env = api.Environment(cr, SUPERUSER_ID, {})
                     IrLogging = env['ir.logging']
                     IrLogging.sudo().create({'name': 'payment.acquirer',
-                              'type': 'server',
-                              'dbname': db_name,
-                              'level': 'DEBUG',
-                              'message': xml_string,
-                              'path': self.provider,
-                              'func': func,
-                              'line': 1})
+                                             'type': 'server',
+                                             'dbname': db_name,
+                                             'level': 'DEBUG',
+                                             'message': xml_string,
+                                             'path': self.provider,
+                                             'func': func,
+                                             'line': 1})
             except psycopg2.Error:
                 pass
 
@@ -107,7 +124,8 @@ class AcquirerKhales(models.Model):
         if not khales_channel and superself.khales_channel_ids:
             khales_channel = superself.khales_channel_ids[0]
         elif not khales_channel and not superself.khales_channel_ids:
-            raise ValidationError(_('The fetch of khales biller details cannot be processed because the khales has not any chennel in confiquration!'))
+            raise ValidationError(
+                _('The fetch of khales biller details cannot be processed because the khales has not any chennel in confiquration!'))
 
         # Production and Testing url
         endurl = superself.khales_prod_url
@@ -131,10 +149,11 @@ class AcquirerKhales(models.Model):
         # # _logger.info("originatorCode     >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_originatorCode)
         # # _logger.info("terminalId         >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_terminalId)
         # # _logger.info("deliveryMethod     >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_deliveryMethod)
-        srm = KHALESRequest(debug_logger=self.log_xml, endurl=endurl, env=self.env, sender=khales_channel.khales_sender, receiver=khales_channel.khales_receiver,
+        srm = KHALESRequest(debug_logger=self.log_xml, endurl=endurl, env=self.env, sender=khales_channel.khales_sender,
+                            receiver=khales_channel.khales_receiver,
                             # version=superself.khales_version, originatorCode=khales_channel.khales_originatorCode
                             # terminalId=khales_channel.khales_terminalId, deliveryMethod=khales_channel.khales_deliveryMethod
-                            )
+                            khales_channel=khales_channel)
 
         result = {}
         # Tamayoz TODO: Loop for Khales languagePref enum
@@ -142,8 +161,9 @@ class AcquirerKhales(models.Model):
                              # , 'ar-eg'
                              ]:
             result_biller = srm.get_biller_details(languagePref)
-            if result_biller.get('serviceGroupTypes'): # result_biller.get('billerRecTypes'):
-                result['serviceGroupTypes_' + languagePref] = result_biller['serviceGroupTypes'] # result['billerRecTypes_'+languagePref] = result_biller['billerRecTypes']
+            if result_biller.get('serviceGroupTypes'):  # result_biller.get('billerRecTypes'):
+                result['serviceGroupTypes_' + languagePref] = result_biller[
+                    'serviceGroupTypes']  # result['billerRecTypes_'+languagePref] = result_biller['billerRecTypes']
             else:
                 result = result_biller
 
@@ -158,11 +178,12 @@ class AcquirerKhales(models.Model):
         for languagePref in ['en-gb'
                              # , 'ar-eg'
                              ]:
-            serviceGroupTypes = result.get('serviceGroupTypes_'+languagePref)
+            serviceGroupTypes = result.get('serviceGroupTypes_' + languagePref)
             if serviceGroupTypes:
                 fetch_success = True
                 for serviceGroupType in serviceGroupTypes:
-                    _logger.info(" ====================================== Biller Fetch Data Begin " + serviceGroupType.Code + ": " + languagePref + " =========================================")
+                    _logger.info(
+                        " ====================================== Biller Fetch Data Begin " + serviceGroupType.Code + ": " + languagePref + " =========================================")
                     serviceGroupCode = serviceGroupType.Code
                     serviceGroupName = serviceGroupType.Name
 
@@ -317,21 +338,23 @@ class AcquirerKhales(models.Model):
 
                                     # Fetch Khales Service
                                     service_providerinfo = self.env['product.supplierinfo'].sudo().search([
-                                        ('product_code', '=', # billerCode + '#' +
+                                        ('product_code', '=',  # billerCode + '#' +
                                          serviceTypeCode),
                                         ('name', '=', khales.related_partner.id),
-                                        ('product_tmpl_id.categ_id', '=', service_type_providerinfo.product_categ_id.id # service_provider_providerinfo.product_categ_id.id
+                                        ('product_tmpl_id.categ_id', '=', service_type_providerinfo.product_categ_id.id
+                                         # service_provider_providerinfo.product_categ_id.id
                                          )
                                     ])
                                     if not service_providerinfo:
                                         service_vals = {
                                             'name': billerEnName + ' ' + serviceTypeEnName,
                                             'type': 'service',
-                                            'categ_id': service_type_providerinfo.product_categ_id.id, # service_provider_providerinfo.product_categ_id.id,
+                                            'categ_id': service_type_providerinfo.product_categ_id.id,
+                                            # service_provider_providerinfo.product_categ_id.id,
                                             'seller_ids': [(0, 0, {
                                                 'name': khales.related_partner.id,
-                                                'product_code': # billerCode + '#' +
-                                                                serviceTypeCode,
+                                                'product_code':  # billerCode + '#' +
+                                                    serviceTypeCode,
                                                 'product_name': billerEnName + ' ' + serviceTypeEnName,
                                                 'biller_info': suds_to_json(biller),
                                             })],
@@ -340,7 +363,7 @@ class AcquirerKhales(models.Model):
                                             'sale_ok': True,
                                             'purchase_ok': True,
                                             'invoice_policy': 'order',
-                                            'lst_price': 0, # Do not set a high value to avoid issue with coupon code
+                                            'lst_price': 0,  # Do not set a high value to avoid issue with coupon code
                                             'uom_id': self.env.ref("uom.product_uom_unit").id,
                                             'uom_po_id': self.env.ref("uom.product_uom_unit").id
                                         }
@@ -368,9 +391,10 @@ class AcquirerKhales(models.Model):
                                         })
                                     else:
                                         if languagePref == 'en-gb':
-                                            service_providerinfo.sudo().write({'product_name': billerEnName + ' ' + serviceTypeEnName,
-                                                                               'biller_info': suds_to_json(biller)
-                                                                               })
+                                            service_providerinfo.sudo().write(
+                                                {'product_name': billerEnName + ' ' + serviceTypeEnName,
+                                                 'biller_info': suds_to_json(biller)
+                                                 })
                                         elif languagePref == 'ar-eg':
                                             serviceName_translate = self.env['ir.translation'].sudo().search([
                                                 ('type', '=', 'model'),
@@ -392,7 +416,8 @@ class AcquirerKhales(models.Model):
                                                     'state': 'translated',
                                                 })
                                             else:
-                                                serviceName_translate.sudo().write({"value": billerArName + ' ' + serviceTypeArName})
+                                                serviceName_translate.sudo().write(
+                                                    {"value": billerArName + ' ' + serviceTypeArName})
 
                                             billerInfo_translate = self.env['ir.translation'].sudo().search([
                                                 ('type', '=', 'model'),
@@ -471,7 +496,8 @@ class AcquirerKhales(models.Model):
         if not khales_channel and superself.khales_channel_ids:
             khales_channel = superself.khales_channel_ids[0]
         elif not khales_channel and not superself.khales_channel_ids:
-            raise ValidationError(_('The fetch of khales bill details cannot be processed because the khales has not any chennel in confiquration!'))
+            raise ValidationError(
+                _('The fetch of khales bill details cannot be processed because the khales has not any chennel in confiquration!'))
 
         # Production and Testing url
         endurl = superself.khales_prod_url
@@ -497,16 +523,19 @@ class AcquirerKhales(models.Model):
         # # _logger.info("deliveryMethod     >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_deliveryMethod)
         # _logger.info("bankId             >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_bankId)
         # _logger.info("accessChannel      >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_accessChannel)
-        srm = KHALESRequest(debug_logger=self.log_xml, endurl=endurl, env=self.env, sender=khales_channel.khales_sender, receiver=khales_channel.khales_receiver,
+        srm = KHALESRequest(debug_logger=self.log_xml, endurl=endurl, env=self.env, sender=khales_channel.khales_sender,
+                            receiver=khales_channel.khales_receiver,
                             # version=superself.khales_version, originatorCode=khales_channel.khales_originatorCode,
                             # terminalId=khales_channel.khales_terminalId, deliveryMethod=khales_channel.khales_deliveryMethod,
-                            bankId = khales_channel.khales_bankId, accessChannel=khales_channel.khales_accessChannel)
+                            bankId=khales_channel.khales_bankId, accessChannel=khales_channel.khales_accessChannel,
+                            khales_channel=khales_channel)
 
         result = {}
         languagePref = 'en-gb'
         if lang == 'ar_AA' or (lang != 'en_US' and self.env.user.lang == 'ar_AA'):
             languagePref = 'ar-eg'
-        result_bill = srm.get_bill_details(languagePref, posSerialNumber, serviceType, billerId, billingAcct, additionInfo, requestNumber)
+        result_bill = srm.get_bill_details(languagePref, posSerialNumber, serviceType, billerId, billingAcct,
+                                           additionInfo, requestNumber)
         if result_bill.get('billRecType'):
             result['Success'] = result_bill['billRecType']
         else:
@@ -522,7 +551,8 @@ class AcquirerKhales(models.Model):
         if not khales_channel and superself.khales_channel_ids:
             khales_channel = superself.khales_channel_ids[0]
         elif not khales_channel and not superself.khales_channel_ids:
-            raise ValidationError(_('The fetch of khales fees details cannot be processed because the khales has not any chennel in confiquration!'))
+            raise ValidationError(
+                _('The fetch of khales fees details cannot be processed because the khales has not any chennel in confiquration!'))
 
         # Production and Testing url
         endurl = superself.khales_prod_url
@@ -547,14 +577,15 @@ class AcquirerKhales(models.Model):
         # # _logger.info("terminalId         >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_terminalId)
         # # _logger.info("deliveryMethod     >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_deliveryMethod)
         # _logger.info("acctCur            >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_acctCur)
-        srm = KHALESRequest(debug_logger=self.log_xml, endurl=endurl, env=self.env, sender=khales_channel.khales_sender, receiver=khales_channel.khales_receiver,
+        srm = KHALESRequest(debug_logger=self.log_xml, endurl=endurl, env=self.env, sender=khales_channel.khales_sender,
+                            receiver=khales_channel.khales_receiver,
                             # version=superself.khales_version, originatorCode=khales_channel.khales_originatorCode,
                             # terminalId=khales_channel.khales_terminalId, deliveryMethod=khales_channel.khales_deliveryMethod,
                             bankId=khales_channel.khales_bankId,
-                            acctCur=khales_channel.khales_acctCur
-                            )
+                            acctCur=khales_channel.khales_acctCur,
+                            khales_channel=khales_channel)
 
-        result = {} # ,
+        result = {}  # ,
         languagePref = 'en-gb'
         if lang == 'ar_AA' or (lang != 'en_US' and self.env.user.lang == 'ar_AA'):
             languagePref = 'ar-eg'
@@ -566,7 +597,7 @@ class AcquirerKhales(models.Model):
 
         return result
 
-    def pay_khales_bill(self, lang, posSerialNumber, # billTypeCode,
+    def pay_khales_bill(self, lang, posSerialNumber,  # billTypeCode,
                         # billingAcct, extraBillingAcctKeys,
                         # amt, curCode, pmtMethod,
                         # notifyMobile, billRefNumber,
@@ -581,7 +612,8 @@ class AcquirerKhales(models.Model):
         if not khales_channel and superself.khales_channel_ids:
             khales_channel = superself.khales_channel_ids[0]
         elif not khales_channel and not superself.khales_channel_ids:
-            raise ValidationError(_('The pay of khales bill cannot be processed because the khales has not any chennel in confiquration!'))
+            raise ValidationError(
+                _('The pay of khales bill cannot be processed because the khales has not any chennel in confiquration!'))
 
         # Production and Testing url
         endurl = superself.khales_prod_url
@@ -608,14 +640,16 @@ class AcquirerKhales(models.Model):
         # _logger.info("bankId             >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_bankId)
         # _logger.info("accessChannel      >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_accessChannel)
         # _logger.info("acctCur            >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_acctCur)
-        srm = KHALESRequest(debug_logger=self.log_xml, endurl=endurl, env=self.env, sender=khales_channel.khales_sender, receiver=khales_channel.khales_receiver,
+        srm = KHALESRequest(debug_logger=self.log_xml, endurl=endurl, env=self.env, sender=khales_channel.khales_sender,
+                            receiver=khales_channel.khales_receiver,
                             # version=superself.khales_version, originatorCode=khales_channel.khales_originatorCode,
                             # terminalId=khales_channel.khales_terminalId, deliveryMethod=khales_channel.khales_deliveryMethod,
                             # posSerialNumber=khales_channel.khales_posSerialNumber,
                             bankId=khales_channel.khales_bankId,
                             # acctId=khales_channel.khales_acctId, acctType=khales_channel.khales_acctType,
                             # acctKey=khales_channel.khales_acctKey, secureAcctKey=khales_channel.khales_secureAcctKey,
-                            accessChannel=khales_channel.khales_accessChannel, acctCur=khales_channel.khales_acctCur)
+                            accessChannel=khales_channel.khales_accessChannel, acctCur=khales_channel.khales_acctCur,
+                            khales_channel=khales_channel)
 
         result = {}
         languagePref = 'en-gb'
@@ -623,15 +657,16 @@ class AcquirerKhales(models.Model):
             languagePref = 'ar-eg'
         result_bill = srm.pay_bill(languagePref, posSerialNumber, billingAcct, billerId, ePayBillRecID,
                                    payAmts, pmtId, pmtIdType, feesAmts,
-                                   billNumber, pmtMethod, pmtRefInfo, additionInfo, requestNumber, isAllowCancel, isAllowRetry)
-        if result_bill.get('pmtAdviceRsType'): # result_bill.get('pmtInfoValType'):
-            result['Success'] = result_bill['pmtAdviceRsType'] # result_bill['pmtInfoValType']
+                                   billNumber, pmtMethod, pmtRefInfo, additionInfo, requestNumber, isAllowCancel,
+                                   isAllowRetry)
+        if result_bill.get('pmtAdviceRsType'):  # result_bill.get('pmtInfoValType'):
+            result['Success'] = result_bill['pmtAdviceRsType']  # result_bill['pmtInfoValType']
         # elif result_bill.get('error_code') == '0' or (result_bill.get('error_code') == '-1' and superself.environment == "test"):
-        elif result_bill.get('error_code') in ('0', '-1', '-2', '8005', '9006'): # 0 ==> timeout,
-                                                                                 # -1 ==> IOError,
-                                                                                 # -2 ==> Exception,
-                                                                                 # 8005 ==> Repeated RqUID,
-                                                                                 # 9006 ==> Unable to Match Payment With Existing Bill
+        elif result_bill.get('error_code') in ('0', '-1', '-2', '8005', '9006'):  # 0 ==> timeout,
+            # -1 ==> IOError,
+            # -2 ==> Exception,
+            # 8005 ==> Repeated RqUID,
+            # 9006 ==> Unable to Match Payment With Existing Bill
             result['Success'] = srm._simulate_pay_bill_response(billingAcct, billerId, ePayBillRecID,
                                                                 payAmts, pmtId, pmtIdType, feesAmts,
                                                                 billNumber, pmtMethod, pmtRefInfo)
@@ -650,7 +685,8 @@ class AcquirerKhales(models.Model):
         if not khales_channel and superself.khales_channel_ids:
             khales_channel = superself.khales_channel_ids[0]
         elif not khales_channel and not superself.khales_channel_ids:
-            raise ValidationError(_('The cancel of khales payment cannot be processed because the khales has not any chennel in confiquration!'))
+            raise ValidationError(
+                _('The cancel of khales payment cannot be processed because the khales has not any chennel in confiquration!'))
 
         # Production and Testing url
         endurl = superself.khales_prod_url
@@ -677,14 +713,16 @@ class AcquirerKhales(models.Model):
         # _logger.info("bankId             >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_bankId)
         # _logger.info("accessChannel      >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_accessChannel)
         # _logger.info("acctCur            >>>>>>>>>>>>>>>>>>>>> " + khales_channel.khales_acctCur)
-        srm = KHALESRequest(debug_logger=self.log_xml, endurl=endurl, env=self.env, sender=khales_channel.khales_sender, receiver=khales_channel.khales_receiver,
+        srm = KHALESRequest(debug_logger=self.log_xml, endurl=endurl, env=self.env, sender=khales_channel.khales_sender,
+                            receiver=khales_channel.khales_receiver,
                             # version=superself.khales_version, originatorCode=khales_channel.khales_originatorCode,
                             # terminalId=khales_channel.khales_terminalId, deliveryMethod=khales_channel.khales_deliveryMethod,
                             # posSerialNumber=khales_channel.khales_posSerialNumber,
                             bankId=khales_channel.khales_bankId,
                             # acctId=khales_channel.khales_acctId, acctType=khales_channel.khales_acctType,
                             # acctKey=khales_channel.khales_acctKey, secureAcctKey=khales_channel.khales_secureAcctKey,
-                            accessChannel=khales_channel.khales_accessChannel, acctCur=khales_channel.khales_acctCur)
+                            accessChannel=khales_channel.khales_accessChannel, acctCur=khales_channel.khales_acctCur,
+                            khales_channel=khales_channel)
 
         result = {}
         languagePref = 'en-gb'
