@@ -3972,7 +3972,7 @@ class APIController(http.Controller):
                             provider_response_json["provider_correlation_response"] = provider_correlation_response
                             error.update({provider.provider + "_response": provider_response_json or ''})
                             error_code = provider_correlation_response.get('error_code')
-                            if provider.provider == "fawry" and biller_info_json_dict.get('Type') == 'CASHININT' and error_code in ('21092', '21132', '26', '31004'):
+                            if provider.provider == "fawry" and biller_info_json_dict.get('Type') == 'CASHININT' and error_code in ('21092', '21132', '26', '31004', '2601'):
                                 provider_actual_amount = user_request.trans_amount + provider_fees_amount
                                 customer_actual_amount = provider_actual_amount + extra_fees_amount
 
