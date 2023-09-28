@@ -278,14 +278,14 @@ class KHALESRequest():
                         plugins=[LogPlugin(self.debug_logger)]
                         )
 
-        # access_token = self.khales_channel.acquirer_id. \
-        #     with_context(default_provider_channel=self.khales_channel).khales_generate_access_token()
-        # if access_token is False:
-        #     _logger.info('Cannot acquire access token, service not available')
-        #     raise Exception('Cannot acquire access token, service not available')
-        # _logger.info("Set access_token in security_header")
+        access_token = self.khales_channel.acquirer_id. \
+            with_context(default_provider_channel=self.khales_channel).khales_generate_access_token()
+        if access_token is False:
+            _logger.info('Cannot acquire access token, service not available')
+            raise Exception('Cannot acquire access token, service not available')
+        _logger.info("Set access_token in security_header")
 
-        # self._add_security_header(access_token, client)
+        self._add_security_header(access_token, client)
 
         # self._add_security_header(client)
         client.set_options(location='%s'
