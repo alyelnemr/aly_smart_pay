@@ -128,7 +128,7 @@ class AcquirerKhales(models.Model):
         self.ensure_one()
         if not (self.khales_access_token and self.date_time_expire):
             return False
-        return self.date_time_expire and (self.date_time_expire + timedelta(seconds=-10)) > datetime.now()
+        return self.date_time_expire and self.date_time_expire > datetime.now()
 
     def _default_provider_channel(self):
         return self.search([('provider', '=', 'khales')], limit=1).khales_channel_ids

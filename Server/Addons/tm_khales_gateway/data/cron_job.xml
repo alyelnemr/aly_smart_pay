@@ -3,7 +3,7 @@
     <data noupdate="1">
         <record id="generate_access_token_khales_cron" forcecreate='True' model="ir.cron">
             <field name="name">Generate Access Token Provider</field>
-            <field eval="True" name="active"/>
+            <field eval="False" name="active"/>
             <field name="user_id" ref="base.user_admin"/>
             <field name="interval_number">1</field>
             <field name="interval_type">minutes</field>
