@@ -238,31 +238,31 @@ class KHALESRequest():
             self.SignonProfileType.Version = self.version
         '''
 
-    def _generate_access_token(self):
-        if not self.khales_channel:
-            _logger.info("Not set khales channel object.")
-            return {}
-
-        _logger.info("Generating access token")
-        url = self.khales_channel.khales_url_access_token
-        grant_type = self.khales_channel.khales_client_grant_type
-        client_secret = self.khales_channel.khales_client_secret
-        client_id = self.khales_channel.khales_client_id
-        client_secret = urllib.parse.quote(client_secret, safe='!')
-        payload = 'grant_type={}&client_secret={}&client_id={}'.format(grant_type, client_secret, client_id)
-
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        urllib3.disable_warnings()
-        _logger.info('---->> Payload {}'.format(payload))
-
-        try:
-            response = requests.post(url, headers=headers, data=payload, verify=False)
-            token = response.json()
-            _logger.info("Successfully generation access token {}".format(token))
-            return response.json()
-        except Exception as e:
-            _logger.info('Exception while generating access token: {}'.format(e))
-            return {}
+    # def _generate_access_token(self):
+    #     if not self.khales_channel:
+    #         _logger.info("Not set khales channel object.")
+    #         return {}
+    #
+    #     _logger.info("Generating access token")
+    #     url = self.khales_channel.khales_url_access_token
+    #     grant_type = self.khales_channel.khales_client_grant_type
+    #     client_secret = self.khales_channel.khales_client_secret
+    #     client_id = self.khales_channel.khales_client_id
+    #     client_secret = urllib.parse.quote(client_secret, safe='!')
+    #     payload = 'grant_type={}&client_secret={}&client_id={}'.format(grant_type, client_secret, client_id)
+    #
+    #     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    #     urllib3.disable_warnings()
+    #     _logger.info('---->> Payload {}'.format(payload))
+    #
+    #     try:
+    #         response = requests.post(url, headers=headers, data=payload, verify=False)
+    #         token = response.json()
+    #         _logger.info("Successfully generation access token {}".format(token))
+    #         return response.json()
+    #     except Exception as e:
+    #         _logger.info('Exception while generating access token: {}'.format(e))
+    #         return {}
 
     def _set_client(self, wsdl
                     # , api, root
@@ -277,12 +277,15 @@ class KHALESRequest():
                         # plugins=[FixRequestNamespacePlug(root), LogPlugin(self.debug_logger)]
                         plugins=[LogPlugin(self.debug_logger)]
                         )
-        access_token = self._generate_access_token()
-        if access_token.get('access_token', ""):
-            token = access_token['access_token']
-            _logger.info("Set access_token in security_header")
 
-            self._add_security_header(token, client)
+        access_token = self.khales_channel.acquirer_id. \
+            with_context(default_provider_channel=self.khales_channel).khales_generate_access_token()
+        if access_token is False:
+            _logger.info('Cannot acquire access token, service not available')
+            raise Exception('Cannot acquire access token, service not available')
+        _logger.info("Set access_token in security_header")
+
+        self._add_security_header(access_token, client)
 
         # self._add_security_header(client)
         client.set_options(location='%s'
@@ -753,7 +756,12 @@ class KHALESRequest():
     '''
 
     def get_biller_details(self, languagePref):
-        client = self._set_client(self.wsdl)
+        try:
+            client = self._set_client(self.wsdl)
+        except Exception as e:
+            _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+            return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
+
 
         '''
             client, msgCode, languagePref, namespace, # suppressEcho,
@@ -820,7 +828,11 @@ class KHALESRequest():
 
     def get_bill_details(self, languagePref, posSerialNumber,
                          serviceType, billerId, billingAcct, additionInfo=None, requestNumber=None):
-        client = self._set_client(self.wsdl)
+        try:
+            client = self._set_client(self.wsdl)
+        except Exception as e:
+            _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+            return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
 
         '''
             client, msgCode, languagePref, namespace, # suppressEcho,
@@ -887,7 +899,11 @@ class KHALESRequest():
 
     def get_fees(self, languagePref, posSerialNumber,
                  ePayBillRecID, payAmts, requestNumber=None):
-        client = self._set_client(self.wsdl)
+        try:
+            client = self._set_client(self.wsdl)
+        except Exception as e:
+            _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+            return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
 
         '''
             client, msgCode, languagePref, namespace, # suppressEcho,
@@ -956,7 +972,11 @@ class KHALESRequest():
                  payAmts, pmtId, pmtIdType, feesAmts,
                  billNumber, pmtMethod, pmtRefInfo, additionInfo=None, requestNumber=None,
                  isAllowCancel=True, isAllowRetry=True, TIMOUT_RETRY=0):
-        client = self._set_client(self.wsdl)
+        try:
+            client = self._set_client(self.wsdl)
+        except Exception as e:
+            _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+            return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
 
         '''
             client, msgCode, languagePref, namespace, # suppressEcho,
@@ -1217,7 +1237,11 @@ class KHALESRequest():
                        billingAcct, billerId, ePayBillRecID,
                        payAmts, pmtId, pmtIdType, feesAmts,
                        billNumber, pmtMethod, pmtRefInfo, cancelReason, requestNumber=None, TIMOUT_RETRY=0):
-        client = self._set_client(self.wsdl)
+        try:
+            client = self._set_client(self.wsdl)
+        except Exception as e:
+            _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+            return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
 
         '''
             client, msgCode, languagePref, namespace, # suppressEcho,

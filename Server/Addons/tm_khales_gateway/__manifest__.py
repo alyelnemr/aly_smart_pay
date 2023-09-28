@@ -11,6 +11,7 @@
     'depends': ['account', 'mail', 'tm_base_gateway'],
     'data': [
         'data/khales_gateway_data.xml',
+        'data/cron_job.xml',
         'views/khales_gateway_view.xml',
     ],
     'license': 'OEEL-1',

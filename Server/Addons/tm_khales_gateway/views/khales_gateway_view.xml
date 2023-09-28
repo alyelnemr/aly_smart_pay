@@ -19,7 +19,6 @@
                             <field name="khales_client_secret"/>
                             <field name="khales_client_grant_type"/>
                             <field name="khales_url_access_token"/>
-                            <field name="khales_access_token" invisible="1"/>
                             <!--
                             <field name="khales_originatorCode"/>
                             <field name="khales_terminalId"/>
@@ -48,7 +47,6 @@
                                 <field name="khales_client_secret"/>
                                 <field name="khales_client_grant_type"/>
                                 <field name="khales_url_access_token"/>
-                                <field name="khales_access_token" invisible="1"/>
                                 <!--
                                 <field name="khales_originatorCode"/>
                                 <field name="khales_terminalId"/>
@@ -75,6 +73,15 @@
                     <field name="khales_test_url" groups='base.group_no_one'/>
                     <field name="khales_prod_url" groups='base.group_no_one'/>
                     <!--<field name="khales_version" groups='base.group_no_one'/>-->
+                </group>
+            </xpath>
+            <xpath expr="//page[@name='acquirer_credentials']//group[@name='acquirer']" position="before">
+                <group name="provider_khales_credentials"
+                       attrs="{'invisible': [('provider', '!=', 'khales')]}"
+                       groups="base.group_no_one">
+                    <field name="khales_access_token" password="True" readonly="1"/>
+                    <field name="expiry_period" readonly="1"/>
+                    <field name="date_time_expire" readonly="1"/>
                 </group>
             </xpath>
         </field>

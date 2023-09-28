@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 # This module and its content is copyright of Tamayozsoft.
 # - © Tamayozsoft 2020. All rights reserved.
-
+import threading
 import logging
 import psycopg2
-
+import requests
+import urllib3
+import urllib.parse
+from datetime import datetime, timedelta
 from odoo import api, fields, models, registry, SUPERUSER_ID, tools, _
 from odoo.exceptions import ValidationError
 
@@ -14,6 +17,8 @@ from odoo.addons.tm_base_gateway.common import (
 )
 
 _logger = logging.getLogger(__name__)
+
+token_lock = threading.Lock()
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -55,14 +60,44 @@ class AcquirerKhalesChannel(models.Model):
     khales_client_id = fields.Char('Client ID', groups='base.group_user')
     khales_client_secret = fields.Char('Client Secret', groups='base.group_user')
     khales_client_grant_type = fields.Char('Client Grant Type', groups='base.group_user')
-    khales_access_token = fields.Char('Khales Access Token', groups='base.group_user')
     khales_url_access_token = fields.Char('Khales Url Access Token', groups='base.group_user')
+
+    def _generate_access_token(self):
+        self.ensure_one()
+        _logger.info("----->>>>>>>>> Generating access token")
+        url = self.khales_url_access_token
+        grant_type = self.khales_client_grant_type
+        client_secret = self.khales_client_secret
+        client_id = self.khales_client_id
+        client_secret = urllib.parse.quote(client_secret, safe='!')
+        payload = 'grant_type={}&client_secret={}&client_id={}'.format(grant_type, client_secret, client_id)
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        urllib3.disable_warnings()
+        _logger.info('---->> Payload {}'.format(payload))
+        timeout = 3
+        message = ''
+        while timeout > 0:
+            try:
+                response = requests.post(url, headers=headers, data=payload, verify=False, timeout=5)
+                token = response.json()
+                _logger.info("Successfully generation access token {}".format(token))
+                return token
+            except Exception as e:
+                message = 'Exception while generating access token: {}'.format(str(e))
+            timeout -= 1
+        _logger.error(message)
+        return {}
 
 
 class AcquirerKhales(models.Model):
     _inherit = 'payment.acquirer'
 
     provider = fields.Selection(selection_add=[('khales', 'Khales')])
+
+    khales_access_token = fields.Char('Khales Access Token', copy=False)
+    expiry_period = fields.Integer("Token Expire After(Seconds)", copy=False)
+    date_time_expire = fields.Datetime("Datetime Token Expire", copy=False)
 
     # khales_sender = fields.Char('Sender', required_if_provider='khales', groups='base.group_user')                              # sender: SmartPay2_MOB                        ==> Per Channel
     # khales_receiver = fields.Char('Receiver', required_if_provider='khales', groups='base.group_user')                          # receiver: SmartPay2
@@ -87,6 +122,57 @@ class AcquirerKhales(models.Model):
 
     khales_channel_ids = fields.One2many('payment.acquirer.channel', 'acquirer_id', string='Khales Channels',
                                          copy=False)
+
+    def is_khales_token_valid(self):
+        """Check if the token is valid."""
+        self.ensure_one()
+        if not (self.khales_access_token and self.date_time_expire):
+            return False
+        return self.date_time_expire and (self.date_time_expire + timedelta(seconds=-10)) > datetime.now()
+
+    def _default_provider_channel(self):
+        return self.search([('provider', '=', 'khales')], limit=1).khales_channel_ids
+
+    @api.model
+    def khales_generate_access_token(self):
+        """Generate access token from Khales.
+           Lock the access token generation process to avoid concurrency issues
+           pass default_provider_channel or get _default_provider_channel
+            """
+        with token_lock:
+            provider_channel = self._context.get('default_provider_channel') or self._default_provider_channel()
+            provider_channel = provider_channel.filtered(lambda x:
+                                                         x.khales_client_id and
+                                                         x.khales_client_secret and
+                                                         x.khales_client_grant_type and
+                                                         x.khales_url_access_token)
+            provider_channel = provider_channel and provider_channel[0]
+
+            access_token = provider_channel.acquirer_id.khales_access_token
+            if provider_channel.acquirer_id.is_khales_token_valid():
+                return access_token
+            # if not self.khales_channel.acquirer_id.is_khales_token_valid():
+            _logger.info("->>>>>> Run generate access token cron job")
+
+            if not provider_channel:
+                _logger.info("Not found provider channel")
+                return False
+            token_data = provider_channel._generate_access_token()
+            if not token_data:
+                _logger.info("Failed to generate access token")
+                return False
+            """
+            {'access_token': 'T1amGT21.Idup.e068be3f3e6deb40fe37e13a9972446b',
+             'token_type': 'Bearer', 'expires_in': 59}
+            """
+            provider_channel.acquirer_id.write({
+                'khales_access_token': token_data.get('access_token', False),
+                'expiry_period': token_data.get('expires_in', False),
+                'date_time_expire': datetime.now() +
+                                    timedelta(seconds=int(token_data.get('expires_in', 0))),
+            })
+            self.env.cr.commit()
+            return provider_channel.acquirer_id.khales_access_token
 
     def log_xml(self, xml_string, func):
         self.ensure_one()
