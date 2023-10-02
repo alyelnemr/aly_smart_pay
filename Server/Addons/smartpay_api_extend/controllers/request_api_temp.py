@@ -1674,11 +1674,13 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
                 partner_wallet_id = request.env.user.partner_id.get_transaction_wallet(
                     wallet_id=request_data.get("wallet_id"),
                     # service=user_request.product_id,
-                    trans_amount=user_request.trans_amount)
+                    trans_amount=user_request.trans_amount,
+                    allow_transfer_to=True)
             else:
                 partner_wallet_id = request.env.user.partner_id.get_transaction_wallet(
                     # service=user_request.product_id,
-                    trans_amount=user_request.trans_amount)
+                    trans_amount=user_request.trans_amount,
+                    allow_transfer_to=True)
             if not partner_wallet_id:
                 return invalid_response("wallet_not_found",
                                         _("No Matched Wallet found for partner [%s] %s") % (
