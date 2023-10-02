@@ -9032,7 +9032,7 @@ class APIController(http.Controller):
                             provider_response_json["provider_correlation_response"] = provider_correlation_response
                             error.update({provider.provider + "_response": provider_response_json or ''})
                             error_code = provider_correlation_response.get("error_code")
-                            if provider.provider == "fawry" and biller_info_json_dict.get('Type') == 'CASHININT' and error_code in ('21092', '21132', '26', '31004'):
+                            if provider.provider == "fawry" and biller_info_json_dict.get('Type') == 'CASHININT' and error_code in ('21092', '21132', '26', '31004', '2601'):
                                 provider_actual_amount = user_request.trans_amount + provider_fees_amount
                                 customer_actual_amount = provider_actual_amount + extra_fees_amount
 
@@ -9745,10 +9745,12 @@ class APIController(http.Controller):
                 if request_data.get("wallet_id"):
                     partner_wallet_id = request.env.user.partner_id.get_transaction_wallet(wallet_id=request_data.get("wallet_id"),
                                                                                            # service=user_request.product_id,
-                                                                                           trans_amount=user_request.trans_amount)
+                                                                                           trans_amount=user_request.trans_amount,
+                                                                                           allow_transfer_to=True)
                 else:
                     partner_wallet_id = request.env.user.partner_id.get_transaction_wallet(# service=user_request.product_id,
-                                                                                           trans_amount=user_request.trans_amount)
+                                                                                           trans_amount=user_request.trans_amount,
+                                                                                           allow_transfer_to=True)
                 if not partner_wallet_id:
                     return invalid_response("wallet_not_found",
                                             _("No Matched Wallet found for partner [%s] %s") % (
