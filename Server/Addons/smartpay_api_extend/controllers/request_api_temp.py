@@ -1770,6 +1770,8 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
             else:
                 mobile_wallet_id = user_wallet_id or user_request.partner_id.get_transaction_wallet()
             if not mobile_wallet_id:
+                machine_wallet_reservation_id.sudo().unlink()
+                request.env.cr.commit()
                 return invalid_response("wallet_not_found",
                                         _("No Matched Wallet found for partner [%s] %s") % (
                                             user_request.partner_id.ref,
