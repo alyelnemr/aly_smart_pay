@@ -33,7 +33,77 @@ _REQUEST_TYPES_IDS = ['general_inquiry', 'recharge_wallet', 'service_bill_inquir
 SECRET_KEY = base64.b64decode('MfG6sLDTQIaS8QgOnkBS2THxurCw00CG')
 UNPAD = lambda s: s[0:-s[-1]]
 
+REQUEST_FIELDS = {
+    'billingAcct': 'request_billing_acct',
+    'extraBillingAcctKeys': 'request_extra_billing_acct_keys',
+    'customProperties': 'request_custom_properties',
+    'billRefNumber': 'request_bill_ref_number',
+    'currency_id': 'request_currency_id',
+    'pmtMethod': 'request_pm_method',
+    'provider': 'request_provider',
+    'pmtType': 'request_pmt_type',
+    'feesAmt': 'request_fees_amt',
+    'feesAmts': 'request_all_fees_amt',
+    'notifyMobile': 'request_notify_mobile',
+    'inquiryTransactionId': 'request_inquiry_transaction_id',
+    'machine_serial': 'request_machine_serial',
+}
+
 _logger = logging.getLogger(__name__)
+
+
+def get_currency(currency, request):
+    """Get currency for given currency code.
+    @type: currency: char
+    @param currency: Currency name
+    @type: request: Request Object
+    @param request: Object from request
+
+    @retype: res.currency object
+    """
+    if not (currency and request):
+        return None
+    return request.env['res.currency'].sudo().search([('name', '=', currency)], limit=1)
+
+
+def get_inquire_record(inquire_record, request):
+    """Get inquiry record for given inquire_record.
+    @type: inquire_record: char
+    @param inquire_record: Inquiry record name.
+    @type: request: Request object
+    @param request: Object from request
+
+    @retype: smartpay_operations.request object
+    """
+    if not (inquire_record and request):
+        return None
+    return request.env["smartpay_operations.request"].sudo().search(
+        [('name', '=', inquire_record)], limit=1)
+
+
+def parse_request_data_to_fields(request_data, request):
+    """Parse request data to fields on object smartpay_operations_request.
+
+    @param request: Object from request.
+    @param request_data: Request data from API.
+
+    @rtype: dict
+    """
+    request_fields = {}
+    new_request_data = {k: request_data.get(k) for k in REQUEST_FIELDS.keys() if request_data.get(k)}
+    for request_data_field in new_request_data.keys():
+        if request_data_field == 'currency_id' and \
+                isinstance(new_request_data[request_data_field], str):
+            currency_id = get_currency(new_request_data.get(request_data_field), request)
+            if currency_id:
+                request_fields[REQUEST_FIELDS[request_data_field]] = currency_id.id
+        elif request_data_field == 'inquiryTransactionId' and \
+                isinstance(new_request_data[request_data_field], str):
+            request_fields[REQUEST_FIELDS[request_data_field]] = \
+                get_inquire_record(new_request_data.get(request_data_field), request).id
+        else:
+            request_fields[REQUEST_FIELDS[request_data_field]] = new_request_data.get(request_data_field)
+    return request_fields
 
 
 class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
@@ -441,6 +511,17 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
                 WebsiteForm().insert_attachment(model_record, id_record, data['attachments'])
                 request.env.cr.commit()
                 machine_request = model_record.env[model_name].sudo().browse(id_record)
+                try:
+                    _logger.info("Parse data to request")
+                    _logger.info("Request Data {}".format(request_data))
+                    request_fields = parse_request_data_to_fields(request_data, request)
+                    _logger.info('Request Fields {}'.format(request_fields))
+                    if request_fields and machine_request:
+                        machine_request.write(request_fields)
+                    request.env.cr.commit()
+                except Exception as e:
+                    _logger.info("Error on parse request data to request")
+                    _logger.error(e)
             else:
                 return invalid_response("Error", _("Could not submit you request."), 500)
 

@@ -2,4 +2,5 @@
 
 from . import controllers
 from . import tools
+from . import models
 

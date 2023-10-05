@@ -12,8 +12,10 @@
     'maintainer': 'Muhammed-Ashraf,eng.mohammedashraf96@gmail.com',
     'category': 'Tools',
     'version': '12.0.0.1',
-    'depends': ['smartpay_api'],
-    'data': [],
+    'depends': ['smartpay_api', 'smartpay_operations'],
+    'data': [
+        'views/smartpay_operations_request.xml',
+    ],
     "license": "LGPL-3",
     "installable": True,
     "auto_install": False,
