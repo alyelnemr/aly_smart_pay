@@ -13,15 +13,9 @@
                             <field name="request_billing_acct" readonly="1"/>
                             <field name="request_extra_billing_acct_keys" readonly="1"/>
                             <field name="request_custom_properties" readonly="1"/>
-                            <field name="request_bill_ref_number" readonly="1"/>
-                            <field name="request_currency_id" readonly="1"/>
-                            <field name="request_pm_method" readonly="1"/>
-                            <field name="request_provider" readonly="1"/>
-                            <field name="request_pmt_type" readonly="1"/>
-                            <field name="request_fees_amt" readonly="1"/>
-                            <field name="request_all_fees_amt" readonly="1"/>
-                            <field name="request_notify_mobile" readonly="1"/>
-                            <field name="request_inquiry_transaction_id" options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="request_inquiry_transaction_id"
+                                   readonly="1"
+                                   options="{'no_create': True, 'no_edit': True}"/>
                             <field name="request_machine_serial" readonly="1"/>
                         </group>
                     </page>
