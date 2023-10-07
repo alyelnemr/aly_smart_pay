@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import fields, models, _
 
 
 class InheritSmartPayOperationsRequest(models.Model):
@@ -10,3 +10,18 @@ class InheritSmartPayOperationsRequest(models.Model):
     request_inquiry_transaction_id = fields.Many2one('smartpay_operations.request',
                                                      string="Inquire Record")
     request_machine_serial = fields.Char(string="Machine Serial")
+
+    def action_open_inquiry_transaction(self):
+        self.ensure_one()
+        if not self.request_inquiry_transaction_id:
+            return
+        context = dict(self.env.context or {})
+        return {
+            'name': _('Inquiry Transaction'),
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'smartpay_operations.request',
+            'res_id': self.request_inquiry_transaction_id.id,
+            'context': context,
+        }

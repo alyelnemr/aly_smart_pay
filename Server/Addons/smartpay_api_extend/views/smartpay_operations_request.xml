@@ -20,6 +20,19 @@
                         </group>
                     </page>
                 </xpath>
+                <xpath expr="//button[@name='toggle_active']"
+                       position="before">
+                    <button name="action_open_inquiry_transaction"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-files-o"
+                            attrs="{'invisible': [('request_inquiry_transaction_id', '=', False)]}">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Inquiry Request</span>
+                        </div>
+                    </button>
+
+                </xpath>
             </field>
         </record>
     </data>
