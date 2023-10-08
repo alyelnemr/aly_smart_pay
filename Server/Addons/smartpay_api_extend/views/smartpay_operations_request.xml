@@ -31,6 +31,15 @@
                             <span class="o_stat_text">Inquiry Request</span>
                         </div>
                     </button>
+                    <button name="open_user_device"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-users"
+                            attrs="{'invisible': [('request_machine_serial', '=', False)]}">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Device</span>
+                        </div>
+                    </button>
 
                 </xpath>
             </field>

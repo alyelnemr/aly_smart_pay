@@ -25,3 +25,17 @@ class InheritSmartPayOperationsRequest(models.Model):
             'res_id': self.request_inquiry_transaction_id.id,
             'context': context,
         }
+
+    def open_user_device(self):
+        self.ensure_one()
+        device = self.env['api.access_token'].search([('machine_serial', '=', self.request_machine_serial)], limit=1)
+        if not device:
+            return
+        return {
+            'name': _('User Device'),
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'api.access_token',
+            'res_id': device.id,
+        }
