@@ -41,6 +41,20 @@ REQUEST_FIELDS = {
     'machine_serial': 'request_machine_serial',
 }
 
+STATIC_VALUES_PROVIDER = {
+    "khales": {
+        'currency_id': '818',
+        'pmtMethod': 'ACTDEB',
+        'pmtType': 'BNKPTN',
+    },
+    "fawry": {
+        'currency_id': 'EGP',
+        'pmtMethod': 'CASH',
+        'pmtType': 'BNKPTN',
+        'notifyMobile': '',
+    },
+}
+
 _logger = logging.getLogger(__name__)
 
 
@@ -88,6 +102,24 @@ def parse_request_data_to_fields(request_data, request):
         else:
             request_fields[REQUEST_FIELDS[request_data_field]] = new_request_data.get(request_data_field)
     return request_fields
+
+
+def get_static_values(value_name, provider):
+    """Returns the static values for the given provider.
+    @param value_name: Name of the value.
+    @param provider: Name of the provider.
+
+    @rtype: str
+    @return : Static value for the given value name of the related provider.
+    """
+    value = None
+    try:
+        value = STATIC_VALUES_PROVIDER.get(provider).get(value_name, '')
+    except Exception as es:
+        _logger.info("Error on read static values %s on provider %s" %
+                     (value_name, provider))
+        _logger.error('Error is %s' % str(es))
+    return value
 
 
 class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
@@ -176,17 +208,23 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
 
             provider_provider = request_data.get('provider')
             if request_data.get('request_type') == 'pay_service_bill':
-                if provider_provider == 'fawry' or provider_provider == 'khales':
-                    if not request_data.get('currency_id'):
-                        return invalid_response("curCode_not_found",
-                                                _("missing bill currency code in request data"), 400)
-                    if not request_data.get('pmtMethod'):
-                        return invalid_response("pmtMethod_not_found",
-                                                _("missing payment method in request data"), 400)
+                # if provider_provider == 'fawry' or provider_provider == 'khales':
+                # if not request_data.get('currency_id'):
+                #     return invalid_response("curCode_not_found",
+                #                             _("missing bill currency code in request data"), 400)
+                # if not request_data.get('pmtMethod'):
+                #     return invalid_response("pmtMethod_not_found",
+                #                             _("missing payment method in request data"), 400)
+                # Get static values
+                pmtType = request_data.get('pmtType')
+                if provider_provider == 'khales':
+                    pmtType = get_static_values('pmtType', 'khales')
+                elif provider_provider == 'fawry':
+                    pmtType = get_static_values('pmtType', 'fawry')
 
                 if provider_provider == 'khales':
-                    if not request_data.get('pmtType'):
-                        return invalid_response("pmtType_not_found", _("missing payment type in request data"), 400)
+                    # if not request_data.get('pmtType'):
+                    #     return invalid_response("pmtType_not_found", _("missing payment type in request data"), 400)
                     '''
                     if not request_data.get('billerId'):
                         return invalid_response("billerId_not_found", _("missing biller id in request data"), 400)
@@ -219,8 +257,8 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
                             return invalid_response("feesAmts_not_match",
                                                     _("The sum of feesAmts must be equals feesAmt"), 400)
 
-                if ((provider_provider == 'fawry' and request_data.get(
-                        'pmtType') == "POST") or provider_provider == 'khales') \
+                if ((provider_provider == 'fawry' and pmtType == "POST")
+                    or provider_provider == 'khales') \
                         and not request_data.get('billRefNumber'):
                     return invalid_response("billRefNumber_not_found",
                                             _("missing bill reference number in request data"), 400)
@@ -541,9 +579,9 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
                 provider = request.env['payment.acquirer'].sudo().search(
                     [("related_partner", "=", provider_info.name.id)])
                 if provider:
-                    if provider.server_state == 'offline':
-                        error.update({provider.provider + "_response": {'error_message': _("Service Not Available")}})
-                        break
+                    # if provider.server_state == 'offline':
+                    #     error.update({provider.provider + "_response": {'error_message': _("Service Not Available")}})
+                    #     break
                     trans_amount = 0.0
                     provider_channel = False
                     machine_channels = request.env['payment.acquirer.channel'].sudo().search(
@@ -744,6 +782,7 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
             return invalid_response(error_key, error_msg, 400)
 
         elif request_data.get('request_type') == 'pay_service_bill':
+            provider_provider = request_data.get('provider')
             if machine_wallet_reservation_id:
                 machine_wallet_reservation_id.update({'request_id': machine_request.id})
                 request.env.cr.commit()
@@ -755,18 +794,35 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
                 extraBillingAcctKeys = ast.literal_eval(extraBillingAcctKeys)
 
             notifyMobile = request_data.get('notifyMobile')
+            # Get static values
+            if provider_provider == 'fawry':
+                notifyMobile = get_static_values('notifyMobile', 'fawry')
+
             billRefNumber = request_data.get('billRefNumber')
             billerId = request_data.get('billerId')
+            # Get static values
             pmtType = request_data.get('pmtType')
+            if provider_provider == 'khales':
+                pmtType = get_static_values('pmtType', 'khales')
+            elif provider_provider == 'fawry':
+                pmtType = get_static_values('pmtType', 'fawry')
 
             trans_amount = request_data.get('trans_amount')
+            # Get static values based on the provider
             curCode = request_data.get('currency_id')
+            pmtMethod = request_data.get('pmtMethod')
+            if provider_provider == 'khales':
+                curCode = get_static_values('currency_id', 'khales')
+                pmtMethod = get_static_values('pmtMethod', 'khales')
+            elif provider_provider == 'fawry':
+                curCode = get_static_values('currency_id', 'fawry')
+                pmtMethod = get_static_values('pmtMethod', 'fawry')
+
             payAmts = request_data.get('payAmts')
             if payAmts:
                 payAmts = ast.literal_eval(payAmts)
             else:
                 payAmts = [{'Sequence': '1', 'AmtDue': trans_amount, 'CurCode': curCode}]
-            pmtMethod = request_data.get('pmtMethod')
 
             ePayBillRecID = request_data.get('ePayBillRecID')
             pmtId = request_data.get('pmtId') or machine_request.name
