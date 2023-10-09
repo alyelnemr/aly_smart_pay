@@ -579,9 +579,9 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
                 provider = request.env['payment.acquirer'].sudo().search(
                     [("related_partner", "=", provider_info.name.id)])
                 if provider:
-                    # if provider.server_state == 'offline':
-                    #     error.update({provider.provider + "_response": {'error_message': _("Service Not Available")}})
-                    #     break
+                    if provider.server_state == 'offline':
+                        error.update({provider.provider + "_response": {'error_message': _("Service Not Available")}})
+                        break
                     trans_amount = 0.0
                     provider_channel = False
                     machine_channels = request.env['payment.acquirer.channel'].sudo().search(
