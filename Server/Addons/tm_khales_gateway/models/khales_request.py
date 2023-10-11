@@ -16,6 +16,7 @@ from collections import OrderedDict
 
 from suds.client import Client
 from suds.plugin import MessagePlugin
+from suds.transport.https import HttpTransport
 from suds.sax.element import Element
 
 from socket import timeout
@@ -145,6 +146,15 @@ class LogPlugin(MessagePlugin):
     def received(self, context):
         self.debug_logger(context.reply, 'khales_response')
 
+class CustomTransport(HttpTransport):
+    def __init__(self, token):
+        super().__init__()
+        self.token = token
+
+    def send(self, request):
+        headers = {'Authorization': f'Bearer {self.token}'}
+        request.headers.update(headers)
+        return super().send(request)
 
 '''
 class FixRequestNamespacePlug(MessagePlugin):
@@ -272,12 +282,6 @@ class KHALESRequest():
         # _logger.info("wsdl_path        >>>>>>>>>>>>>>>>>>>>> " + wsdl_path)
         # _logger.info("wsdl_path.lstrip >>>>>>>>>>>>>>>>>>>>> " + 'file:///%s' % wsdl_path.lstrip('/'))
         # _logger.info("endurl           >>>>>>>>>>>>>>>>>>>>> " + self.endurl)
-        client = Client('file:///%s' % wsdl_path.lstrip('/'),
-                        timeout=KHALES_TIMOUT,
-                        # plugins=[FixRequestNamespacePlug(root), LogPlugin(self.debug_logger)]
-                        plugins=[LogPlugin(self.debug_logger)]
-                        )
-
         access_token = self.khales_channel.acquirer_id. \
             with_context(default_provider_channel=self.khales_channel).khales_generate_access_token()
         if access_token is False:
@@ -285,7 +289,16 @@ class KHALESRequest():
             raise Exception('Cannot acquire access token, service not available')
         _logger.info("Set access_token in security_header")
 
-        self._add_security_header(access_token, client)
+        client = Client('file:///%s' % wsdl_path.lstrip('/'),
+                        timeout=KHALES_TIMOUT,
+                        transport=CustomTransport(access_token),
+                        # plugins=[FixRequestNamespacePlug(root), LogPlugin(self.debug_logger)]
+                        plugins=[LogPlugin(self.debug_logger)]
+                        )
+
+        
+
+        # self._add_security_header(access_token, client)
 
         # self._add_security_header(client)
         client.set_options(location='%s'
@@ -569,7 +582,7 @@ class KHALESRequest():
         request_1 = client.factory.create('{}:Request'.format(namespace))
         request_1.message = Raw(xml_message)
         request_1.senderID = self.sender  # ("%Configuration Value will be provided by Khales%")
-        request_1.signature = '?'
+        request_1.signature = 'k123456'
         return request_1
 
     '''
