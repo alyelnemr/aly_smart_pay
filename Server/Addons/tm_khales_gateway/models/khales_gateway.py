@@ -140,6 +140,8 @@ class AcquirerKhales(models.Model):
            pass default_provider_channel or get _default_provider_channel
             """
         with token_lock:
+            _logger.info("->>>>>> Run generate access token cron job")
+            _logger.info("->>>>>> Context {}".format(self._context))
             provider_channel = self._context.get('default_provider_channel') or self._default_provider_channel()
             provider_channel = provider_channel.filtered(lambda x:
                                                          x.khales_client_id and
@@ -149,10 +151,14 @@ class AcquirerKhales(models.Model):
             provider_channel = provider_channel and provider_channel[0]
 
             access_token = provider_channel.acquirer_id.khales_access_token
-            if provider_channel.acquirer_id.is_khales_token_valid():
-                return access_token
-            # if not self.khales_channel.acquirer_id.is_khales_token_valid():
-            _logger.info("->>>>>> Run generate access token cron job")
+            if not self._context.get('from_cron_job', False):
+                _logger.info('->>>> Calling from request')
+                _logger.info('->>>> Checking if token is valid')
+                if provider_channel.acquirer_id.is_khales_token_valid():
+                    return access_token
+            else:
+                _logger.info('Calling from cron job')
+                _logger.info('->>>> Not checking if token is valid')
 
             if not provider_channel:
                 _logger.info("Not found provider channel")
