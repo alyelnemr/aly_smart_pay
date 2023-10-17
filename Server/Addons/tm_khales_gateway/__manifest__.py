@@ -8,7 +8,7 @@
     'category': 'Accounting',
     'website': 'http://tamayozsoft.com',
     'author': 'Tamayozsoft',
-    'depends': ['account', 'mail', 'tm_base_gateway'],
+    'depends': ['account', 'mail', 'custom_cron_seconds', 'tm_base_gateway'],
     'data': [
         'data/khales_gateway_data.xml',
         'data/cron_job.xml',

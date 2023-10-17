@@ -5,10 +5,10 @@
             <field name="name">Generate Access Token Provider</field>
             <field eval="True" name="active"/>
             <field name="user_id" ref="base.user_admin"/>
-            <field name="interval_number">1</field>
-            <field name="interval_type">minutes</field>
+            <field name="interval_number">55</field>
+            <field name="interval_type">seconds</field>
             <field name="numbercall">-1</field>
-            <field name="nextcall" eval="(DateTime.now() + timedelta(seconds=55)).strftime('%Y-%m-%d %H:%M:%S')"/>
+<!--            <field name="nextcall" eval="(DateTime.now() + timedelta(seconds=55)).strftime('%Y-%m-%d %H:%M:%S')"/>-->
             <field name="model_id" ref="tm_khales_gateway.model_payment_acquirer"/>
             <field eval="False" name="doall"/>
             <field name="state">code</field>
