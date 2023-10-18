@@ -22,6 +22,7 @@
         'views/helpdesk_templates.xml',
         'views/configuration.xml',
         'views/wallet.xml',
+        'views/wallet_automation.xml',
     ],
     'demo': [
         'demo/helpdesk_demo.xml',
