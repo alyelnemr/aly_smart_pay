@@ -34,8 +34,8 @@
                     <field name="wallet_type_id"/>
                     <field name="tag_ids" widget="many2many_tags"/>
                     <label for="wallet_balance"/>
-                    <field name="condition_operator" class="oe_inline"/>
-                    <field name="wallet_balance" class="oe_inline"/>
+                    <field name="condition_operator"/>
+                    <field name="wallet_balance" />
                     <field name="wallet_status"/>
                 </tree>
             </field>
