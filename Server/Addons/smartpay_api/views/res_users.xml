@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
    <data>
-        <record id="view_users_form_inherit" model="ir.ui.view">
-            <field name="model">res.users</field>
-            <field name="inherit_id" ref="base.view_users_form"/>
-            <field name="arch" type="xml">
-                <field name="login" position="after">
-                    <label for="machine_serial" class="oe_edit_only" string="Machine Serial"/>
-                    <h2><field name="machine_serial"/></h2>
-                    <label for="allowed_product_tag_ids" class="oe_edit_only" string="Allowed Services Tags"/>
-                    <h2><field name="allowed_product_tag_ids" widget="many2many_tags" /></h2>
-                    <label for="commission" class="oe_edit_only" string="Commission"/>
-                    <h2><field name="commission"/></h2>
-                    <label for="transfer_to_salesperson" class="oe_edit_only" string="Allow Transfer to Salesperson"/>
-                    <h2><field name="transfer_to_salesperson"/></h2>
-                </field>
-            </field>
-        </record>
+<!--        <record id="view_users_form_inherit" model="ir.ui.view">-->
+<!--            <field name="model">res.users</field>-->
+<!--            <field name="inherit_id" ref="base.view_users_form"/>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <field name="login" position="after">-->
+<!--&lt;!&ndash;                    <label for="machine_serial" class="oe_edit_only" string="Machine Serial"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <h2><field name="machine_serial"/></h2>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <label for="allowed_product_tag_ids" class="oe_edit_only" string="Allowed Services Tags"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <h2><field name="allowed_product_tag_ids" widget="many2many_tags" /></h2>&ndash;&gt;-->
+<!--                    <label for="commission" class="oe_edit_only" string="Commission"/>-->
+<!--                    <h2><field name="commission"/></h2>-->
+<!--                    <label for="transfer_to_salesperson" class="oe_edit_only" string="Allow Transfer to Salesperson"/>-->
+<!--                    <h2><field name="transfer_to_salesperson"/></h2>-->
+<!--                </field>-->
+<!--            </field>-->
+<!--        </record>-->
     </data>
 </odoo>
