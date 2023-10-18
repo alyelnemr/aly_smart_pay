@@ -18,6 +18,7 @@
                                     <field name="wallet_balance" class="oe_inline"/>
                                 </div>
                                 <field name="wallet_status"/>
+                                <field name="action_taken"/>
                             </group>
                         </group>
                     </sheet>
@@ -36,6 +37,7 @@
                     <field name="condition_operator"/>
                     <field name="wallet_balance" />
                     <field name="wallet_status"/>
+                    <field name="action_taken"/>
                 </tree>
             </field>
         </record>
