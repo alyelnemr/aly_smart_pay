@@ -10,7 +10,8 @@ class AccountInvoice(models.Model):
 
     def _prepare_payment_vals(self, pay_journal, pay_amount=None, date=None, writeoff_acc=None, communication=None):
         payment_vals = super(AccountInvoice, self)._prepare_payment_vals(pay_journal, pay_amount=pay_amount, date=date,
-                                                                         writeoff_acc=writeoff_acc, communication=communication)
+                                                                         writeoff_acc=writeoff_acc,
+                                                                         communication=communication)
         if self.type in ('in_invoice', 'in_refund') and self.request_id:
             invoice_line = self.invoice_line_ids[0]
             payment_vals.update({'communication': '%s (%s)' % (payment_vals.get('communication'), invoice_line.name)})
@@ -25,7 +26,8 @@ class AccountInvoice(models.Model):
         if self.type == 'in_refund' and self.request_id:
             # Validate a Drafted Customer Cashback Credit Note if exists with the net amount of provider payment
             customer_credit_notes = self.env['account.invoice'].search([('type', '=', 'out_refund'),
-                                                                        ('name', '=', self.reference), # Provider Payment ID
+                                                                        ('name', '=', self.reference),
+                                                                        # Provider Payment ID
                                                                         ('request_id', '=', self.request_id.id),
                                                                         ('state', '=', 'draft')])
             if len(customer_credit_notes) == 1:
@@ -43,12 +45,12 @@ class AccountInvoice(models.Model):
                         # Tamayoz TODO: Check if manual_currency_exchange_rate module is installed
                         # Note : this makes self.date the value date, which IRL probably is the date of the reception by the bank
                         vendor_refund_payments_amount += payment_currency._convert(payment.amount, journal_currency,
-                                                            self.journal_id.company_id,
-                                                            self.date or fields.Date.today())
+                                                                                   self.journal_id.company_id,
+                                                                                   self.date or fields.Date.today())
                 vendor_refund_difference = (self.amount_total_signed * -1) - vendor_refund_payments_amount
                 customer_credit_note_line = customer_credit_note.invoice_line_ids[0]
                 customer_credit_note_amount = customer_credit_note_line.price_unit
-                if vendor_refund_difference > 0: # and (customer_credit_note.amount_total_signed * -1) > vendor_refund_payments_amount:
+                if vendor_refund_difference > 0:  # and (customer_credit_note.amount_total_signed * -1) > vendor_refund_payments_amount:
                     customer_credit_note_amount -= vendor_refund_difference
                     if customer_credit_note_amount < 0:
                         customer_credit_note_amount = 0
@@ -113,9 +115,11 @@ class AccountInvoice(models.Model):
         if self.type == 'in_refund' and self.request_id:
             # Cancel a Validated Customer Cashback Credit Note if exists then set to draft
             customer_credit_notes = self.env['account.invoice'].search([('type', '=', 'out_refund'),
-                                                                        ('name', '=', self.reference), # Provider Payment ID
+                                                                        ('name', '=', self.reference),
+                                                                        # Provider Payment ID
                                                                         ('request_id', '=', self.request_id.id),
-                                                                        ('state', 'in', ('open','in_payment','paid'))])
+                                                                        (
+                                                                        'state', 'in', ('open', 'in_payment', 'paid'))])
             if len(customer_credit_notes) == 1:
                 customer_credit_note = customer_credit_notes[0]
                 if customer_credit_note.state in ('in_payment', 'paid'):
@@ -164,10 +168,13 @@ class AccountInvoice(models.Model):
                 '''
                 wallet_transaction_line_sudo = self.env['website.wallet.transaction.line'].sudo()
                 customer_wallet_previous_credit = wallet_transaction_line_sudo.search([('wallet_type', '=', 'credit'),
-                                                                                       ('partner_id', '=', customer_credit_note.partner_id.id),
-                                                                                       ('request_id', '=', self.request_id.id),
+                                                                                       ('partner_id', '=',
+                                                                                        customer_credit_note.partner_id.id),
+                                                                                       ('request_id', '=',
+                                                                                        self.request_id.id),
                                                                                        ('reference', '=', 'request'),
-                                                                                       ('status', '=', 'done')], limit=1)
+                                                                                       ('status', '=', 'done')],
+                                                                                      limit=1)
                 customer_wallet_create = wallet_transaction_line_sudo.create(
                     {'wallet_type': 'debit', 'partner_id': customer_credit_note.partner_id.id,
                      'request_id': self.request_id.id, 'reference': 'request', 'label': label,

@@ -4,6 +4,7 @@
 
 from odoo import api, fields, models, tools
 
+
 class ProductCategoryMapping(models.Model):
     _name = 'product.category.mapping'
     _description = "Service Category Mapping"
@@ -28,7 +29,8 @@ class ProductCategoryMapping(models.Model):
             Average Cost (AVCO): The products are valued at weighted average cost.
             First In First Out (FIFO): The products are valued supposing those that enter the company first will also leave it first.
             """)
-    provider_ids = fields.One2many('product_category.providerinfo.mapping', 'product_categ_id', 'Providers', help="Define product category providers.")
+    provider_ids = fields.One2many('product_category.providerinfo.mapping', 'product_categ_id', 'Providers',
+                                   help="Define product category providers.")
 
     # image: all image fields are base64 encoded and PIL-supported
     image = fields.Binary(
@@ -67,25 +69,30 @@ class ProductCategoryMapping(models.Model):
         tools.image_resize_images(vals)
         return super(ProductCategoryMapping, self).write(vals)
 
+
 class ProviderInfoMapping(models.Model):
     _name = "product_category.providerinfo.mapping"
     _description = "Service Category Provider Mapping"
     _order = 'sequence'
 
     provider_id = fields.Many2one('payment.acquirer', 'Provider',
-                           domain=[('sevice_provider', '=', True)], required=True, help="Provider of this service category")
+                                  domain=[('sevice_provider', '=', True)], required=True,
+                                  help="Provider of this service category")
     product_categ_name = fields.Char('Provider Service Category Name')
     product_categ_code = fields.Char('Provider Service Category Code')
-    sequence = fields.Integer('Sequence', default=1, help="Assigns the priority to the list of service category provider.")
+    sequence = fields.Integer('Sequence', default=1,
+                              help="Assigns the priority to the list of service category provider.")
     product_categ_id = fields.Many2one('product.category.mapping', 'Service Category', ondelete='cascade')
     company_id = fields.Many2one(
         'res.company', 'Company',
         default=lambda self: self.env.user.company_id.id, index=1)
 
+
 class ProductCategory(models.Model):
     _inherit = 'product.category'
 
-    provider_ids = fields.One2many('product_category.providerinfo', 'product_categ_id', 'Providers', help="Define product category providers.")
+    provider_ids = fields.One2many('product_category.providerinfo', 'product_categ_id', 'Providers',
+                                   help="Define product category providers.")
 
     # image: all image fields are base64 encoded and PIL-supported
     image = fields.Binary(
@@ -112,16 +119,19 @@ class ProductCategory(models.Model):
         tools.image_resize_images(vals)
         return super(ProductCategory, self).write(vals)
 
+
 class ProviderInfo(models.Model):
     _name = "product_category.providerinfo"
     _description = "Service Category Provider"
     _order = 'sequence'
 
     provider_id = fields.Many2one('payment.acquirer', 'Provider',
-                           domain=[('sevice_provider', '=', True)], required=True, help="Provider of this service category")
+                                  domain=[('sevice_provider', '=', True)], required=True,
+                                  help="Provider of this service category")
     product_categ_name = fields.Char('Provider Service Category Name')
     product_categ_code = fields.Char('Provider Service Category Code')
-    sequence = fields.Integer('Sequence', default=1, help="Assigns the priority to the list of service category provider.")
+    sequence = fields.Integer('Sequence', default=1,
+                              help="Assigns the priority to the list of service category provider.")
     product_categ_id = fields.Many2one('product.category', 'Service Category', ondelete='cascade')
     company_id = fields.Many2one(
         'res.company', 'Company',

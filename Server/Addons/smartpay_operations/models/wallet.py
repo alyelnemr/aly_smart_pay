@@ -59,6 +59,21 @@ class website_wallet_type(models.Model):
     ]
 
 
+class AutomateSalesWallet(models.Model):
+    _name = 'wallet.automation'
+    _description = 'Automate Sales Wallet'
+
+    name = fields.Char('Action Name', required=True)
+    wallet_type_id = fields.Many2one('website.wallet.type', string='Wallet Type')
+    tag_ids = fields.Many2many('res.partner.category', column1='partner_id',
+                                   column2='wallet_id', string='Tags')
+    wallet_balance = fields.Float('Wallet Balance', default=1.0, required=True)
+    condition_operator = fields.Selection([('equal', 'Equal'), ('gt', 'Greater Than'), ('lt', 'Less Than')], 'Balance Operator',
+                                          default='equal', required=True)
+    wallet_status = fields.Selection([('active', 'Active'), ('inactive', 'Inactive')], 'Wallet Status',
+                                     default='active', required=True)
+
+
 class website_wallet_type_transfer(models.Model):
     _name = 'website.wallet.type.transfer'
     _description = 'Allowed Wallet Types to transfer'

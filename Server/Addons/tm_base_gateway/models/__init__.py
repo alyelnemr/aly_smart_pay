@@ -13,7 +13,7 @@ from . import billing_account_key_type
 from . import value_type
 from . import enum_values
 from . import currency_code
-from . import account
+from . import account_journal
 from . import account_bank_statement
 from . import account_invoice
 from . import account_reconcile_model
