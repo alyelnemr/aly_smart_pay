@@ -11,4 +11,4 @@ from . import helpdesk_team
 from . import helpdesk_request
 # from . import res_config
 from . import wallet
-
+from . import wallet_automation

@@ -25,21 +25,20 @@
             </field>
         </record>
 
-<!--        <record id="aly_wallet_automation_tree_view" model="ir.ui.view">-->
-<!--            <field name="name">aly.wallet.automation.tree.view</field>-->
-<!--            <field name="model">wallet.automation</field>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <tree string="Wallet">-->
-<!--                    <field name="name"/>-->
-<!--                    <field name="wallet_type_id"/>-->
-<!--&lt;!&ndash;                    <field name="tag_ids" widget="many2many_tags"/>&ndash;&gt;-->
-<!--                    <label for="wallet_balance"/>-->
-<!--                    <field name="condition_operator"/>-->
-<!--                    <field name="wallet_balance" />-->
-<!--                    <field name="wallet_status"/>-->
-<!--                </tree>-->
-<!--            </field>-->
-<!--        </record>-->
+        <record id="aly_wallet_automation_tree_view" model="ir.ui.view">
+            <field name="name">aly.wallet.automation.tree.view</field>
+            <field name="model">wallet.automation</field>
+            <field name="arch" type="xml">
+                <tree string="Wallet">
+                    <field name="name"/>
+                    <field name="wallet_type_id"/>
+                    <field name="tag_ids" widget="many2many_tags"/>
+                    <field name="condition_operator"/>
+                    <field name="wallet_balance" />
+                    <field name="wallet_status"/>
+                </tree>
+            </field>
+        </record>
 
         <record model="ir.actions.act_window" id="action_website_wallet_automation">
             <field name="name">Wallet Automation</field>

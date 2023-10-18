@@ -28,7 +28,7 @@ class website_wallet_type(models.Model):
                                            'wallet_type_allowed_services',
                                            'wallet_type_id',
                                            'product_id',
-                                           string='Allowed Services', domain=[('type','=','service')],
+                                           string='Allowed Services', domain=[('type', '=', 'service')],
                                            help='Only Services available for pay with this type. '
                                                 'Keep empty for every service available to pay with this type.')
     ignored_service_ids = fields.Many2many('product.product',
@@ -42,14 +42,17 @@ class website_wallet_type(models.Model):
     allow_transfer_to = fields.Boolean('Allow Transfer to other types')
     allowed_transfer_ids = fields.One2many('website.wallet.type.transfer', 'wallet_type_id',
                                            string='Allowed Types for Transfer', copy=True, auto_join=True)
-    min_transfer_amount = fields.Float('Minimum Transfer Amount', digits=(16, 2), help="Minimum Transfer Amount per transaction")
-    max_transfer_amount = fields.Float('Maximum Transfer Amount', digits=(16, 2), help="Maximum Transfer Amount per transaction")
+    min_transfer_amount = fields.Float('Minimum Transfer Amount', digits=(16, 2),
+                                       help="Minimum Transfer Amount per transaction")
+    max_transfer_amount = fields.Float('Maximum Transfer Amount', digits=(16, 2),
+                                       help="Maximum Transfer Amount per transaction")
 
     credit_limit = fields.Float('Credit Limit', digits=(16, 2), help="Zero indicates no credit limit")
     max_balance = fields.Float('Maximum Balance', digits=(16, 2), help="Zero indicates no limit")
 
     has_trans_limit = fields.Boolean('Has Transaction Limit')
-    trans_limit_ids = fields.One2many('wallet.type.trans.limit', 'wallet_type_id', 'Transaction limits', help="Define transaction limits.")
+    trans_limit_ids = fields.One2many('wallet.type.trans.limit', 'wallet_type_id', 'Transaction limits',
+                                      help="Define transaction limits.")
 
     active = fields.Boolean('Active', default=True,
                             help="If unchecked, it will allow you to hide the wallet type without removing it.")
@@ -57,21 +60,6 @@ class website_wallet_type(models.Model):
     _sql_constraints = [
         ('check_wallet_type_credit_limit', 'CHECK(credit_limit>=0)', 'Credit limit must be a positive value'),
     ]
-
-
-class AutomateSalesWallet(models.Model):
-    _name = 'wallet.automation'
-    _description = 'Automate Sales Wallet'
-
-    name = fields.Char('Action Name', required=True)
-    wallet_type_id = fields.Many2one('website.wallet.type', string='Wallet Type')
-    tag_ids = fields.Many2many('res.partner.category', column1='partner_id',
-                                   column2='wallet_id', string='Tags')
-    wallet_balance = fields.Float('Wallet Balance', default=1.0, required=True)
-    condition_operator = fields.Selection([('equal', 'Equal'), ('gt', 'Greater Than'), ('lt', 'Less Than')], 'Balance Operator',
-                                          default='equal', required=True)
-    wallet_status = fields.Selection([('active', 'Active'), ('inactive', 'Inactive')], 'Wallet Status',
-                                     default='active', required=True)
 
 
 class website_wallet_type_transfer(models.Model):
@@ -104,7 +92,8 @@ class WalletTypeTransLimit(models.Model):
         help="Wallet Transaction Limit.")
 
     has_over_limit_fees = fields.Boolean('Has Over Limit Fees')
-    over_limit_fees_ids = fields.One2many('wallet.type.trans.limit.fees', 'wallet_type_trans_limit_id', 'Transaction Over Limit Fees', help="Define transaction over limit fees.")
+    over_limit_fees_ids = fields.One2many('wallet.type.trans.limit.fees', 'wallet_type_trans_limit_id',
+                                          'Transaction Over Limit Fees', help="Define transaction over limit fees.")
 
     company_id = fields.Many2one(
         'res.company', 'Company',
@@ -133,8 +122,10 @@ class WalletTypeTransLimitFees(models.Model):
     fees_amount_percentage = fields.Float('Fees Amount %', required=True, digits=dp.get_precision('Product Price'),
                                           help="Fees Amount %")
 
-    wallet_type_trans_limit_id = fields.Many2one('wallet.type.trans.limit', 'Wallet Type Transactions Limit', index=True, ondelete='cascade')
-    wallet_type_id = fields.Many2one('website.wallet.type', 'Wallet Type', related='wallet_type_trans_limit_id.wallet_type_id')
+    wallet_type_trans_limit_id = fields.Many2one('wallet.type.trans.limit', 'Wallet Type Transactions Limit',
+                                                 index=True, ondelete='cascade')
+    wallet_type_id = fields.Many2one('website.wallet.type', 'Wallet Type',
+                                     related='wallet_type_trans_limit_id.wallet_type_id')
 
     company_id = fields.Many2one(
         'res.company', 'Company',
@@ -202,8 +193,10 @@ class WalletWalletTypeTransLimitFees(models.Model):
     fees_amount_percentage = fields.Float('Fees Amount %', required=True, digits=dp.get_precision('Product Price'),
                                           help="Fees Amount %")
 
-    wallet_wallet_type_trans_limit_id = fields.Many2one('wallet.wallet.type.trans.limit', 'Wallet Type Transaction Limit', index=True, ondelete='cascade')
-    wallet_type_id = fields.Many2one('website.wallet.type', 'Wallet Type', related='wallet_wallet_type_trans_limit_id.wallet_type_id')
+    wallet_wallet_type_trans_limit_id = fields.Many2one('wallet.wallet.type.trans.limit',
+                                                        'Wallet Type Transaction Limit', index=True, ondelete='cascade')
+    wallet_type_id = fields.Many2one('website.wallet.type', 'Wallet Type',
+                                     related='wallet_wallet_type_trans_limit_id.wallet_type_id')
 
     company_id = fields.Many2one(
         'res.company', 'Company',
@@ -236,11 +229,14 @@ class WalletWalletTypeTransLimit(models.Model):
     # has_over_limit_fees = fields.Boolean('Has Over Limit Fees')
     over_limit_fees_policy = fields.Selection([('no_over_limit_fees', 'No Over Limit Fees'),
                                                ('wallet_type_over_limit_fees', 'Wallet Type Over Limit Fees'),
-                                               ('custom_over_limit_fees', 'Custom Over Limit Fees')], 'Over Limit Fees Poloicy',
+                                               ('custom_over_limit_fees', 'Custom Over Limit Fees')],
+                                              'Over Limit Fees Poloicy',
                                               default='no_over_limit_fees', required=True)
-    wallet_type_over_limit_fees_ids = fields.One2many('wallet.type.trans.limit.fees', string='Wallet Type Transaction Over Limit Fees',
-                                                       related='wallet_type_id.trans_limit_ids.over_limit_fees_ids')
-    over_limit_fees_ids = fields.One2many('wallet.wallet.type.trans.limit.fees', 'wallet_wallet_type_trans_limit_id', 'Custom Transaction Over Limit Fees',
+    wallet_type_over_limit_fees_ids = fields.One2many('wallet.type.trans.limit.fees',
+                                                      string='Wallet Type Transaction Over Limit Fees',
+                                                      related='wallet_type_id.trans_limit_ids.over_limit_fees_ids')
+    over_limit_fees_ids = fields.One2many('wallet.wallet.type.trans.limit.fees', 'wallet_wallet_type_trans_limit_id',
+                                          'Custom Transaction Over Limit Fees',
                                           help="Define transaction over limit fees.")
 
     company_id = fields.Many2one(
@@ -279,26 +275,29 @@ class website_wallet(models.Model):
                                                                      "is equal the credit limit of wallet type")
     type_max_balance = fields.Float('Type Maximum Balance', related='type.max_balance', store=True)
     max_balance = fields.Float('Maximum Balance', digits=(16, 2), help="Set value greater than zero if you want "
-                                                                              "to override the maximum balance of "
-                                                                              "wallet type. zero value indicates the "
-                                                                              "maximum balance of wallet is equal the "
-                                                                              "maximum balance of wallet type")
+                                                                       "to override the maximum balance of "
+                                                                       "wallet type. zero value indicates the "
+                                                                       "maximum balance of wallet is equal the "
+                                                                       "maximum balance of wallet type")
     type_has_trans_limit = fields.Boolean('Has Transaction Limit', related='type.has_trans_limit')
     trans_limit_ids = fields.One2many('wallet.wallet.type.trans.limit', 'wallet_id', 'Transaction limits',
-                                     help="Define transaction limits.")
+                                      help="Define transaction limits.")
     balance_amount = fields.Float('Balance', digits=(16, 2), readonly=True, store=True)
     reserved_amount = fields.Float('Reserved', compute='_compute_reserved_amount', store=True, digits=(16, 2))
     available_amount = fields.Float('Available', compute='_compute_available_amount', store=True, digits=(16, 2))
-    currency_id = fields.Many2one('res.currency', 'Currency', default=lambda self: self.env.user.company_id.currency_id.id)
+    currency_id = fields.Many2one('res.currency', 'Currency',
+                                  default=lambda self: self.env.user.company_id.currency_id.id)
 
     wallet_transactions = fields.One2many('website.wallet.transaction', 'wallet_id', string='Wallet Transactions',
                                           readonly=True, copy=False, auto_join=True)
-    wallet_reservations = fields.One2many('website.wallet.reservation', 'wallet_id', string='Wallet Reservation Amounts',
+    wallet_reservations = fields.One2many('website.wallet.reservation', 'wallet_id',
+                                          string='Wallet Reservation Amounts',
                                           readonly=True, copy=False, auto_join=True)
 
     # Technical Fields for unlock the record when no reservation case
     no_available_balance_count = fields.Integer('No Available Balance Count', readonly=True, store=True)
-    no_available_balance_total_amount = fields.Float('No Available Balance Total Amount', digits=(16, 2), readonly=True, store=True)
+    no_available_balance_total_amount = fields.Float('No Available Balance Total Amount', digits=(16, 2), readonly=True,
+                                                     store=True)
 
     active = fields.Boolean('Active', default=True,
                             help="If unchecked, it will allow you to hide the wallet without removing it.")
@@ -321,12 +320,13 @@ class website_wallet(models.Model):
     @api.depends('balance_amount', 'reserved_amount', 'credit_limit', 'type', 'type.credit_limit')
     def _compute_available_amount(self):
         for wallet in self:
-            wallet.available_amount = wallet.balance_amount - wallet.reserved_amount + (wallet.credit_limit if wallet.credit_limit else wallet.type.credit_limit)
+            wallet.available_amount = wallet.balance_amount - wallet.reserved_amount + (
+                wallet.credit_limit if wallet.credit_limit else wallet.type.credit_limit)
 
     @api.multi
     def unlink(self):
         for wallet in self:
-            if wallet.wallet_transactions: # or wallet.balance_amount or wallet.reserved_amount or wallet.available_amount:
+            if wallet.wallet_transactions:  # or wallet.balance_amount or wallet.reserved_amount or wallet.available_amount:
                 raise UserError(
                     _('You can not delete a wallet have any transactions.'))
         return super(website_wallet, self).unlink()
@@ -367,9 +367,10 @@ class website_wallet(models.Model):
                 }
                 if reference == 'request' and origin:
                     wallet_reservationtion_values.update({'request_id': origin.id})
-                website_wallet_reservation_id = self.env['website.wallet.reservation'].create(wallet_reservationtion_values)
+                website_wallet_reservation_id = self.env['website.wallet.reservation'].create(
+                    wallet_reservationtion_values)
                 wallet.wallet_reservations += website_wallet_reservation_id
-                available_amount = available_amount - transaction_amount # instead of ==> self.env.cr.commit() wallet.available_amount
+                available_amount = available_amount - transaction_amount  # instead of ==> self.env.cr.commit() wallet.available_amount
             else:
                 wallet.write({
                     'no_available_balance_count': no_available_balance_count + 1,
@@ -388,7 +389,9 @@ class website_wallet(models.Model):
         # FOR NO KEY UPDATE mode assumes a change only to the fields that are not involved in unique indexes (in other words, this change does not affect foreign keys).
         # see _acquire_one_job for explanations
         # self._cr.execute("SELECT id, balance_amount FROM website_wallet WHERE id = %s FOR NO KEY UPDATE SKIP LOCKED", [wallet_id.id])
-        self._cr.execute("SELECT id, balance_amount, max_balance, type_max_balance FROM website_wallet WHERE id = %s FOR NO KEY UPDATE", [self.id])
+        self._cr.execute(
+            "SELECT id, balance_amount, max_balance, type_max_balance FROM website_wallet WHERE id = %s FOR NO KEY UPDATE",
+            [self.id])
         res_wallet_result = self._cr.fetchone()
         if res_wallet_result:
             wallet = self.browse(res_wallet_result[0])
@@ -422,7 +425,7 @@ class website_wallet(models.Model):
             wallet_type, amount, force_update=(False if (wallet_type == 'credit' and notify_sms_template in (
                 'wallet_bouns',
                 # 'wallet_correlation_service_payment', # Ignore this type because the check of wallet maximum balance
-                                                        # already happened before calling the provider for correlation
+                # already happened before calling the provider for correlation
                 'wallet_transfer_balance',
                 'wallet_pay_invoice',
                 'wallet_recharge')) else True)
@@ -432,7 +435,8 @@ class website_wallet(models.Model):
 
         wallet_transaction_values = {
             'wallet_id': wallet_id.id, 'wallet_type': wallet_type, 'partner_id': partner_id.id, 'reference': reference,
-            'label': label, 'amount': amount, 'currency_id': currency_id.id, 'wallet_balance_before': wallet_balance_before,
+            'label': label, 'amount': amount, 'currency_id': currency_id.id,
+            'wallet_balance_before': wallet_balance_before,
             'wallet_balance_after': wallet_balance_after, 'status': 'done'
         }
         if reference == 'request' and origin:
@@ -449,7 +453,8 @@ class website_wallet(models.Model):
                 'ref': '%s: %s' % (origin.name if origin else label, journal_entry_label)
             })
 
-            credit_account_move_line = self.env['account.move.line'].with_context(check_move_validity=False).sudo().create({
+            credit_account_move_line = self.env['account.move.line'].with_context(
+                check_move_validity=False).sudo().create({
                 'name': '%s: %s' % (origin.name if origin else label, journal_entry_label),
                 'move_id': account_move.id,
                 'wallet_transaction_id': wallet_transaction_id.id,
@@ -459,7 +464,8 @@ class website_wallet(models.Model):
             if wallet_type == 'credit':
                 credit_account_move_line.update({'partner_id': partner_id.id})
 
-            debit_account_move_line = self.env['account.move.line'].with_context(check_move_validity=False).sudo().create({
+            debit_account_move_line = self.env['account.move.line'].with_context(
+                check_move_validity=False).sudo().create({
                 'name': '%s: %s' % (origin.name if origin else label, journal_entry_label),
                 'move_id': account_move.id,
                 'wallet_transaction_id': wallet_transaction_id.id,
@@ -497,9 +503,10 @@ class website_wallet(models.Model):
             elif wallet_notify_mode == 'email':
                 wallet_transaction_id.wallet_transaction_email_send()
             elif wallet_notify_mode == 'sms' and self.env.user.partner_id.mobile:
-                wallet_transaction_id.sms_send_wallet_transaction(wallet_notify_mode, notify_sms_template, # notify_mode.split('.')[1].split('_notify_mode')[0] if notify_mode else '',
-                                                                                                           # Tamayoz TODO: wallet_pay_service_bill_notify_mode ==> wallet_pay_service_bill_notify_mode,
-                                                                                                           #  wallet_canel_service_payment_notify_mode ==> c in cancel not found
+                wallet_transaction_id.sms_send_wallet_transaction(wallet_notify_mode, notify_sms_template,
+                                                                  # notify_mode.split('.')[1].split('_notify_mode')[0] if notify_mode else '',
+                                                                  # Tamayoz TODO: wallet_pay_service_bill_notify_mode ==> wallet_pay_service_bill_notify_mode,
+                                                                  #  wallet_canel_service_payment_notify_mode ==> c in cancel not found
                                                                   partner_id.mobile, self.env.user.name, label,
                                                                   '%s %s' % (amount, _(currency_id.name)),
                                                                   partner_id.country_id.phone_code or '2')
@@ -514,24 +521,28 @@ class website_wallet(models.Model):
             for request in timeout_request_ids:
                 request.write({'stage_id': self.env.ref('smartpay_operations.stage_expired').id})
             '''
-            receivable_account_ids = self.env['account.account'].sudo().search([('user_type_id', '=', self.env.ref('account.data_account_type_receivable').id)])
-            installment_move_line_ids = self.env['account.move.line'].sudo().search([('account_id', 'in', receivable_account_ids.ids),
-                                                                                     ('invoice_id', '!=', None),
-                                                                                     ('invoice_id.origin', 'ilike', 'SO'),
-                                                                                     # ('invoice_id.name', '=', None),
-                                                                                     # ('name', '=', None),
-                                                                                     ('amount_residual', '>', 0),
-                                                                                     # Next line is temp code for >> Tamayoz TODO: Reconcile installment_move_line_id with prepaid wallet recharge payments and previous cashback credit note by installment_amount only
-                                                                                     ('deducted_from_wallet', '=', False),
-                                                                                     ('date_maturity', '<=', fields.Date.today())])
-            _logger.info("@@@@@@@@@@@@@@@@@@@ Start Auto deduction from wallet for [%s] installments" % (len(installment_move_line_ids)))
+            receivable_account_ids = self.env['account.account'].sudo().search(
+                [('user_type_id', '=', self.env.ref('account.data_account_type_receivable').id)])
+            installment_move_line_ids = self.env['account.move.line'].sudo().search(
+                [('account_id', 'in', receivable_account_ids.ids),
+                 ('invoice_id', '!=', None),
+                 ('invoice_id.origin', 'ilike', 'SO'),
+                 # ('invoice_id.name', '=', None),
+                 # ('name', '=', None),
+                 ('amount_residual', '>', 0),
+                 # Next line is temp code for >> Tamayoz TODO: Reconcile installment_move_line_id with prepaid wallet recharge payments and previous cashback credit note by installment_amount only
+                 ('deducted_from_wallet', '=', False),
+                 ('date_maturity', '<=', fields.Date.today())])
+            _logger.info("@@@@@@@@@@@@@@@@@@@ Start Auto deduction from wallet for [%s] installments" % (
+                len(installment_move_line_ids)))
             deduction_counts = {}
             for installment_move_line_id in installment_move_line_ids:
                 deduction_count = deduction_counts.get(installment_move_line_id.invoice_id.id) or 0
                 if deduction_count >= max_deduction_count:  # Deduct only installments count less than max_deduction_count for each customer
                     continue
                 deduction_counts.update({installment_move_line_id.invoice_id.id: deduction_count + 1})
-                _logger.info("@@@@@@@@@@@@@@@@@@@ Auto deduction from wallet for installment [%s]" % (installment_move_line_id.display_name))
+                _logger.info("@@@@@@@@@@@@@@@@@@@ Auto deduction from wallet for installment [%s]" % (
+                    installment_move_line_id.display_name))
                 installment_invoice_id = installment_move_line_id.invoice_id
                 installment_amount = installment_move_line_id.amount_residual
                 installment_partner_id = installment_move_line_id.partner_id
@@ -685,16 +696,19 @@ class website_wallet(models.Model):
 class res_partner(models.Model):
     _inherit = 'res.partner'
 
-    partner_wallets_balance = fields.Float('All Wallets Balance', compute='_compute_wallets_balance', store=True, digits=(16, 2))
+    partner_wallets_balance = fields.Float('All Wallets Balance', compute='_compute_wallets_balance', store=True,
+                                           digits=(16, 2))
     wallet_ids = fields.One2many('website.wallet', 'partner_id', string='Customer Wallets',
-                                 copy=False, auto_join=True, context={'active_test': False}) # domain=['|',('active','=',False),('active','=',True)]
+                                 copy=False, auto_join=True, context={
+            'active_test': False})  # domain=['|',('active','=',False),('active','=',True)]
 
     @api.depends('wallet_ids')
     def _compute_wallets_balance(self):
         for partner in self:
             partner.partner_wallets_balance = sum(partner.wallet_ids.mapped('balance_amount'))
 
-    def get_transaction_wallet(self, wallet_id=None, type=False, service=False, trans_amount=0.0, allow_payment=False, allow_transfer_to=False):
+    def get_transaction_wallet(self, wallet_id=None, type=False, service=False, trans_amount=0.0, allow_payment=False,
+                               allow_transfer_to=False):
         partner_wallet_id = None
         wallet_ids = self.wallet_ids.filtered(lambda w: w.active == True)
         if wallet_id:
@@ -707,9 +721,11 @@ class res_partner(models.Model):
         if type:
             wallet_ids = wallet_ids.filtered(lambda w: w.type == type)
         if service:
-            wallet_ids = wallet_ids.filtered(lambda w: w.type.allow_payment and ((w.type.allowed_service_ids and service.id in w.type.allowed_service_ids.ids)
-                                                                                 or (not w.type.allowed_service_ids and ((w.type.ignored_service_ids and service.id not in w.type.ignored_service_ids.ids) or not w.type.ignored_service_ids))
-                                                                                 ))
+            wallet_ids = wallet_ids.filtered(lambda w: w.type.allow_payment and (
+                        (w.type.allowed_service_ids and service.id in w.type.allowed_service_ids.ids)
+                        or (not w.type.allowed_service_ids and ((
+                                                                            w.type.ignored_service_ids and service.id not in w.type.ignored_service_ids.ids) or not w.type.ignored_service_ids))
+                        ))
         if trans_amount:
             wallet_ids_has_enough_balance = wallet_ids.filtered(lambda w: trans_amount <= w.available_amount)
             if len(wallet_ids_has_enough_balance) > 0:
@@ -725,16 +741,19 @@ class res_partner(models.Model):
             if len(active_wallet_ids) > 0 and not wallet_id and not type and not service and not trans_amount and not allow_payment and not allow_transfer_to:
                 partner_wallet_id = active_wallet_ids[0]
         else:
-            default_wallet_type_id = type or self.env.ref('smartpay_operations.wallet_type_cash') or self.env['website.wallet.type'].sudo().search([('name', '=', _('Cash'))])
+            default_wallet_type_id = type or self.env.ref('smartpay_operations.wallet_type_cash') or self.env[
+                'website.wallet.type'].sudo().search([('name', '=', _('Cash'))])
             if not default_wallet_type_id:
-                default_wallet_type_id = self.env['website.wallet.type'].sudo().create({'name': 'Cash'}) # , 'allow_payment': True
+                default_wallet_type_id = self.env['website.wallet.type'].sudo().create(
+                    {'name': 'Cash'})  # , 'allow_payment': True
             partner_wallet_id = self.env['website.wallet'].sudo().create({
                 'name': 'Main Wallet',
-                'type':default_wallet_type_id.id,
+                'type': default_wallet_type_id.id,
                 'partner_id': self.id
             })
             self.env.cr.commit()
         return partner_wallet_id
+
 
 class website_wallet_reservation(models.Model):
     _name = 'website.wallet.reservation'
@@ -750,14 +769,15 @@ class website_wallet_reservation(models.Model):
         ('request', 'Request')
     ], string='Reference', default='manual')
     sale_order_id = fields.Many2one('sale.order', 'Sale Order')
-    request_id = fields.Many2one('smartpay_operations.request', 'Request',  index=True)
+    request_id = fields.Many2one('smartpay_operations.request', 'Request', index=True)
     reserved_amount = fields.Float('Reserved', required=True, digits=(16, 2))
-    currency_id = fields.Many2one('res.currency', 'Currency', default=lambda self: self.env.user.company_id.currency_id.id)
+    currency_id = fields.Many2one('res.currency', 'Currency',
+                                  default=lambda self: self.env.user.company_id.currency_id.id)
 
 
 # Next account_move_line class is temp code for >> Tamayoz TODO: Reconcile installment_move_line_id with prepaid wallet recharge payments and previous cashback credit note by installment_amount only
 class account_move_line(models.Model):
-    _inherit='account.move.line'
+    _inherit = 'account.move.line'
 
     deducted_from_wallet = fields.Boolean(default=False)
     wallet_transaction_id = fields.Many2one('website.wallet.transaction', string='Wallet Transaction Reference',
@@ -765,19 +785,21 @@ class account_move_line(models.Model):
 
 
 class website_wallet_transaction(models.Model):
-    _inherit='website.wallet.transaction'
+    _inherit = 'website.wallet.transaction'
 
     wallet_id = fields.Many2one('website.wallet', string='Wallet Reference',
-                                ondelete='restrict', index=True, copy=False) # , required=True
-    request_id = fields.Many2one('smartpay_operations.request', 'Request',  index=True)
+                                ondelete='restrict', index=True, copy=False)  # , required=True
+    request_id = fields.Many2one('smartpay_operations.request', 'Request', index=True)
     wallet_transaction_info = fields.Text(string='Wallet Transaction Info', copy=False, readonly=True)
-    reference = fields.Selection(selection_add=[('request', 'Request'),('cashback', 'Cash Back')], track_visibility='onchange')
+    reference = fields.Selection(selection_add=[('request', 'Request'), ('cashback', 'Cash Back')],
+                                 track_visibility='onchange')
     label = fields.Text('Label')
     status = fields.Selection(selection_add=[('cancel', 'Cancel')], track_visibility='onchange')
     wallet_transaction_line = fields.One2many('website.wallet.transaction.line', 'wallet_transaction_id',
                                               string='Wallet Transaction Lines',
                                               readonly=True, copy=False, auto_join=True)
-    statement_id = fields.Many2one('account.bank.statement', help="The statement used for provider wallet reconciliation", index=True, copy=False)
+    statement_id = fields.Many2one('account.bank.statement',
+                                   help="The statement used for provider wallet reconciliation", index=True, copy=False)
     wallet_balance_before = fields.Char(string='Wallet Balance Before', copy=False, readonly=True)
     wallet_balance_after = fields.Char(string='Wallet Balance After', copy=False, readonly=True)
 
@@ -987,7 +1009,7 @@ class website_wallet_transaction_line(models.Model):
         return res
 
     wallet_transaction_id = fields.Many2one('website.wallet.transaction', string='Wallet Transaction Reference',
-                                            ondelete='restrict', index=True, copy=False, # required=True
+                                            ondelete='restrict', index=True, copy=False,  # required=True
                                             )
     name = fields.Char('Name')
     wallet_type = fields.Selection([
@@ -996,7 +1018,7 @@ class website_wallet_transaction_line(models.Model):
     ], string='Type', default='credit')
     partner_id = fields.Many2one('res.partner', 'Customer')
     # sale_order_id = fields.Many2one('sale.order', 'Sale Order')
-    request_id = fields.Many2one('smartpay_operations.request', 'Request',  index=True)
+    request_id = fields.Many2one('smartpay_operations.request', 'Request', index=True)
     # wallet_id = fields.Many2one('res.partner', 'Wallet')
     reference = fields.Selection([
         ('manual', 'Manual'),
@@ -1004,8 +1026,10 @@ class website_wallet_transaction_line(models.Model):
         ('request', 'Request')
     ], string='Reference', default='manual')
     label = fields.Text('Label')
-    amount = fields.Char('Amount') # Tamayoz TODO: Convert its type and amount field type in website.wallet.transaction to float
-    currency_id = fields.Many2one('res.currency', 'Currency', default=lambda self: self.env.user.company_id.currency_id.id)
+    amount = fields.Char(
+        'Amount')  # Tamayoz TODO: Convert its type and amount field type in website.wallet.transaction to float
+    currency_id = fields.Many2one('res.currency', 'Currency',
+                                  default=lambda self: self.env.user.company_id.currency_id.id)
     status = fields.Selection([
         ('draft', 'Draft'),
         ('cancel', 'Cancel'),
@@ -1053,7 +1077,8 @@ class WalletIn(Wallet):
     _description = 'Wallet In'
 
     ref = fields.Char('Reference')
-    expense_account = fields.Many2one('account.account', string='Expense account', required=True, domain=[('deprecated', '=', False)])
+    expense_account = fields.Many2one('account.account', string='Expense account', required=True,
+                                      domain=[('deprecated', '=', False)])
 
     @api.multi
     def _create_wallet_transaction(self, record):
@@ -1133,7 +1158,8 @@ class WalletOut(Wallet):
     _name = 'wallet.out'
     _description = 'Wallet Out'
 
-    income_account = fields.Many2one('account.account', string='Income account', required=True, domain=[('deprecated', '=', False)])
+    income_account = fields.Many2one('account.account', string='Income account', required=True,
+                                     domain=[('deprecated', '=', False)])
 
     @api.multi
     def _create_wallet_transaction(self, record):
@@ -1200,7 +1226,8 @@ class WalletOut(Wallet):
         customer_wallet_create, wallet_balance_after = partner_wallet_id.create_wallet_transaction(
             'debit', record.partner_id, 'manual', self.name,
             self.amount, self.env.user.company_id.currency_id, False,
-            'smartpay_operations.wallet_pay_invoice_notify_mode', 'wallet_pay_invoice', # TODO: create notify_mode for wallet out
+            'smartpay_operations.wallet_pay_invoice_notify_mode', 'wallet_pay_invoice',
+            # TODO: create notify_mode for wallet out
             _('<p>%s %s successfully deducted from your wallet.</p>') % (
                 self.amount or 0.0, _(self.env.user.company_id.currency_id.name)),
             self.income_account, _('Wallet Out'), record.partner_id
