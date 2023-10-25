@@ -29,12 +29,14 @@ class AutomateSalesWallet(models.Model):
 
     def automate_wallet(self, action_name=None):
         if action_name:
-            wallet_automation = self.env['wallet.automation'].search([('name', 'ilike', action_name)], limit=1)
+            wallet_automation = self.env['wallet.automation'].search(
+                [('name', 'ilike', action_name)], limit=1)
             if wallet_automation:
                 if wallet_automation.tag_ids:
-                    customers = self.env['res.partner'].search([('category_id', 'in', wallet_automation.tag_ids.ids)])
+                    customers = self.env['res.partner'].search([
+                        ('category_id', 'in', wallet_automation.tag_ids.ids)])
                     operator = '='
-                    wallet_status = True if wallet_automation.wallet_status == 'active' else False
+                    wallet_status = wallet_automation.wallet_status == 'active'
                     if wallet_automation.condition_operator == 'equal':
                         operator = '='
                     elif wallet_automation.condition_operator == 'gt':
@@ -42,18 +44,31 @@ class AutomateSalesWallet(models.Model):
                     elif wallet_automation.condition_operator == 'lt':
                         operator = '<'
                     for rec in customers:
-                        if wallet_automation.action_taken == 'inactive_w' or wallet_automation.action_taken == 'activate_w':
-                            wallets = rec.wallet_ids.filtered(lambda x: x.type == wallet_automation.wallet_type_id.name and 
-                                                              x.balance_amount operator wallet_automation.wallet_balance and 
-                                                              x.active == wallet_status)
-                            
+                        if wallet_automation.action_taken in ['inactive_w', 'activate_w']:
+                            wallets = rec.wallet_ids
+                            if operator == '<':
+                                wallets = rec.wallet_ids.filtered(
+                                    lambda x: x.type == wallet_automation.wallet_type_id.name and
+                                              x.balance_amount < wallet_automation.wallet_balance and
+                                              x.active == wallet_status)
+                            elif operator == '>':
+                                wallets = rec.wallet_ids.filtered(
+                                    lambda x: x.type == wallet_automation.wallet_type_id.name and
+                                              x.balance_amount > wallet_automation.wallet_balance and
+                                              x.active == wallet_status)
+                            elif operator == '=':
+                                wallets = rec.wallet_ids.filtered(
+                                    lambda x: x.type == wallet_automation.wallet_type_id.name and
+                                              x.balance_amount == wallet_automation.wallet_balance and
+                                              x.active == wallet_status)
+
                             for wallet in wallets:
                                 if wallet_automation.action_taken == 'inactive_w':
                                     wallet.active = False
                                 if wallet_automation.action_taken == 'activate_w':
                                     wallet.active = True
-                        if wallet_automation.action_taken == 'activate_u':
+                        elif wallet_automation.action_taken == 'activate_u':
                             rec.user_ids.write({'active': True})
-                        if wallet_automation.action_taken == 'inactivate_c':
+                        elif wallet_automation.action_taken == 'inactivate_c':
                             rec.write({'active': False})
                 return
