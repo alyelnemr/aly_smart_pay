@@ -1,8 +1,8 @@
 <openerp>
     <data>
 
-        <record id="aly_wallet_automation_form_view" model="ir.ui.view">
-            <field name="name">aly.wallet.automation.form.view</field>
+        <record id="wallet_automation_form_view" model="ir.ui.view">
+            <field name="name">wallet.automation.form.view</field>
             <field name="model">wallet.automation</field>
             <field name="arch" type="xml">
                 <form string="Wallet Automation">
@@ -12,6 +12,7 @@
                                 <field name="name"/>
                                 <field name="wallet_type_id"/>
                                 <field name="tag_ids" widget="many2many_tags"/>
+                                <field name="active_record"/>
                                 <label for="wallet_balance"/>
                                 <div>
                                     <field name="condition_operator" class="oe_inline"/>
@@ -26,14 +27,15 @@
             </field>
         </record>
 
-        <record id="aly_wallet_automation_tree_view" model="ir.ui.view">
-            <field name="name">aly.wallet.automation.tree.view</field>
+        <record id="wallet_automation_tree_view" model="ir.ui.view">
+            <field name="name">wallet.automation.tree.view</field>
             <field name="model">wallet.automation</field>
             <field name="arch" type="xml">
                 <tree string="Wallet">
                     <field name="name"/>
                     <field name="wallet_type_id"/>
                     <field name="tag_ids" widget="many2many_tags"/>
+                    <field name="active_record"/>
                     <field name="condition_operator"/>
                     <field name="wallet_balance" />
                     <field name="wallet_status"/>
