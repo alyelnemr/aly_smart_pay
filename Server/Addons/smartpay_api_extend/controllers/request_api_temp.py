@@ -1042,14 +1042,16 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
                             # machine_serial = request.env.user.machine_serial
                             if machine_serial and len(machine_serial) > 16:
                                 machine_serial = machine_serial[len(machine_serial) - 16:len(machine_serial)]
-                            provider_response = provider.pay_khales_bill(lang, machine_serial or machine_request.name,
-                                                                         billingAcct, extraBillingAcctKeys, billerId,
-                                                                         ePayBillRecID,
-                                                                         payAmts, pmtId, pmtType, feesAmts,
-                                                                         billRefNumber, pmtMethod, pmtRefInfo,
-                                                                         provider_channel, machine_request.name,
-                                                                         biller_info_json_dict.get('SupportPmtReverse'),
-                                                                         biller_info_json_dict.get('AllowRetry'))
+                            provider_response = provider. \
+                                with_context(current_partner=request.env.user.partner_id). \
+                                pay_khales_bill(lang, machine_serial or machine_request.name,
+                                                billingAcct, extraBillingAcctKeys, billerId,
+                                                ePayBillRecID,
+                                                payAmts, pmtId, pmtType, feesAmts,
+                                                billRefNumber, pmtMethod, pmtRefInfo,
+                                                provider_channel, machine_request.name,
+                                                biller_info_json_dict.get('SupportPmtReverse'),
+                                                biller_info_json_dict.get('AllowRetry'))
                             if provider_response.get('Success'):
                                 if provider_response.get('Success').get('timeout'):
                                     machine_request.update(

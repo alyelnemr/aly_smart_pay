@@ -16,6 +16,8 @@ from odoo.addons.tm_base_gateway.common import (
     suds_to_json,
 )
 
+from .governorate_code import get_governorate_code
+
 _logger = logging.getLogger(__name__)
 
 token_lock = threading.Lock()
@@ -699,6 +701,13 @@ class AcquirerKhales(models.Model):
                         billNumber, pmtMethod, pmtRefInfo,
                         khales_channel, requestNumber=None,
                         isAllowCancel=True, isAllowRetry=False):
+        _logger.info("In Khales Pay ")
+        _logger.info("Context {}".format(self._context))
+        current_partner = self._context.get("current_partner", self.env['res.partner'])
+        current_partner = current_partner.sudo()
+        partner_state_code = current_partner and current_partner.state_id.code
+        governorate_code = get_governorate_code(partner_state_code)
+
         superself = self.sudo()
 
         if not khales_channel and superself.khales_channel_ids:
@@ -750,7 +759,7 @@ class AcquirerKhales(models.Model):
         result_bill = srm.pay_bill(languagePref, posSerialNumber, billingAcct, billerId, ePayBillRecID,
                                    payAmts, pmtId, pmtIdType, feesAmts,
                                    billNumber, pmtMethod, pmtRefInfo, additionInfo, requestNumber, isAllowCancel,
-                                   isAllowRetry)
+                                   isAllowRetry, governorate_code=governorate_code)
         if result_bill.get('pmtAdviceRsType'):  # result_bill.get('pmtInfoValType'):
             result['Success'] = result_bill['pmtAdviceRsType']  # result_bill['pmtInfoValType']
         # elif result_bill.get('error_code') == '0' or (result_bill.get('error_code') == '-1' and superself.environment == "test"):

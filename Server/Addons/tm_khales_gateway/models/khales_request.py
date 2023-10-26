@@ -146,6 +146,7 @@ class LogPlugin(MessagePlugin):
     def received(self, context):
         self.debug_logger(context.reply, 'khales_response')
 
+
 class CustomTransport(HttpTransport):
     def __init__(self, token):
         super().__init__()
@@ -155,6 +156,7 @@ class CustomTransport(HttpTransport):
         headers = {'Authorization': f'Bearer {self.token}'}
         request.headers.update(headers)
         return super().send(request)
+
 
 '''
 class FixRequestNamespacePlug(MessagePlugin):
@@ -296,8 +298,6 @@ class KHALESRequest():
                         plugins=[LogPlugin(self.debug_logger)]
                         )
 
-        
-
         # self._add_security_header(access_token, client)
 
         # self._add_security_header(client)
@@ -346,7 +346,8 @@ class KHALESRequest():
                       ePayBillRecID=None, payAmts=None,  # msgCode: RFINQRQ, RPADVRQ, CNLPMTRQ
                       pmtId=None, pmtIdType=None, feesAmts=None, billNumber=None, pmtMethod=None, pmtRefInfo=None,
                       # msgCode: RPADVRQ, CNLPMTRQ
-                      cancelReason=None  # msgCode: CNLPMTRQ
+                      cancelReason=None,  # msgCode: CNLPMTRQ
+                      governorate_code=28
                       ):
 
         '''
@@ -567,7 +568,7 @@ class KHALESRequest():
             if msgCode == "RPADVRQ":
                 xml_message += '''<SourceAddressDetails>'''
                 xml_message += '''<TerminalId>''' + str(posSerialNumber) + '''</TerminalId>'''
-                xml_message += '''<GovernorateCode>''' + '1' + '''</GovernorateCode>'''
+                xml_message += '''<GovernorateCode>''' + str(governorate_code) + '''</GovernorateCode>'''
                 xml_message += '''</SourceAddressDetails></PmtAdviceRq>'''
 
             if msgCode == "CNLPMTRQ":
@@ -774,7 +775,6 @@ class KHALESRequest():
         except Exception as e:
             _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
             return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
-
 
         '''
             client, msgCode, languagePref, namespace, # suppressEcho,
@@ -984,7 +984,7 @@ class KHALESRequest():
                  billingAcct, billerId, ePayBillRecID,
                  payAmts, pmtId, pmtIdType, feesAmts,
                  billNumber, pmtMethod, pmtRefInfo, additionInfo=None, requestNumber=None,
-                 isAllowCancel=True, isAllowRetry=True, TIMOUT_RETRY=0):
+                 isAllowCancel=True, isAllowRetry=True, governorate_code=28, TIMOUT_RETRY=0):
         try:
             client = self._set_client(self.wsdl)
         except Exception as e:
@@ -1004,11 +1004,19 @@ class KHALESRequest():
             cancelReason = None                                                                          # msgCode: CNLPMTRQ
         '''
         namespace = 'ns2'
-        EFBPS = self._buildRequest(client=client, msgCode="RPADVRQ", languagePref=languagePref, namespace=namespace,
-                                   posSerialNumber=posSerialNumber, billingAcct=billingAcct, additionInfo=additionInfo,
+        EFBPS = self._buildRequest(client=client, msgCode="RPADVRQ",
+                                   languagePref=languagePref,
+                                   namespace=namespace,
+                                   posSerialNumber=posSerialNumber,
+                                   billingAcct=billingAcct,
+                                   additionInfo=additionInfo,
                                    billerId=billerId,
-                                   ePayBillRecID=ePayBillRecID, payAmts=payAmts, pmtId=pmtId, pmtIdType=pmtIdType,
-                                   feesAmts=feesAmts, billNumber=billNumber, pmtMethod=pmtMethod, pmtRefInfo=pmtRefInfo)
+                                   ePayBillRecID=ePayBillRecID, payAmts=payAmts,
+                                   pmtId=pmtId, pmtIdType=pmtIdType,
+                                   feesAmts=feesAmts, billNumber=billNumber,
+                                   pmtMethod=pmtMethod,
+                                   pmtRefInfo=pmtRefInfo,
+                                   governorate_code=governorate_code)
         # _logger.info("EFBPS Request: " + str(EFBPS))
 
         retry = TIMOUT_RETRY
