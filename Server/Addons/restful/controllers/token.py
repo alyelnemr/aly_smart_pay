@@ -4,6 +4,7 @@ import json
 import werkzeug.wrappers
 from odoo import http, _
 from odoo.http import request
+from odoo.tools import config
 from odoo.addons.restful.common import invalid_response, valid_response
 
 _logger = logging.getLogger(__name__)
@@ -55,6 +56,7 @@ class AccessToken(http.Controller):
             # The request post body is empty the credetials maybe passed via the headers.
             headers = request.httprequest.headers
             db = headers.get('db')
+            db_name = config['db_name']
             username = headers.get('login')
             password = headers.get('password')
             machine_serial = headers.get('machine_serial')
@@ -64,10 +66,10 @@ class AccessToken(http.Controller):
                 return invalid_response('missing error', 'either of the following are missing [db, username,password]', 403)
         # Login in odoo database:
         try:
-            request.session.authenticate(db, username, password)
+            request.session.authenticate(db_name, username, password)
         except Exception as e:
             # Invalid database:
-            info = "The database name is not valid {}".format((e))
+            info = "The database name is not valid {}".format(e)
             error = 'invalid_database'
             _logger.error(info)
             return invalid_response('wrong database name', error, info)
