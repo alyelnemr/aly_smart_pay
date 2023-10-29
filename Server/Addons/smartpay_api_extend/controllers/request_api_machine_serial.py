@@ -40,7 +40,7 @@ class InheritRequestAPIMachineSerial(SmartAPIController.RequestApi):
     @validate_token
     @http.route('/api/cancelRequest', type="http", auth="none", methods=["PUT"], csrf=False)
     def cancelRequest(self, **request_data):
-        _logger.info(">>>>>>>>>>>>>>>>>>>> Calling Cancel Mobile Request API")
+        # _logger.info(">>>>>>>>>>>>>>>>>>>> Calling Cancel Mobile Request API")
         user_request = False
         request_number = request_data.get('request_number')
         access_token = request.httprequest.headers.get("access_token")
@@ -512,7 +512,7 @@ class InheritRequestAPIMachineSerial(SmartAPIController.RequestApi):
     @validate_machine
     @http.route('/api/rechargeMobileWallet', type="http", auth="none", methods=["POST"], csrf=False)
     def rechargeMobileWallet(self, **request_data):
-        _logger.info(">>>>>>>>>>>>>>>>>>>> Calling Recharge Mobile Wallet Request API")
+        #  _logger.info(">>>>>>>>>>>>>>>>>>>> Calling Recharge Mobile Wallet Request API")
         machine_serial = request.httprequest.headers.get("machine_serial")
         if not request_data.get('request_number'):
             if request_data.get('transfer_to') and request_data.get('trans_amount'):
@@ -564,7 +564,7 @@ class InheritRequestAPIMachineSerial(SmartAPIController.RequestApi):
                 res = requests.post('{}/api/create_mobile_request'.format(base_url), headers=headers, data=data)
                 content = json.loads(res.content.decode('utf-8'))
                 # res = self.create_mobile_request(**data)
-                _logger.info("@@@@@@@@@@@@@@@@@@@ Recharge Mobile Wallet Response: " + str(content))
+                # _logger.info("@@@@@@@@@@@@@@@@@@@ Recharge Mobile Wallet Response: " + str(content))
                 if content.get('data'):
                     request_number = content.get('data').get(
                         'request_number')  # json.loads(res.response[0].decode('utf-8')).get('request_number')
@@ -808,7 +808,7 @@ class InheritRequestAPIMachineSerial(SmartAPIController.RequestApi):
     @validate_token
     @http.route('/api/getServiceFees', type="http", auth="none", methods=["POST"], csrf=False)
     def getServiceFees(self, **request_data):
-        _logger.info(">>>>>>>>>>>>>>>>>>>> Calling Get Service Fees API")
+        # _logger.info(">>>>>>>>>>>>>>>>>>>> Calling Get Service Fees API")
         access_token = request.httprequest.headers.get("access_token")
         access_token_data = (
             request.env["api.access_token"]

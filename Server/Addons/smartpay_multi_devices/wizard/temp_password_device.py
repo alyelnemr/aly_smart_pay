@@ -15,7 +15,7 @@ class DeviceGenerateTempPasswordWizard(models.TransientModel):
                      self._context.get('active_ids') or []
         temp_password_length = int(self.env['ir.config_parameter'].sudo().
                                    get_param('base_smartpay_otp.temp_password_length')) or 4
-        _logger.info('Generate temp password length {}'.format(temp_password_length))
+        # _logger.info('Generate temp password length {}'.format(temp_password_length))
 
         devices = [
             (0, 0, {

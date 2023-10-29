@@ -19,7 +19,7 @@ def validate_machine(func):
         """ Update to new business logic,
             every user has a device with a machine serial and access token
         """
-        _logger.info('In extend validate machine serial')
+        # _logger.info('In extend validate machine serial')
         access_token = request.httprequest.headers.get("access_token")
         machine_serial = request.httprequest.headers.get("machine_serial")
         if not machine_serial:
