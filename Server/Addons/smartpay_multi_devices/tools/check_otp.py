@@ -16,7 +16,7 @@ def check_device_otp_enable(func):
     def inner(*args, **kwargs):
         """Fetch login and machine_serial to authorized device linked with active users
            and check otp enable on device"""
-        _logger.info('Checking otp enable on device')
+        # _logger.info('Checking otp enable on device')
         try:
             params_names = ['machine_serial', 'login']
             params = {key: kwargs.get(key) for key in params_names if kwargs.get(key)}
@@ -32,7 +32,7 @@ def check_device_otp_enable(func):
                 _credentials_includes_in_headers = all([username, machine_serial])
                 if not _credentials_includes_in_headers:
                     # Empty 'db' or 'username' or 'password:
-                    _logger.info('Missing credentials (login, machine_serial)')
+                    # _logger.info('Missing credentials (login, machine_serial)')
                     return invalid_response(
                         "missing error", "Missing login or machine_serial is not passed to api ", 403,
                     )
@@ -48,10 +48,10 @@ def check_device_otp_enable(func):
             ('machine_serial', '=', machine_serial),
         ])
         if device:
-            _logger.info('OTP is enabled')
+            # _logger.info('OTP is enabled')
             return func(*args, **kwargs)
         else:
-            _logger.info('OTP is not enabled on account with machine serial {}'.format(machine_serial))
+            # _logger.info('OTP is not enabled on account with machine serial {}'.format(machine_serial))
             return invalid_response("Access denied", "OTP is not enabled for this account", 451)
 
     return inner

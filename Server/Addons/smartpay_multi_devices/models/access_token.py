@@ -180,14 +180,14 @@ class OtherAccountSameLogin(models.Model):
                                              .get_param('base_smartpay_otp.temp_password_duration'))
         temp_password_period = self.env['ir.config_parameter'].sudo(). \
             get_param('base_smartpay_otp.temp_password_period')
-        _logger.info('Temp password expired duration {}, period {}'.format(temp_password_expired_duration,
-                                                                           temp_password_period))
+        # _logger.info('Temp password expired duration {}, period {}'.format(temp_password_expired_duration,
+        #                                                                    temp_password_period))
         temp_password_date_tz = convert_datetime_client_tz(self, self.temp_password_date)
         datetime_now_tz = convert_datetime_client_tz(self, datetime.now())
         temp_password_date_after_period = temp_password_date_tz + self._get_relativedelta(
             temp_password_expired_duration,
             temp_password_period, 2)
-        _logger.info('Temp password after add period {}'.format(temp_password_date_after_period))
+        # _logger.info('Temp password after add period {}'.format(temp_password_date_after_period))
         if self.temp_password_date and temp_password_date_after_period < datetime_now_tz:
             return True
         return False
@@ -213,7 +213,7 @@ class OtherAccountSameLogin(models.Model):
             generated_code_datetime_tz + \
             self._get_relativedelta(generated_code_expired_duration,
                                     generated_code_period, 30)
-        _logger.info('Generated code date tz {}'.format(generated_code_datetime_after_period))
+        # _logger.info('Generated code date tz {}'.format(generated_code_datetime_after_period))
         if self.generate_code_time and generated_code_datetime_after_period < datetime_now_tz:
             is_valid_code_expired = True
         if self.generate_code == valid_code and not is_valid_code_expired:
@@ -228,7 +228,7 @@ class OtherAccountSameLogin(models.Model):
         _logger.info('Checking if the number of calls valid code generated is not more than limit')
         generated_code_max_number = int(self.env['ir.config_parameter'].sudo().
                                         get_param('base_smartpay_otp.generated_code_max_number'))
-        _logger.info('Generate code max number {}'.format(generated_code_max_number))
+        # _logger.info('Generate code max number {}'.format(generated_code_max_number))
         if generated_code_max_number and \
                 self.number_of_generate_code >= generated_code_max_number:
             return True
@@ -250,7 +250,7 @@ class OtherAccountSameLogin(models.Model):
         otp_datetime_tz = convert_datetime_client_tz(self, self.otp_time)
         datetime_now_tz = convert_datetime_client_tz(self, datetime.now())
         otp_datetime_after_period = otp_datetime_tz + self._get_relativedelta(otp_expired_duration, otp_period, 2)
-        _logger.info('OTP datetime after period {}'.format(otp_datetime_after_period))
+        # _logger.info('OTP datetime after period {}'.format(otp_datetime_after_period))
         is_otp_code_expired = False
         if self.otp_time and otp_datetime_after_period < datetime_now_tz:
             is_otp_code_expired = True
@@ -266,7 +266,7 @@ class OtherAccountSameLogin(models.Model):
         _logger.info('Checking if the number of calls otp code generated is not more than limit')
         otp_max_number = int(self.env['ir.config_parameter'].sudo().
                              get_param('base_smartpay_otp.otp_max_number'))
-        _logger.info('OTP code max number {}'.format(otp_max_number))
+        # _logger.info('OTP code max number {}'.format(otp_max_number))
         if otp_max_number and self.number_of_generate_otp_code >= otp_max_number:
             return True
         return False
@@ -290,7 +290,7 @@ class OtherAccountSameLogin(models.Model):
         secrete_code_datetime_after_period = secret_code_datetime_tz + \
                                              self._get_relativedelta(secret_code_duration,
                                                                      secret_code_period, 5)
-        _logger.info('Secrete datetime after period {}'.format(secrete_code_datetime_after_period))
+        # _logger.info('Secrete datetime after period {}'.format(secrete_code_datetime_after_period))
         if self.secrete_code_time and secrete_code_datetime_after_period < datetime_now_tz:
             is_secrete_code_expired = True
         if self.secrete_code == secrete_code and not is_secrete_code_expired:
@@ -310,7 +310,7 @@ class OtherAccountSameLogin(models.Model):
         choices += f'{time_now:.0f}'
         generate_code_length = int(self.env['ir.config_parameter'].sudo().
                                    get_param('base_smartpay_otp.generated_code_length')) or 32
-        _logger.info('Generate code length {}'.format(generate_code_length))
+        # _logger.info('Generate code length {}'.format(generate_code_length))
         self.generate_code = generate_secrets_code(length=generate_code_length, choices=choices,
                                                    generate_type='valid_code')
         self.generate_code_time = date_now
@@ -327,11 +327,11 @@ class OtherAccountSameLogin(models.Model):
         _logger.info('Generate secrete code for user')
         secret_code_added = self.env['ir.config_parameter'].sudo(). \
                                 get_param('base_smartpay_otp.secret_code_added') or ''
-        _logger.info('secret_code_added {}'.format(secret_code_added))
+        # _logger.info('secret_code_added {}'.format(secret_code_added))
         choices = self.generate_code + self.otp_code + secret_code_added
         secret_code_length = int(self.env['ir.config_parameter'].sudo().
                                  get_param('base_smartpay_otp.secret_code_length')) or 16
-        _logger.info('secret code length {}'.format(secret_code_length))
+        # _logger.info('secret code length {}'.format(secret_code_length))
         self.write({
             'secrete_code': generate_secrets_code(length=secret_code_length, choices=choices,
                                                   generate_type='secrete_code'),
@@ -353,7 +353,7 @@ class OtherAccountSameLogin(models.Model):
         })
         otp_method = self.env['ir.config_parameter'].sudo(). \
             get_param('base_smartpay_otp.otp_method')
-        _logger.info('otp_method {}'.format(otp_method))
+        # _logger.info('otp_method {}'.format(otp_method))
         if otp_method == 'sms':
             self._send_otp_sms()
         elif otp_method == 'email':
@@ -368,7 +368,7 @@ class OtherAccountSameLogin(models.Model):
         _logger.info('Generate OTP Code')
         otp_length = int(self.env['ir.config_parameter'].sudo().
                          get_param('base_smartpay_otp.otp_length')) or 4
-        _logger.info('otp code length {}'.format(otp_length))
+        # _logger.info('otp code length {}'.format(otp_length))
         return generate_secrets_code(length=otp_length, generate_type='otp_code')
 
     def _send_otp_sms(self):
@@ -488,13 +488,13 @@ class OtherAccountSameLogin(models.Model):
             self.token, self.expires = self._generate_token(generate=True)
             return self.token
         if not (self.token and self.expires):
-            _logger.info("Token not found")
-            _logger.info("Generate new token")
+           # _logger.info("Token not found")
+           # _logger.info("Generate new token")
             self.token, self.expires = self._generate_token(generate=True)
             return self.token
         if self.has_expired():
-            _logger.info("Token expired")
-            _logger.info("Generate new token")
+           # _logger.info("Token expired")
+           # _logger.info("Generate new token")
             self.token, self.expires = self._generate_token(generate=True)
             return self.token
         return self.token

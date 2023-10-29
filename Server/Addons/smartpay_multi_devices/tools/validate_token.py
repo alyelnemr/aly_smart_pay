@@ -16,7 +16,7 @@ def validate_token(func):
     @functools.wraps(func)
     def wrap(self, *args, **kwargs):
         """Override the function to regenerate the access token on a device."""
-        _logger.info("In Extend validate token")
+        # _logger.info("In Extend validate token")
         access_token = request.httprequest.headers.get("access_token")
         # machine_serial = request.httprequest.headers.get("machine_serial")
         if not access_token:

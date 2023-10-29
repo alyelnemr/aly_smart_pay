@@ -32,19 +32,20 @@ class ResUsers(models.Model):
             with cls.pool.cursor() as cr:
                 self = api.Environment(cr, SUPERUSER_ID, {})[cls._name]
                 with self._assert_can_auth():
-                    _logger.info('Checking authentication for db:%s login:%s password:%s from %s', db, login, password, ip)
-                    _logger.info('self %s, has attr %s', self, hasattr(self, '_get_login_order'))
+                    _logger.info('Checking authentication for db:%s login:%s password:%s from %s', db, login, password,
+                                 ip)
+                    # _logger.info('self %s, has attr %s', self, hasattr(self, '_get_login_order'))
                     user = self.search(self._get_login_domain(login), order=self._get_login_order(), limit=1)
                     if not user:
                         raise AccessDenied()
                     user = user.sudo(user.id)
-                    _logger.info('Checking authentication for device or user')
-                    _logger.info('context {}'.format(request.context))
+                    # _logger.info('Checking authentication for device or user')
+                    # _logger.info('context {}'.format(request.context))
                     ctx = dict(request.context)
                     auth_type = ctx.get('auth_type')
                     machine_serial = ctx.get('machine_serial')
                     if auth_type == 'device' and machine_serial:
-                        _logger.info('Device Authentication')
+                        #  _logger.info('Device Authentication')
                         # check no devices.
                         if not user.token_ids:
                             raise AccessDenied()
@@ -92,7 +93,7 @@ class ResUsers(models.Model):
         @return param: Api.access_token object.
         """
         self.ensure_one()
-        return self.env['api.access_token'].\
+        return self.env['api.access_token']. \
             with_context(login_related_user=self.id).create({})
 
     def _migrate_info_to_devices(self):
