@@ -39,7 +39,7 @@ class InheritRequestAPI(SmartAPIController.RequestApi):
     @validate_token
     @http.route('/api/createMobileRequest', type="http", auth="none", methods=["POST"], csrf=False)
     def createMobileRequest(self, **request_data):
-        _logger.info(">>>>>>>>>>>>>>>>>>> Calling Mobile Request API")
+        # _logger.info(">>>>>>>>>>>>>>>>>>> Calling Mobile Request API")
 
         if not request_data.get('request_type') or request_data.get('request_type') not in _REQUEST_TYPES_IDS:
             return invalid_response("request_type", _("request type invalid"), 400)
@@ -1571,7 +1571,7 @@ class InheritRequestAPI(SmartAPIController.RequestApi):
     @validate_machine
     @http.route('/api/createMachineRequest', type="http", auth="none", methods=["POST"], csrf=False)
     def createMachineRequest(self, **request_data):
-        _logger.info(">>>>>>>>>>>>>>>>>>>> Calling Machine Request API")
+        # _logger.info(">>>>>>>>>>>>>>>>>>>> Calling Machine Request API")
         machine_serial = request.httprequest.headers.get("machine_serial")
 
         if not request_data.get('request_type') or request_data.get('request_type') not in _REQUEST_TYPES_IDS:
