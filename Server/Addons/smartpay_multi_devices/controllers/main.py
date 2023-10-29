@@ -28,7 +28,7 @@ class InheritAPIController(APIController):
     @validate_token
     @http.route(_routes, type="http", auth="none", methods=["GET"], csrf=False)
     def get(self, model=None, id=None, **payload):
-        _logger.info("On Extend Get request ")
+        # _logger.info("On Extend Get request ")
         ioc_name = model
         model = request.env[self._model].sudo().search([("model", "=", model)], limit=1)
         if model:
@@ -39,9 +39,9 @@ class InheritAPIController(APIController):
                 partner_fields = ast.literal_eval(payload.get("partner_fields", ""))
                 partner_sudo = request.env.user.sudo().partner_id
                 partner_data = partner_sudo.read(partner_fields)
-                _logger.info("Before partner_data: {}".format(partner_data))
+               # _logger.info("Before partner_data: {}".format(partner_data))
                 parse_many2x_fields(partner_sudo, partner_data, dict(partner_sudo._fields), partner_fields)
-                _logger.info("After partner_data: {}".format(partner_data))
+               # _logger.info("After partner_data: {}".format(partner_data))
 
             data = (
                 request.env[model.model]
@@ -68,9 +68,9 @@ class InheritAPIController(APIController):
                         order=order,
                     )
                 )
-                _logger.info("Before object data: {}".format(data))
+               # _logger.info("Before object data: {}".format(data))
                 parse_many2x_fields(object_sudo, data, dict(object_sudo._fields), fields)
-                _logger.info("After object data: {}".format(data))
+               # _logger.info("After object data: {}".format(data))
 
             if partner_data and data:
                 data = data + partner_data
@@ -106,7 +106,7 @@ class DeviceOtpLogin(OtpLogin):
         @param username: The username of the device
         """
         # check the max number of generated code
-        _logger.info('Checking if max number of generated code exceeds limit')
+        # _logger.info('Checking if max number of generated code exceeds limit')
         if device.device_valid_code_max_generated():
             _logger.info('Not allowed, You exceed the number of generated valid code')
             return invalid_response(
@@ -114,7 +114,7 @@ class DeviceOtpLogin(OtpLogin):
             )
 
         # check temp password expiration
-        _logger.info('Checking temp is not expired')
+        # _logger.info('Checking temp is not expired')
         if device.device_verify_temp_password():
             _logger.info('Access Denied temp-password is expired')
             return invalid_response(
@@ -225,7 +225,7 @@ class DeviceOtpLogin(OtpLogin):
                                         400)
         # Login in odoo database:
         try:
-            _logger.info('Calling Auth Token %s, %s, %s, %s', db, username, password, machine_serial)
+           # _logger.info('Calling Auth Token %s, %s, %s, %s', db, username, password, machine_serial)
 
             request.context = dict(request.context, auth_type=auth_type,
                                    machine_serial=machine_serial)
@@ -244,7 +244,7 @@ class DeviceOtpLogin(OtpLogin):
         if not uid:
             info = "authentication failed"
             error = 'authentication failed'
-            _logger.error(info)
+           # _logger.error(info)
             return invalid_response(info, error, 401)
         # check device is linked to current user
         user = request.env['res.users'].sudo().search([('id', '=', uid)], order='id DESC',
@@ -255,7 +255,7 @@ class DeviceOtpLogin(OtpLogin):
         if not (user and device):
             info = "authentication failed"
             error = 'authentication failed failed on device {}'.format(machine_serial)
-            _logger.info('error {}'.format(error))
+           # _logger.info('error {}'.format(error))
             return invalid_response(info, error, 403)
         if device and device.is_otp_active():
             return self.start_otp_device(device, password, username)
@@ -265,7 +265,7 @@ class DeviceOtpLogin(OtpLogin):
         else:
             info = "authentication failed"
             error = 'authentication failed not allowed to generate token'
-            _logger.error(info)
+           # _logger.error(info)
             return invalid_response(info, error, 401)
 
 
@@ -312,7 +312,7 @@ class DeviceOtpControllers(OTPController):
             post.get("login"),
             post.get("machine_serial")
         )
-        _logger.info('Calling send otp on device level')
+       # _logger.info('Calling send otp on device level')
         _credentials_includes_in_url = all([valid_code, username, machine_serial])
         if not _credentials_includes_in_url:
             # check credentials on headers
@@ -322,43 +322,43 @@ class DeviceOtpControllers(OTPController):
             machine_serial = headers.get('machine_serial') if headers.get('machine_serial') else ''
             _credentials_includes_in_headers = all([valid_code, username, machine_serial])
             if not _credentials_includes_in_headers:
-                _logger.info('Either of the following are missing'
-                             ' [validCode {}, login {}]'
-                             .format(valid_code, username, machine_serial))
+                # _logger.info('Either of the following are missing'
+                #              ' [validCode {}, login {}]'
+                #              .format(valid_code, username, machine_serial))
                 return invalid_response(
                     "missing error",
                     "either of the following are missing [validCode, login, machine_serial]",
                     403,
                 )
 
-        _logger.info('Checking login is authorized')
+        # _logger.info('Checking login is authorized')
         device = self._authenticate_device(username, machine_serial)
         if not device:
-            _logger.info('Access denied login is invalid, unauthorized device' \
-                         .format(username))
+            # _logger.info('Access denied login is invalid, unauthorized device' \
+            #              .format(username))
             return invalid_response("Access denied", "Unauthorized device, Login is invalid", 401)
 
         # check number of generated otp code
-        _logger.info('Checking number of generated otp')
+        # _logger.info('Checking number of generated otp')
         if device.device_otp_max_generated():
-            _logger.info('Not allowed, You exceed the number of generated otp code')
+            # _logger.info('Not allowed, You exceed the number of generated otp code')
             return invalid_response(
                 "Access Denied", "Not allowed, You exceed the number of generated otp code", 423,
             )
 
         # check temp password expiration
-        _logger.info('Checking temp password is not expired')
+        # _logger.info('Checking temp password is not expired')
         if device.device_verify_temp_password():
-            _logger.info('Access Denied temp-password is expired')
+            # _logger.info('Access Denied temp-password is expired')
             return invalid_response(
                 "Access Denied", "Temp-password is expired", 401,
             )
 
-        _logger.info('Checking valid code is authorized and not expired')
+        # _logger.info('Checking valid code is authorized and not expired')
         if device.device_verify_valid_code(valid_code):
             try:
                 device.device_send_otp()
-                _logger.info('Successful generated and send otp')
+                # _logger.info('Successful generated and send otp')
                 return werkzeug.wrappers.Response(
                     status=200,
                     content_type="application/json; charset=utf-8",
@@ -411,7 +411,7 @@ class DeviceOtpControllers(OTPController):
             post.get("otp"),
         )
 
-        _logger.info('Calling verify otp on user device level')
+       # _logger.info('Calling verify otp on user device level')
 
         _credentials_includes_in_url = all([valid_code, username, otp, machine_serial])
         # check credentials on headers
@@ -424,47 +424,47 @@ class DeviceOtpControllers(OTPController):
             otp = headers.get('otp') if headers.get('otp') else ''
             _credentials_includes_in_headers = all([valid_code, username, otp, machine_serial])
             if not _credentials_includes_in_headers:
-                _logger.info('Either of the following are missing [validCode {}, login {}, otp {}]' \
-                             .format(valid_code, username, otp))
+                # _logger.info('Either of the following are missing [validCode {}, login {}, otp {}]' \
+                #              .format(valid_code, username, otp))
                 return invalid_response(
                     "missing error", "either of the following are missing [validCode, login, otp]", 403,
                 )
 
-        _logger.info('Checking login is authorized')
+        # _logger.info('Checking login is authorized')
         device = self._authenticate_device(username, machine_serial)
         if not device:
-            _logger.info('Access denied login is invalid, unauthorized device' \
-                         .format(username))
+            # _logger.info('Access denied login is invalid, unauthorized device' \
+            #              .format(username))
             return invalid_response("Access denied", "Unauthorized device, Login is invalid", 401)
 
-        _logger.info('Checking temp password is not expired')
+       # _logger.info('Checking temp password is not expired')
         # check temp password expiration
         if device.device_verify_temp_password():
-            _logger.info('Access Denied temp-password is expired')
+           # _logger.info('Access Denied temp-password is expired')
             return invalid_response(
                 "Access Denied", "Temp-password is expired", 401,
             )
 
-        _logger.info('Checking valid_code is authorized and not expired')
+       # _logger.info('Checking valid_code is authorized and not expired')
         if not device.device_verify_valid_code(valid_code):
-            _logger.info('Access Denied, ValidCode is unauthorized, '
-                         'device with machine serial {}, validCode {}'
-                         .format(device.machine_serial, valid_code))
+            # _logger.info('Access Denied, ValidCode is unauthorized, '
+            #              'device with machine serial {}, validCode {}'
+            #              .format(device.machine_serial, valid_code))
             return invalid_response(
                 "Access Denied", "User is unauthorized, validCode is invalid", 402,
             )
 
-        _logger.info('Checking otp is authorized and not expired')
+        # _logger.info('Checking otp is authorized and not expired')
         if not device.device_verify_otp(otp):
-            _logger.info('Access Denied, OTP is unauthorized, '
-                         'device with machine_serial {}, otp {}'
-                         .format(device.machine_serial, otp))
+            # _logger.info('Access Denied, OTP is unauthorized, '
+            #              'device with machine_serial {}, otp {}'
+            #              .format(device.machine_serial, otp))
             return invalid_response(
                 "Access Denied", "Device is unauthorized, otp is invalid", 402,
             )
         try:
             secrete_code = device.device_generate_secrete_code()
-            _logger.info('Successful generated secrete code')
+            # _logger.info('Successful generated secrete code')
             return werkzeug.wrappers.Response(
                 status=200,
                 content_type="application/json; charset=utf-8",
@@ -516,7 +516,7 @@ class DeviceOtpControllers(OTPController):
             post.get("machine_serial"),
         )
 
-        _logger.info('Calling rest password on device level')
+        # _logger.info('Calling rest password on device level')
         _credentials_includes_in_url = all([valid_code, username, secrete_code, new_password, machine_serial])
         # check credentials on headers
         if not _credentials_includes_in_url:
@@ -528,56 +528,56 @@ class DeviceOtpControllers(OTPController):
             machine_serial = headers.get('machine_serial') if headers.get('machine_serial') else ''
             _credentials_includes_in_headers = all([valid_code, username, secrete_code, new_password, machine_serial])
             if not _credentials_includes_in_headers:
-                _logger.info('Either of the following are missing [validCode {}, login {},'
-                             'secrete_code {}, new_password {} ]' \
-                             .format(valid_code, username, secrete_code, new_password))
+                # _logger.info('Either of the following are missing [validCode {}, login {},'
+                #              'secrete_code {}, new_password {} ]' \
+                #              .format(valid_code, username, secrete_code, new_password))
                 return invalid_response(
                     "missing error",
                     "Either of the following are missing [validCode, login, secrete_code,new_password]", 403,
                 )
 
-        _logger.info('Checking login is authorized')
+        # _logger.info('Checking login is authorized')
         device = self._authenticate_device(username, machine_serial)
         if not device:
-            _logger.info('Access denied login is invalid, unauthorized device'
-                         .format(username))
+            # _logger.info('Access denied login is invalid, unauthorized device'
+            #              .format(username))
             return invalid_response("Access denied", "Unauthorized device, Login is invalid", 401)
 
-        _logger.info('Checking temp password is not expired')
+       # _logger.info('Checking temp password is not expired')
         # check temp password expiration
         if device.device_verify_temp_password():
-            _logger.info('Access Denied temp-password is expired')
+            # _logger.info('Access Denied temp-password is expired')
             return invalid_response(
                 "Access Denied", "Temp-password is expired", 401,
             )
 
-        _logger.info('Checking valid_code is authorized and not expired')
+        # _logger.info('Checking valid_code is authorized and not expired')
         if not device.device_verify_valid_code(valid_code):
-            _logger.info('Access Denied, ValidCode is unauthorized,'
-                         ' device with machine serial {}, validCode {}'
-                         .format(machine_serial, valid_code))
+            # _logger.info('Access Denied, ValidCode is unauthorized,'
+            #              ' device with machine serial {}, validCode {}'
+            #              .format(machine_serial, valid_code))
             return invalid_response(
                 "Access Denied", "User is unauthorized, validCode is invalid", 402,
             )
 
-        _logger.info('Checking secrete_code is authorized and not expired')
+        # _logger.info('Checking secrete_code is authorized and not expired')
         if not device.device_verify_secrete_code(secrete_code):
-            _logger.info('Access Denied, secreteCode is unauthorized,'
-                         ' device with machine serial {}, secrete_code {}'
-                         .format(machine_serial, secrete_code))
+            # _logger.info('Access Denied, secreteCode is unauthorized,'
+            #              ' device with machine serial {}, secrete_code {}'
+            #              .format(machine_serial, secrete_code))
             return invalid_response(
                 "Access Denied", "User is unauthorized, secreteCode is invalid", 402,
             )
 
         try:
-            _logger.info('Set new password')
+            # _logger.info('Set new password')
             if not device.otp_set_new_password(new_password):
                 return invalid_response(
                     "Invalid newPassword", "Invalid newPassword, newPassword must be 4 to 6 digit ", 406,
                 )
-            _logger.info('Create a new access token for device {}'.format(machine_serial))
+           # _logger.info('Create a new access token for device {}'.format(machine_serial))
             access_token = device.find_one_or_generate_token(generate=True)
-            _logger.info('Successful generated token')
+           # _logger.info('Successful generated token')
             return werkzeug.wrappers.Response(
                 status=200,
                 content_type="application/json; charset=utf-8",

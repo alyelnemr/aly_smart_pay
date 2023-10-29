@@ -22,9 +22,9 @@ _logger = logging.getLogger(__name__)
 
 token_lock = threading.Lock()
 
-logging.basicConfig(level=logging.INFO)
-logging.getLogger('suds.client').setLevel(logging.DEBUG)
-logging.getLogger('suds.transport').setLevel(logging.DEBUG)
+# logging.basicConfig(level=logging.INFO)
+# logging.getLogger('suds.client').setLevel(logging.DEBUG)
+# logging.getLogger('suds.transport').setLevel(logging.DEBUG)
 
 
 class AcquirerKhalesChannel(models.Model):
@@ -76,14 +76,14 @@ class AcquirerKhalesChannel(models.Model):
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         urllib3.disable_warnings()
-        _logger.info('---->> Payload {}'.format(payload))
+        # _logger.info('---->> Payload {}'.format(payload))
         timeout = 3
         message = ''
         while timeout > 0:
             try:
                 response = requests.post(url, headers=headers, data=payload, verify=False, timeout=5)
                 token = response.json()
-                _logger.info("Successfully generation access token {}".format(token))
+                # _logger.info("Successfully generation access token {}".format(token))
                 return token
             except Exception as e:
                 message = 'Exception while generating access token: {}'.format(str(e))
@@ -143,7 +143,7 @@ class AcquirerKhales(models.Model):
             """
         with token_lock:
             _logger.info("->>>>>> Run generate access token cron job")
-            _logger.info("->>>>>> Context {}".format(self._context))
+            # _logger.info("->>>>>> Context {}".format(self._context))
             provider_channel = self._context.get('default_provider_channel') or self._default_provider_channel()
             provider_channel = provider_channel.filtered(lambda x:
                                                          x.khales_client_id and
@@ -155,12 +155,12 @@ class AcquirerKhales(models.Model):
             access_token = provider_channel.acquirer_id.khales_access_token
             if not self._context.get('from_cron_job', False):
                 _logger.info('->>>> Calling from request')
-                _logger.info('->>>> Checking if token is valid')
+                # _logger.info('->>>> Checking if token is valid')
                 if provider_channel.acquirer_id.is_khales_token_valid():
                     return access_token
-            else:
-                _logger.info('Calling from cron job')
-                _logger.info('->>>> Not checking if token is valid')
+            # else:
+            #     _logger.info('Calling from cron job')
+            #     _logger.info('->>>> Not checking if token is valid')
 
             if not provider_channel:
                 _logger.info("Not found provider channel")
@@ -276,8 +276,8 @@ class AcquirerKhales(models.Model):
             if serviceGroupTypes:
                 fetch_success = True
                 for serviceGroupType in serviceGroupTypes:
-                    _logger.info(
-                        " ====================================== Biller Fetch Data Begin " + serviceGroupType.Code + ": " + languagePref + " =========================================")
+                    # _logger.info(
+                    #     " ====================================== Biller Fetch Data Begin " + serviceGroupType.Code + ": " + languagePref + " =========================================")
                     serviceGroupCode = serviceGroupType.Code
                     serviceGroupName = serviceGroupType.Name
 
@@ -572,8 +572,8 @@ class AcquirerKhales(models.Model):
                                             subBillerEnName = subBiller.En_Name
                                     '''
 
-                    _logger.info(
-                        " ====================================== Biller Fetch Data End " + serviceGroupType.Code + ": " + languagePref + " =========================================")
+                    # _logger.info(
+                    #     " ====================================== Biller Fetch Data End " + serviceGroupType.Code + ": " + languagePref + " =========================================")
 
         if not fetch_success:
             _logger.exception("Failed processing khales biller inquiry")
@@ -701,8 +701,8 @@ class AcquirerKhales(models.Model):
                         billNumber, pmtMethod, pmtRefInfo,
                         khales_channel, requestNumber=None,
                         isAllowCancel=True, isAllowRetry=False):
-        _logger.info("In Khales Pay ")
-        _logger.info("Context {}".format(self._context))
+        # _logger.info("In Khales Pay ")
+        # _logger.info("Context {}".format(self._context))
         current_partner = self._context.get("current_partner", self.env['res.partner'])
         current_partner = current_partner.sudo()
         partner_state_code = current_partner and current_partner.state_id.code
