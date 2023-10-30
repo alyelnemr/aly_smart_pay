@@ -83,7 +83,7 @@ class AcquirerKhalesChannel(models.Model):
             try:
                 response = requests.post(url, headers=headers, data=payload, verify=False, timeout=5)
                 token = response.json()
-                # _logger.info("Successfully generation access token {}".format(token))
+                _logger.info("Successfully generation access token {}".format(token))
                 return token
             except Exception as e:
                 message = 'Exception while generating access token: {}'.format(str(e))
@@ -143,7 +143,7 @@ class AcquirerKhales(models.Model):
             """
         with token_lock:
             _logger.info("->>>>>> Run generate access token cron job")
-            # _logger.info("->>>>>> Context {}".format(self._context))
+            _logger.info("->>>>>> Context {}".format(self._context))
             provider_channel = self._context.get('default_provider_channel') or self._default_provider_channel()
             provider_channel = provider_channel.filtered(lambda x:
                                                          x.khales_client_id and
@@ -152,35 +152,39 @@ class AcquirerKhales(models.Model):
                                                          x.khales_url_access_token)
             provider_channel = provider_channel and provider_channel[0]
 
-            access_token = provider_channel.acquirer_id.khales_access_token
-            if not self._context.get('from_cron_job', False):
-                _logger.info('->>>> Calling from request')
-                # _logger.info('->>>> Checking if token is valid')
-                if provider_channel.acquirer_id.is_khales_token_valid():
-                    return access_token
+            # access_token = provider_channel.acquirer_id.khales_access_token
+            # if not self._context.get('from_cron_job', False):
+            #     _logger.info('->>>> Calling from request')
+            #     # _logger.info('->>>> Checking if token is valid')
+            #     if provider_channel.acquirer_id.is_khales_token_valid():
+            #         return access_token
             # else:
             #     _logger.info('Calling from cron job')
             #     _logger.info('->>>> Not checking if token is valid')
 
             if not provider_channel:
                 _logger.info("Not found provider channel")
-                return False
+                return ""
             token_data = provider_channel._generate_access_token()
             if not token_data:
                 _logger.info("Failed to generate access token")
-                return False
+                return ""
             """
             {'access_token': 'T1amGT21.Idup.e068be3f3e6deb40fe37e13a9972446b',
              'token_type': 'Bearer', 'expires_in': 59}
             """
-            provider_channel.acquirer_id.write({
-                'khales_access_token': token_data.get('access_token', False),
-                'expiry_period': token_data.get('expires_in', False),
-                'date_time_expire': datetime.now() +
-                                    timedelta(seconds=int(token_data.get('expires_in', 0))),
-            })
-            self.env.cr.commit()
-            return provider_channel.acquirer_id.khales_access_token
+            try:
+                provider_channel.acquirer_id.write({
+                    'khales_access_token': token_data.get('access_token', False),
+                    'expiry_period': token_data.get('expires_in', False),
+                    'date_time_expire': datetime.now() +
+                                        timedelta(seconds=int(token_data.get('expires_in', 0))),
+                })
+                self.env.cr.commit()
+            except Exception as e:
+                _logger.error("Failed to write access token {}".format(str(e)))
+                return token_data.get('access_token', "")
+            return token_data.get('access_token', "")
 
     def log_xml(self, xml_string, func):
         self.ensure_one()
