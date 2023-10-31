@@ -286,8 +286,12 @@ class KHALESRequest():
         # _logger.info("endurl           >>>>>>>>>>>>>>>>>>>>> " + self.endurl)
         if not self.khales_channel.acquirer_id.is_khales_token_valid():
             self.env.ref('tm_khales_gateway.generate_access_token_khales_cron') \
-                .with_context(default_provider_channel=self.khales_channel) \
+                .with_context(default_provider_channel=self.khales_channel,
+                              call_from_request=True) \
                 .method_direct_trigger()
+        _logger.info("Context from khales channel {}".format(self.khales_channel._context))
+        _logger.info("Already token on khales channel {}".format(self.khales_channel.acquirer_id.khales_access_token))
+
         access_token = self.khales_channel.acquirer_id.khales_access_token
 
         _logger.info("access_token  {}".format(access_token))
