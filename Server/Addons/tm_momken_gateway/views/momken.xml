@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_payment_acquirer_form_with_provider_masary" model="ir.ui.view">
+        <field name="name">payment.acquirer.form.provider.masary</field>
+        <field name="model">payment.acquirer</field>
+        <field name="inherit_id" ref="payment.acquirer_form"/>
+        <field name="arch" type="xml">
+            <xpath expr='//group[@name="acquirer"]' position='after'>
+                <group name="channel" attrs="{'invisible': [('provider', '!=', 'masary')]}">
+                   <field name="masary_channel_ids" nolabel="1">
+                        <tree string="Channels" editable="bottom">
+                            <field name="name"/>
+                            <field name="type"/>
+                            <field name="masary_login"/>
+                            <field name="masary_password"/>
+                            <field name="masary_terminalId"/>
+                            <field name="masary_service_version"/>
+                            <!--<field name="masary_acctCur"/>-->
+                        </tree>
+                        <form string="Channels">
+                            <group>
+                                <field name="name"/>
+                                <field name="type"/>
+                                <field name="sequence"/>
+                                <field name="masary_login"/>
+                                <field name="masary_password"/>
+                                <field name="masary_terminalId"/>
+                                <field name="masary_service_version"/>
+                                <!--<field name="masary_acctCur"/>-->
+                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            </group>
+                        </form>
+                    </field>
+                </group>
+                <group name="endpoint" attrs="{'invisible': [('provider', '!=', 'masary')]}">
+                    <field name="masary_test_url" groups='base.group_no_one'/>
+                    <field name="masary_prod_url" groups='base.group_no_one'/>
+                    <field name="masary_version" groups='base.group_no_one'/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.cron" id="auto_fetch_masary_biller_details">
+        <field name="name">Auto Fetch Masary Biller Details</field>
+        <field name="model_id" ref="model_payment_acquirer"/>
+        <field name="state">code</field>
+        <field name="code">model.auto_fetch_masary_biller_details()</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+</odoo>
