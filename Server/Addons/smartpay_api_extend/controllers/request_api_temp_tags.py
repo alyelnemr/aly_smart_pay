@@ -40,7 +40,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
 
     @validate_token
     @http.route('/api/get_sevice_categories', type="http", auth="none", methods=["POST"], csrf=False)
-    def get_sevice_categories(self, **payload):
+    def get_service_categories(self, **payload):
         _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevice Category API")
         domain, fields, offset, limit, order = extract_arguments(payload)
         domain += [("parent_id", "=", request.env.ref("tm_base_gateway.product_category_services").id),
@@ -120,7 +120,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
 
     @validate_token
     @http.route('/api/get_sevice_billers', type="http", auth="none", methods=["POST"], csrf=False)
-    def get_sevice_billers(self, **payload):
+    def get_service_billers(self, **payload):
         _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevice Biller API")
         domain, fields, offset, limit, order = extract_arguments(payload)
         domain += [("product_count", "!=", 0)]
@@ -202,7 +202,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
 
     @validate_token
     @http.route('/api/get_sevices', type="http", auth="none", methods=["POST"], csrf=False)
-    def get_sevices(self, **payload):
+    def get_services(self, **payload):
         _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevices API")
         domain, fields, offset, limit, order = extract_arguments(payload)
         # if not any(item[0] == 'tag_ids' for item in domain):
@@ -314,7 +314,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
 
     @validate_token
     @http.route('/api/get_all_sevices', type="http", auth="none", methods=["POST"], csrf=False)
-    def get_all_sevices(self, **payload):
+    def get_all_services(self, **payload):
         _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get All Sevices API")
         domain, fields, offset, limit, order = extract_arguments(payload)
         domain += [("parent_id", "=", request.env.ref("tm_base_gateway.product_category_services").id),

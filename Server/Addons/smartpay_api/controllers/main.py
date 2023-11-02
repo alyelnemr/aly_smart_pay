@@ -1016,6 +1016,14 @@ class APIController(http.Controller):
                                     trans_amount += float(billData.get('amount'))
                                 # elif billData.get('min_amount'):
                                     # trans_amount += float(billData.get('min_amount'))
+                        elif provider.provider == "momken":
+                            provider_response = provider.get_momken_bill_details(lang, int(provider_info.product_code),
+                                                                                extraBillingAcctKeys, provider_channel, machine_request.name)
+                            if provider_response.get('Success'):
+                                billData = provider_response.get('Success')
+                                provider_response_json = billData
+                                if billData.get('amount'):
+                                    trans_amount += float(billData.get('amount'))
 
                         if provider_response.get('Success'):
                             commissions = request.env['product.supplierinfo.commission'].sudo().search_read(
@@ -2422,6 +2430,14 @@ class APIController(http.Controller):
                                     trans_amount += float(billData.get('amount'))
                                 # elif billData.get('min_amount'):
                                     # trans_amount += float(billData.get('min_amount'))
+                        elif provider.provider == "momken":
+                            provider_response = provider.get_momken_bill_details(lang, int(provider_info.product_code),
+                                                                                extraBillingAcctKeys, provider_channel, user_request.name)
+                            if provider_response.get('Success'):
+                                billData = provider_response.get('Success')
+                                provider_response_json = billData
+                                if billData.get('amount'):
+                                    trans_amount += float(billData.get('amount'))
 
                         if provider_response.get('Success'):
                             # if not provider_response_json:
@@ -5104,7 +5120,7 @@ class APIController(http.Controller):
         ###############################################
         @validate_token
         @http.route('/api/get_sevice_categories', type="http", auth="none", methods=["POST"], csrf=False)
-        def get_sevice_categories(self, **payload):
+        def get_service_categories(self, **payload):
             _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevice Category API")
             domain, fields, offset, limit, order = extract_arguments(payload)
             domain += [("parent_id", "=", request.env.ref("tm_base_gateway.product_category_services").id), ("product_count", "!=", 0)]
@@ -5173,7 +5189,7 @@ class APIController(http.Controller):
 
         @validate_token
         @http.route('/api/get_sevice_billers', type="http", auth="none", methods=["POST"], csrf=False)
-        def get_sevice_billers(self, **payload):
+        def get_service_billers(self, **payload):
             _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevice Biller API")
             domain, fields, offset, limit, order = extract_arguments(payload)
             domain += [("product_count", "!=", 0)]
@@ -5244,7 +5260,7 @@ class APIController(http.Controller):
 
         @validate_token
         @http.route('/api/get_sevices', type="http", auth="none", methods=["POST"], csrf=False)
-        def get_sevices(self, **payload):
+        def get_services(self, **payload):
             _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevices API")
             domain, fields, offset, limit, order = extract_arguments(payload)
             # if not any(item[0] == 'tag_ids' for item in domain):
@@ -5341,7 +5357,7 @@ class APIController(http.Controller):
 
         @validate_token
         @http.route('/api/get_all_sevices', type="http", auth="none", methods=["POST"], csrf=False)
-        def get_all_sevices(self, **payload):
+        def get_all_services(self, **payload):
             _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get All Sevices API")
             domain, fields, offset, limit, order = extract_arguments(payload)
             domain += [("parent_id", "=", request.env.ref("tm_base_gateway.product_category_services").id),
@@ -6063,6 +6079,14 @@ class APIController(http.Controller):
                                     trans_amount += float(billData.get('amount'))
                                 # elif billData.get('min_amount'):
                                     # trans_amount += float(billData.get('min_amount'))
+                        elif provider.provider == "momken":
+                            provider_response = provider.get_momken_bill_details(lang, int(provider_info.product_code),
+                                                                                extraBillingAcctKeys, provider_channel, machine_request.name)
+                            if provider_response.get('Success'):
+                                billData = provider_response.get('Success')
+                                provider_response_json = billData
+                                if billData.get('amount'):
+                                    trans_amount += float(billData.get('amount'))
 
                         if provider_response.get('Success'):
                             commissions = request.env['product.supplierinfo.commission'].sudo().search_read(
@@ -7476,8 +7500,14 @@ class APIController(http.Controller):
                                 provider_response_json = billData
                                 if billData.get('amount'):
                                     trans_amount += float(billData.get('amount'))
-                                # elif billData.get('min_amount'):
-                                    # trans_amount += float(billData.get('min_amount'))
+                        elif provider.provider == "momken":
+                            provider_response = provider.get_momken_bill_details(lang, int(provider_info.product_code),
+                                                                                extraBillingAcctKeys, provider_channel, user_request.name)
+                            if provider_response.get('Success'):
+                                billData = provider_response.get('Success')
+                                provider_response_json = billData
+                                if billData.get('amount'):
+                                    trans_amount += float(billData.get('amount'))
 
                         if provider_response.get('Success'):
                             # if not provider_response_json:

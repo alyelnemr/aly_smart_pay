@@ -616,6 +616,15 @@ class InheritRequestAPI(SmartAPIController.RequestApi):
                                 trans_amount += float(billData.get('amount'))
                             # elif billData.get('min_amount'):
                             # trans_amount += float(billData.get('min_amount'))
+                    elif provider.provider == "momken":
+                        provider_response = provider.get_momken_bill_details(lang, int(provider_info.product_code),
+                                                                             extraBillingAcctKeys, provider_channel,
+                                                                             user_request.name)
+                        if provider_response.get('Success'):
+                            billData = provider_response.get('Success')
+                            provider_response_json = billData
+                            if billData.get('amount'):
+                                trans_amount += float(billData.get('amount'))
 
                     if provider_response.get('Success'):
                         # if not provider_response_json:
@@ -2193,6 +2202,15 @@ class InheritRequestAPI(SmartAPIController.RequestApi):
                                 trans_amount += float(billData.get('amount'))
                             # elif billData.get('min_amount'):
                             # trans_amount += float(billData.get('min_amount'))
+                    elif provider.provider == "momken":
+                        provider_response = provider.get_momken_bill_details(lang, int(provider_info.product_code),
+                                                                             extraBillingAcctKeys, provider_channel,
+                                                                             machine_request.name)
+                        if provider_response.get('Success'):
+                            billData = provider_response.get('Success')
+                            provider_response_json = billData
+                            if billData.get('amount'):
+                                trans_amount += float(billData.get('amount'))
 
                     if provider_response.get('Success'):
                         commissions = request.env['product.supplierinfo.commission'].sudo().search_read(

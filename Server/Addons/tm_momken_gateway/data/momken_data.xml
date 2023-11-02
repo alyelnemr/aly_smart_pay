@@ -2,37 +2,37 @@
 <odoo>
     <data noupdate="1">
 
-        <record id="res_partner_masary" model="res.partner">
-            <field name="name">Masary</field>
+        <record id="res_partner_momken" model="res.partner">
+            <field name="name">momken</field>
             <field eval="[(6, 0, [ref('tm_base_gateway.res_partner_category_service_providers')])]" name="category_id"/>
             <field name="supplier">1</field>
             <field eval="0" name="customer"/>
             <field name="is_company">1</field>
-            <field name="street">Building no.1140, Area H, Diplomatic District, Moqattam</field>
+            <field name="street">Cairo</field>
             <field name="city">Cairo</field>
             <field name="country_id" ref="base.eg"/>
-            <field name="email">contact@e-masary.com</field>
+            <field name="email">contact@momken.org</field>
             <field name="phone">(0020) 16994</field>
-            <field name="website">https://e-masary.com</field>
-            <field name="image" type="base64" file="tm_masary_gateway/static/src/img/masary_icon.png"/>
+            <field name="website">https://test.momken.org</field>
+            <field name="image" type="base64" file="tm_momken_gateway/static/src/img/momken_icon.png"/>
         </record>
 
-        <record id="payment_acquirer_masary" model="payment.acquirer">
-            <field name="name">Masary</field>
-            <field name="image" type="base64" file="tm_masary_gateway/static/src/img/masary_icon.png"/>
-            <field name="provider">masary</field>
+        <record id="payment_acquirer_momken" model="payment.acquirer">
+            <field name="name">Momken</field>
+            <field name="image" type="base64" file="tm_momken_gateway/static/src/img/momken_icon.png"/>
+            <field name="provider">momken</field>
             <field name="sevice_provider">True</field>
-            <field name="related_partner" ref="tm_masary_gateway.res_partner_masary"/>
+            <field name="related_partner" ref="tm_momken_gateway.res_partner_momken"/>
             <field name="company_id" ref="base.main_company"/>
-            <!--<field name="view_template_id" ref="tm_masary_gateway.masary_form"/>--> <!-- payment.default_acquirer_button-->
+            <!--<field name="view_template_id" ref="tm_momken_gateway.momken_form"/>--> <!-- payment.default_acquirer_button-->
             <field name="environment">test</field>
             <field name="pre_msg"><![CDATA[<p></p>]]></field>
 
             <field name="sequence">3</field>
-            <field name="module_id" ref="base.module_tm_masary_gateway"/>
+            <field name="module_id" ref="base.module_tm_momken_gateway"/>
             <field name="description" type="html">
                 <p>
-                    A payment gateway from Masary to accept online payments via wallet.
+                    A payment gateway from momken to accept online payments via wallet.
                 </p>
                 <ul class="list-inline">
                     <li class="list-inline-item"><i class="fa fa-check"/>Online Payment</li>
@@ -40,37 +40,37 @@
             </field>
         </record>
 
-        <record id="payment_acquirer_masary_machine" model="payment.acquirer.channel">
+        <record id="payment_acquirer_momken_machine" model="payment.acquirer.channel">
             <field name="name">Point of Sale</field>
             <field name="type">internet</field>
-            <field name="acquirer_id" ref="tm_masary_gateway.payment_acquirer_masary"/>
+            <field name="acquirer_id" ref="tm_momken_gateway.payment_acquirer_momken"/>
             <field name="company_id" ref="base.main_company"/>
             <field name="sequence">0</field>
-            <field name="module_id" ref="base.module_tm_masary_gateway"/>
-            <field name="masary_login">****</field>
-            <field name="masary_password">****</field>
-            <field name="masary_terminalId">****</field>
-            <field name="masary_service_version">0</field>
-            <!-- masary_acctCur -->
+            <field name="module_id" ref="base.module_tm_momken_gateway"/>
+            <field name="momken_login">****</field>
+            <field name="momken_password">****</field>
+            <field name="momken_terminalId">****</field>
+            <field name="momken_service_version">0</field>
+            <!-- momken_acctCur -->
         </record>
 
-        <record id="masary_wallet_account" model="account.account">
-            <field name="code">MS100001</field>
-            <field name="name">Masary Wallet</field>
+        <record id="momken_wallet_account" model="account.account">
+            <field name="code">MK100001</field>
+            <field name="name">Momken Wallet</field>
             <field name="user_type_id" ref="account.data_account_type_liquidity"/>
             <field name="company_id" ref="base.main_company"/>
         </record>
 
-        <record id="masary_wallet_journal" model="account.journal">
-            <field name="name">Masary Wallet</field>
-            <field name="code">MSYW</field>
+        <record id="momken_wallet_journal" model="account.journal">
+            <field name="name">Momken Wallet</field>
+            <field name="code">MKYW</field>
             <field name="type">cash</field>
-            <field name="provider_id" ref="payment_acquirer_masary"/>
+            <field name="provider_id" ref="payment_acquirer_momken"/>
             <field name="company_id" ref="base.main_company"/>
             <!--<field name="profit_account_id" ref="rsa" />-->
             <!--<field name="loss_account_id" ref="rsa" />-->
-            <field name="default_debit_account_id" ref="masary_wallet_account"/>
-            <field name="default_credit_account_id" ref="masary_wallet_account"/>
+            <field name="default_debit_account_id" ref="momken_wallet_account"/>
+            <field name="default_credit_account_id" ref="momken_wallet_account"/>
         </record>
 
     </data>
