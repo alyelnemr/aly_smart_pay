@@ -22,9 +22,9 @@ _logger = logging.getLogger(__name__)
 
 token_lock = threading.Lock()
 
-logging.basicConfig(level=logging.INFO)
-logging.getLogger('suds.client').setLevel(logging.DEBUG)
-logging.getLogger('suds.transport').setLevel(logging.DEBUG)
+# logging.basicConfig(level=logging.INFO)
+# logging.getLogger('suds.client').setLevel(logging.DEBUG)
+# logging.getLogger('suds.transport').setLevel(logging.DEBUG)
 
 
 class AcquirerKhalesChannel(models.Model):
@@ -76,7 +76,7 @@ class AcquirerKhalesChannel(models.Model):
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         urllib3.disable_warnings()
-        _logger.info('---->> Payload {}'.format(payload))
+        # _logger.info('---->> Payload {}'.format(payload))
         timeout = 3
         message = ''
         while timeout > 0:
@@ -141,46 +141,61 @@ class AcquirerKhales(models.Model):
            Lock the access token generation process to avoid concurrency issues
            pass default_provider_channel or get _default_provider_channel
             """
-        with token_lock:
-            _logger.info("->>>>>> Run generate access token cron job")
-            _logger.info("->>>>>> Context {}".format(self._context))
-            provider_channel = self._context.get('default_provider_channel') or self._default_provider_channel()
-            provider_channel = provider_channel.filtered(lambda x:
-                                                         x.khales_client_id and
-                                                         x.khales_client_secret and
-                                                         x.khales_client_grant_type and
-                                                         x.khales_url_access_token)
-            provider_channel = provider_channel and provider_channel[0]
+        # with token_lock:
+        _logger.info("->>>>>> Run generate access token cron job")
+        _logger.info("->>>>>> Context {}".format(self._context))
+        provider_channel = self._context.get('default_provider_channel') or self._default_provider_channel()
+        provider_channel = provider_channel.filtered(lambda x:
+                                                     x.khales_client_id and
+                                                     x.khales_client_secret and
+                                                     x.khales_client_grant_type and
+                                                     x.khales_url_access_token)
+        provider_channel = provider_channel and provider_channel[0]
 
-            access_token = provider_channel.acquirer_id.khales_access_token
-            if not self._context.get('from_cron_job', False):
-                _logger.info('->>>> Calling from request')
-                _logger.info('->>>> Checking if token is valid')
-                if provider_channel.acquirer_id.is_khales_token_valid():
-                    return access_token
-            else:
-                _logger.info('Calling from cron job')
-                _logger.info('->>>> Not checking if token is valid')
+        # access_token = provider_channel.acquirer_id.khales_access_token
+        # if not self._context.get('from_cron_job', False):
+        #     _logger.info('->>>> Calling from request')
+        #     # _logger.info('->>>> Checking if token is valid')
+        #     if provider_channel.acquirer_id.is_khales_token_valid():
+        #         return access_token
+        # else:
+        #     _logger.info('Calling from cron job')
+        #     _logger.info('->>>> Not checking if token is valid')
 
-            if not provider_channel:
-                _logger.info("Not found provider channel")
-                return False
-            token_data = provider_channel._generate_access_token()
-            if not token_data:
-                _logger.info("Failed to generate access token")
-                return False
-            """
-            {'access_token': 'T1amGT21.Idup.e068be3f3e6deb40fe37e13a9972446b',
-             'token_type': 'Bearer', 'expires_in': 59}
-            """
-            provider_channel.acquirer_id.write({
-                'khales_access_token': token_data.get('access_token', False),
-                'expiry_period': token_data.get('expires_in', False),
-                'date_time_expire': datetime.now() +
-                                    timedelta(seconds=int(token_data.get('expires_in', 0))),
-            })
-            self.env.cr.commit()
-            return provider_channel.acquirer_id.khales_access_token
+        if not provider_channel:
+            _logger.info("Not found provider channel")
+            return ""
+        token_data = provider_channel._generate_access_token()
+        if not token_data:
+            _logger.info("Failed to generate access token")
+            return ""
+        """
+        {'access_token': 'T1amGT21.Idup.e068be3f3e6deb40fe37e13a9972446b',
+         'token_type': 'Bearer', 'expires_in': 59}
+        """
+        try:
+            with self.env.cr.savepoint():
+                self.env.cr.execute("SELECT id FROM payment_acquirer WHERE id = %s FOR UPDATE NOWAIT",
+                                     (provider_channel.acquirer_id.id,))
+                locked_provider_channel = self.env.cr.fetchone()
+                if not locked_provider_channel:
+                    _logger.info("Already request fetch token by another process/thread."
+                                 " get token, User {}".format(self.env.user.name))
+
+                    provider_channel = provider_channel.with_context(new_khales_token=token_data.get('access_token', ""))
+                    return
+                provider_channel.acquirer_id.write({
+                    'khales_access_token': token_data.get('access_token', False),
+                    'expiry_period': token_data.get('expires_in', False),
+                    'date_time_expire': datetime.now() +
+                                        timedelta(seconds=int(token_data.get('expires_in', 0))),
+                })
+            # self.env.cr.commit()
+        except Exception as e:
+            _logger.error("Failed to write access token {}".format(str(e)))
+            provider_channel = provider_channel.with_context(new_khales_token=token_data.get('access_token', ""))
+            return
+        return
 
     def log_xml(self, xml_string, func):
         self.ensure_one()
@@ -276,8 +291,8 @@ class AcquirerKhales(models.Model):
             if serviceGroupTypes:
                 fetch_success = True
                 for serviceGroupType in serviceGroupTypes:
-                    _logger.info(
-                        " ====================================== Biller Fetch Data Begin " + serviceGroupType.Code + ": " + languagePref + " =========================================")
+                    # _logger.info(
+                    #     " ====================================== Biller Fetch Data Begin " + serviceGroupType.Code + ": " + languagePref + " =========================================")
                     serviceGroupCode = serviceGroupType.Code
                     serviceGroupName = serviceGroupType.Name
 
@@ -572,8 +587,8 @@ class AcquirerKhales(models.Model):
                                             subBillerEnName = subBiller.En_Name
                                     '''
 
-                    _logger.info(
-                        " ====================================== Biller Fetch Data End " + serviceGroupType.Code + ": " + languagePref + " =========================================")
+                    # _logger.info(
+                    #     " ====================================== Biller Fetch Data End " + serviceGroupType.Code + ": " + languagePref + " =========================================")
 
         if not fetch_success:
             _logger.exception("Failed processing khales biller inquiry")
@@ -701,8 +716,8 @@ class AcquirerKhales(models.Model):
                         billNumber, pmtMethod, pmtRefInfo,
                         khales_channel, requestNumber=None,
                         isAllowCancel=True, isAllowRetry=False):
-        _logger.info("In Khales Pay ")
-        _logger.info("Context {}".format(self._context))
+        # _logger.info("In Khales Pay ")
+        # _logger.info("Context {}".format(self._context))
         current_partner = self._context.get("current_partner", self.env['res.partner'])
         current_partner = current_partner.sudo()
         partner_state_code = current_partner and current_partner.state_id.code

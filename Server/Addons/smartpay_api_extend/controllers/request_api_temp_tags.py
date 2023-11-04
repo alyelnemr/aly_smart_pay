@@ -41,7 +41,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
     @validate_token
     @http.route('/api/get_sevice_categories', type="http", auth="none", methods=["POST"], csrf=False)
     def get_sevice_categories(self, **payload):
-        _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevice Category API")
+        # _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevice Category API")
         domain, fields, offset, limit, order = extract_arguments(payload)
         domain += [("parent_id", "=", request.env.ref("tm_base_gateway.product_category_services").id),
                    ("product_count", "!=", 0)]
@@ -57,7 +57,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
             ("token", "=", access_token),
             ("user_id", "=", request.env.user.id),
         ], limit=1).filtered(lambda d: d.user_id.active)
-        _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
+        # _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
         # user = request.env['res.users'].sudo().search([('id', '=', request.env.user.id)], limit=1)
         if device.allowed_product_tag_ids:
             domain += [('tag_ids', 'in', device.allowed_product_tag_ids.ids)]
@@ -121,7 +121,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
     @validate_token
     @http.route('/api/get_sevice_billers', type="http", auth="none", methods=["POST"], csrf=False)
     def get_sevice_billers(self, **payload):
-        _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevice Biller API")
+        # _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevice Biller API")
         domain, fields, offset, limit, order = extract_arguments(payload)
         domain += [("product_count", "!=", 0)]
         # if not any(item[0] == 'tag_ids' for item in domain):
@@ -137,7 +137,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
             ("token", "=", access_token),
             ("user_id", "=", request.env.user.id),
         ], limit=1).filtered(lambda d: d.user_id.active)
-        _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
+        # _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
 
         if device.allowed_product_tag_ids:
             domain += [('tag_ids', 'in', device.allowed_product_tag_ids.ids)]
@@ -203,7 +203,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
     @validate_token
     @http.route('/api/get_sevices', type="http", auth="none", methods=["POST"], csrf=False)
     def get_sevices(self, **payload):
-        _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevices API")
+        # _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Sevices API")
         domain, fields, offset, limit, order = extract_arguments(payload)
         # if not any(item[0] == 'tag_ids' for item in domain):
         for item in domain:
@@ -218,7 +218,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
             ("token", "=", access_token),
             ("user_id", "=", request.env.user.id),
         ], limit=1).filtered(lambda d: d.user_id.active)
-        _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
+        # _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
 
         if device.allowed_product_tag_ids:
             domain += [('tag_ids', 'in', device.allowed_product_tag_ids.ids)]
@@ -315,7 +315,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
     @validate_token
     @http.route('/api/get_all_sevices', type="http", auth="none", methods=["POST"], csrf=False)
     def get_all_sevices(self, **payload):
-        _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get All Sevices API")
+        # _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get All Sevices API")
         domain, fields, offset, limit, order = extract_arguments(payload)
         domain += [("parent_id", "=", request.env.ref("tm_base_gateway.product_category_services").id),
                    ("product_count", "!=", 0)]
@@ -332,7 +332,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
             ("token", "=", access_token),
             ("user_id", "=", request.env.user.id),
         ], limit=1).filtered(lambda d: d.user_id.active)
-        _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
+        # _logger.info("Get Device related to user, device {}, machine_serial {}".format(device, device.machine_serial))
 
         if device.allowed_product_tag_ids:
             domain += [('tag_ids', 'in', device.allowed_product_tag_ids.ids)]
@@ -365,7 +365,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
                     category.update({"name": ir_translation_id.value})
 
             # Get billers
-            _logger.info("@@@@@@@@@@@@@@@@@@@ Get Billers")
+            # _logger.info("@@@@@@@@@@@@@@@@@@@ Get Billers")
             domain, fields, offset, limit, order = extract_arguments(payload)
             domain += [("parent_id.id", "=", service_category.id), ("product_count", "!=", 0)]
 
@@ -393,7 +393,7 @@ class RequestApiTempTags(SmartAPIController.RequestApiTemp):
                         biller.update({"name": ir_translation_id.value})
 
                 # Get Services
-                _logger.info("@@@@@@@@@@@@@@@@@@@ Get Sevices")
+                # _logger.info("@@@@@@@@@@@@@@@@@@@ Get Sevices")
                 domain, fields, offset, limit, order = extract_arguments(payload)
                 domain += [("type", "=", "service"), ("categ_id.id", "=", service_biller.id)]
 

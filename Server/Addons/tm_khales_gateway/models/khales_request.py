@@ -284,12 +284,25 @@ class KHALESRequest():
         # _logger.info("wsdl_path        >>>>>>>>>>>>>>>>>>>>> " + wsdl_path)
         # _logger.info("wsdl_path.lstrip >>>>>>>>>>>>>>>>>>>>> " + 'file:///%s' % wsdl_path.lstrip('/'))
         # _logger.info("endurl           >>>>>>>>>>>>>>>>>>>>> " + self.endurl)
-        access_token = self.khales_channel.acquirer_id. \
-            with_context(default_provider_channel=self.khales_channel).khales_generate_access_token()
-        if access_token is False:
-            _logger.info('Cannot acquire access token, service not available')
-            raise Exception('Cannot acquire access token, service not available')
-        _logger.info("Set access_token in security_header")
+        if not self.khales_channel.acquirer_id.is_khales_token_valid():
+            self.env.ref('tm_khales_gateway.generate_access_token_khales_cron') \
+                .with_context(default_provider_channel=self.khales_channel,
+                              call_from_request=True) \
+                .method_direct_trigger()
+        _logger.info("Context from khales channel {}".format(self.khales_channel._context))
+        _logger.info("Already token on khales channel {}".format(self.khales_channel.acquirer_id.khales_access_token))
+
+        access_token = self.khales_channel.acquirer_id.khales_access_token
+
+        _logger.info("access_token  {}".format(access_token))
+        if not access_token:
+            message = 'Cannot acquire access token, service not available'
+            # _logger.error(message)
+            raise Exception(message)
+            # return self.get_error_message('-2', message)
+            # _logger.info('Cannot acquire access token, service not available')
+            # raise Exception('Cannot acquire access token, service not available')
+        # _logger.info("Set access_token in security_header")
 
         client = Client('file:///%s' % wsdl_path.lstrip('/'),
                         timeout=KHALES_TIMOUT,
@@ -1067,7 +1080,12 @@ class KHALESRequest():
                     retry += 1
                 if retry < KHALES_TIMOUT_RETRY:
                     _logger.info("Timeout Retry Payment: %s - %s" % (retry, ePayBillRecID))
-                    client = self._set_client(self.wsdl)
+                    try:
+                        client = self._set_client(self.wsdl)
+                    except Exception as e:
+                        _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+                        return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
+
                     namespace = 'ns2'
                     EFBPS = self._buildRequest(client=client, msgCode="RPADVRQ", languagePref=languagePref,
                                                namespace=namespace, posSerialNumber=posSerialNumber,
@@ -1093,7 +1111,12 @@ class KHALESRequest():
                     retry += 1
                 if retry < KHALES_TIMOUT_RETRY:
                     _logger.info("IOError Retry Payment: %s - %s" % (retry, ePayBillRecID))
-                    client = self._set_client(self.wsdl)
+                    try:
+                        client = self._set_client(self.wsdl)
+                    except Exception as e:
+                        _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+                        return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
+
                     namespace = 'ns2'
                     EFBPS = self._buildRequest(client=client, msgCode="RPADVRQ", languagePref=languagePref,
                                                namespace=namespace, posSerialNumber=posSerialNumber,
@@ -1123,7 +1146,12 @@ class KHALESRequest():
                     retry += 1
                 if retry < KHALES_TIMOUT_RETRY:
                     _logger.info("Exception Retry Payment: %s - %s" % (retry, ePayBillRecID))
-                    client = self._set_client(self.wsdl)
+                    try:
+                        client = self._set_client(self.wsdl)
+                    except Exception as e:
+                        _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+                        return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
+
                     namespace = 'ns2'
                     EFBPS = self._buildRequest(client=client, msgCode="RPADVRQ", languagePref=languagePref,
                                                namespace=namespace, posSerialNumber=posSerialNumber,
@@ -1326,7 +1354,12 @@ class KHALESRequest():
                 retry += 1
                 if retry < KHALES_TIMOUT_RETRY:
                     _logger.info("Timeout Retry Cancel Payment: %s - %s" % (retry, ePayBillRecID))
-                    client = self._set_client(self.wsdl)
+                    try:
+                        client = self._set_client(self.wsdl)
+                    except Exception as e:
+                        _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+                        return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
+
                     namespace = 'ns2'
                     EFBPS = self._buildRequest(client=client, msgCode="CNLPMTRQ", languagePref=languagePref,
                                                namespace=namespace, posSerialNumber=posSerialNumber,
@@ -1341,7 +1374,12 @@ class KHALESRequest():
                 retry += 1
                 if retry < KHALES_TIMOUT_RETRY:
                     _logger.info("IOError Retry Cancel Payment: %s - %s" % (retry, ePayBillRecID))
-                    client = self._set_client(self.wsdl)
+                    try:
+                        client = self._set_client(self.wsdl)
+                    except Exception as e:
+                        _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+                        return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
+
                     namespace = 'ns2'
                     EFBPS = self._buildRequest(client=client, msgCode="CNLPMTRQ", languagePref=languagePref,
                                                namespace=namespace, posSerialNumber=posSerialNumber,
@@ -1360,7 +1398,12 @@ class KHALESRequest():
                 retry += 1
                 if retry < KHALES_TIMOUT_RETRY:
                     _logger.info("Exception Retry Cancel Payment: %s - %s" % (retry, ePayBillRecID))
-                    client = self._set_client(self.wsdl)
+                    try:
+                        client = self._set_client(self.wsdl)
+                    except Exception as e:
+                        _logger.error("KH [get_biller_details] Exception ERROR: " + str(e))
+                        return self.get_error_message('-2', 'KH Exception Found:\n%s' % e)
+
                     namespace = 'ns2'
                     EFBPS = self._buildRequest(client=client, msgCode="CNLPMTRQ", languagePref=languagePref,
                                                namespace=namespace, posSerialNumber=posSerialNumber,

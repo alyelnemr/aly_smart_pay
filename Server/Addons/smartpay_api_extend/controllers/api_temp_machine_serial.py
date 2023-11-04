@@ -41,7 +41,7 @@ class RequestApiTempMachineSerial(SmartAPIController.RequestApiTemp):
     @validate_token
     @http.route('/api/create_mobile_request', type="http", auth="none", methods=["POST"], csrf=False)
     def create_mobile_request(self, **request_data):
-        _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Mobile Request API")
+        # _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Mobile Request API")
         access_token = request.httprequest.headers.get("access_token")
         access_token_data = (
             request.env["api.access_token"]
@@ -1572,7 +1572,7 @@ class RequestApiTempMachineSerial(SmartAPIController.RequestApiTemp):
     @validate_token
     @http.route('/api/cancel_request', type="http", auth="none", methods=["PUT"], csrf=False)
     def cancel_request(self, **request_data):
-        _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Cancel Mobile Request API")
+        # _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Cancel Mobile Request API")
         user_request = False
         access_token = request.httprequest.headers.get("access_token")
         access_token_data = (

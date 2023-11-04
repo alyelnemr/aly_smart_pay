@@ -129,7 +129,7 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
     @http.route('/api/create_machine_request', type="http", auth="none", methods=["POST"], csrf=False)
     def create_machine_request(self, **request_data):
         """Override this method to change call decorated method."""
-        _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Machine Request API")
+        # _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Machine Request API")
         machine_serial = request.httprequest.headers.get("machine_serial")
         request_data['machine_serial'] = request.httprequest.headers.get("machine_serial")
 
@@ -534,10 +534,10 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
                 request.env.cr.commit()
                 machine_request = model_record.env[model_name].sudo().browse(id_record)
                 try:
-                    _logger.info("Parse data to request")
-                    _logger.info("Request Data {}".format(request_data))
+                    # _logger.info("Parse data to request")
+                    # _logger.info("Request Data {}".format(request_data))
                     request_fields = parse_request_data_to_fields(request_data, request)
-                    _logger.info('Request Fields {}'.format(request_fields))
+                    # _logger.info('Request Fields {}'.format(request_fields))
                     if request_fields and machine_request:
                         machine_request.write(request_fields)
                     request.env.cr.commit()
@@ -1711,7 +1711,7 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
     @http.route('/api/recharge_mobile_wallet', type="http", auth="none", methods=["POST"], csrf=False)
     def recharge_mobile_wallet(self, **request_data):
         """Override this method to change call decorated method."""
-        _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Recharge Mobile Wallet Request API")
+        # _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Recharge Mobile Wallet Request API")
         machine_serial = request.httprequest.headers.get("machine_serial")
         if not request_data.get('request_number'):
             if request_data.get('transfer_to') and request_data.get('trans_amount'):
@@ -1764,7 +1764,7 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
                 res = requests.post('{}/api/create_mobile_request'.format(base_url), headers=headers, data=data)
                 content = json.loads(res.content.decode('utf-8'))
                 # res = self.create_mobile_request(**data)
-                _logger.info("@@@@@@@@@@@@@@@@@@@ Recharge Mobile Wallet Response: " + str(content))
+                # _logger.info("@@@@@@@@@@@@@@@@@@@ Recharge Mobile Wallet Response: " + str(content))
                 if content.get('data'):
                     request_number = content.get('data').get(
                         'request_number')  # json.loads(res.response[0].decode('utf-8')).get('request_number')
@@ -2011,7 +2011,7 @@ class InheritRequestApiTemp(SmartAPIController.RequestApiTemp):
     @validate_token
     @http.route('/api/get_service_fees', type="http", auth="none", methods=["POST"], csrf=False)
     def get_service_fees(self, **request_data):
-        _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Service Fees API")
+        # _logger.info("@@@@@@@@@@@@@@@@@@@ Calling Get Service Fees API")
         access_token = request.httprequest.headers.get("access_token")
         access_token_data = (
             request.env["api.access_token"]
