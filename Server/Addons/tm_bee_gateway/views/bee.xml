@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_payment_acquirer_form_with_provider_momken" model="ir.ui.view">
+        <field name="name">payment.acquirer.form.provider.momken</field>
+        <field name="model">payment.acquirer</field>
+        <field name="inherit_id" ref="payment.acquirer_form"/>
+        <field name="arch" type="xml">
+            <xpath expr='//group[@name="acquirer"]' position='after'>
+                <group name="channel" attrs="{'invisible': [('provider', '!=', 'momken')]}">
+                   <field name="momken_channel_ids" nolabel="1">
+                        <tree string="Channels" editable="bottom">
+                            <field name="name"/>
+                            <field name="type"/>
+                            <field name="momken_login"/>
+                            <field name="momken_password"/>
+                            <field name="momken_terminalId"/>
+                            <field name="momken_account_number"/>
+                            <field name="momken_service_version"/>
+                            <!--<field name="momken_acctCur"/>-->
+                        </tree>
+                        <form string="Channels">
+                            <group>
+                                <field name="name"/>
+                                <field name="type"/>
+                                <field name="sequence"/>
+                                <field name="momken_login"/>
+                                <field name="momken_password"/>
+                                <field name="momken_terminalId"/>
+                                <field name="momken_account_number"/>
+                                <field name="momken_service_version"/>
+                                <!--<field name="momken_acctCur"/>-->
+                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            </group>
+                        </form>
+                    </field>
+                </group>
+                <group name="endpoint" attrs="{'invisible': [('provider', '!=', 'momken')]}">
+                    <field name="momken_test_url" groups='base.group_no_one'/>
+                    <field name="momken_prod_url" groups='base.group_no_one'/>
+                    <field name="momken_version" groups='base.group_no_one'/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.cron" id="auto_fetch_momken_biller_details">
+        <field name="name">Auto Fetch momken Biller Details</field>
+        <field name="model_id" ref="model_payment_acquirer"/>
+        <field name="state">code</field>
+        <field name="code">model.auto_fetch_momken_biller_details()</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+</odoo>
